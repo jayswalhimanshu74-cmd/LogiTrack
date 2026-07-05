@@ -37,11 +37,27 @@ public class AuthService {
             throw new IllegalArgumentException("Email already registered: " + request.getEmail());
         }
 
+        String rawPassword = request.getEffectivePassword();
+        if (rawPassword == null || rawPassword.isBlank()) {
+            throw new IllegalArgumentException("Password is required");
+        }
+
         User user = new User();
         user.setFullName(request.getFullName());
         user.setEmail(request.getEmail());
-        user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        user.setRole(Role.STAFF); // default role; promote to ADMIN manually in DB if needed
+        user.setPasswordHash(passwordEncoder.encode(rawPassword));
+        user.setPhone(request.getPhone());
+        
+        if (request.getRole() != null) {
+            try {
+                user.setRole(Role.valueOf(request.getRole().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                user.setRole(Role.STAFF);
+            }
+        } else {
+            user.setRole(Role.STAFF);
+        }
+        
         user.setActive(true);
 
         userRepository.save(user);
