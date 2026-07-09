@@ -23,6 +23,7 @@ public class ProductResponse {
     private BigDecimal sellingPrice;
     private Integer quantityInStock;
     private Integer reorderLevel;
+    private String status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

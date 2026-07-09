@@ -47,4 +47,16 @@ public class ProductRequest {
     @NotNull(message = "Reorder level is required")
     @Min(value = 0, message = "Reorder level cannot be negative")
     private Integer reorderLevel;
+
+    @jakarta.validation.constraints.AssertTrue(message = "Purchase price must be greater than zero")
+    public boolean isPurchasePriceGreaterThanZero() {
+        if (purchasePrice == null) return true;
+        return purchasePrice.compareTo(BigDecimal.ZERO) > 0;
+    }
+
+    @jakarta.validation.constraints.AssertTrue(message = "Selling price must be greater than purchase price")
+    public boolean isSellingPriceGreaterThanPurchasePrice() {
+        if (sellingPrice == null || purchasePrice == null) return true;
+        return sellingPrice.compareTo(purchasePrice) > 0;
+    }
 }

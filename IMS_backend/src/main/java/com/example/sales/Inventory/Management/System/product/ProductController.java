@@ -15,6 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import java.util.List;
 
 @RestController
@@ -31,8 +35,32 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductResponse>> getAllProducts() {
-        List<ProductResponse> response = productService.getAllProducts();
+    public ResponseEntity<Page<ProductResponse>> getProducts(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String status,
+            Pageable pageable) {
+        Page<ProductResponse> response = productService.getFilteredProducts(search, category, status, pageable);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<ProductResponse>> searchProducts(
+            @RequestParam String query,
+            Pageable pageable) {
+        Page<ProductResponse> response = productService.getFilteredProducts(query, null, null, pageable);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/low-stock")
+    public ResponseEntity<Page<ProductResponse>> getLowStockProducts(Pageable pageable) {
+        Page<ProductResponse> response = productService.getLowStockProducts(pageable);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/categories")
+    public ResponseEntity<List<String>> getCategories() {
+        List<String> response = productService.getDistinctCategories();
         return ResponseEntity.ok(response);
     }
 

@@ -5,6 +5,8 @@ import com.example.sales.Inventory.Management.System.exception.ResourceNotFoundE
 import com.example.sales.Inventory.Management.System.product.dto.ProductRequest;
 import com.example.sales.Inventory.Management.System.product.dto.ProductResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,6 +68,23 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
+    public Page<ProductResponse> getFilteredProducts(String search, String category, String status, Pageable pageable) {
+        return productRepository.findProductsFiltered(search, category, status, pageable)
+                .map(this::mapEntityToResponse);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ProductResponse> getLowStockProducts(Pageable pageable) {
+        return productRepository.findLowStockProducts(pageable)
+                .map(this::mapEntityToResponse);
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> getDistinctCategories() {
+        return productRepository.findDistinctCategories();
+    }
+
     private void mapRequestToEntity(ProductRequest request, Product product) {
         product.setSku(request.getSku());
         product.setName(request.getName());
@@ -88,6 +107,17 @@ public class ProductService {
         response.setSellingPrice(product.getSellingPrice());
         response.setQuantityInStock(product.getQuantityInStock());
         response.setReorderLevel(product.getReorderLevel());
+        
+        int qty = product.getQuantityInStock() != null ? product.getQuantityInStock() : 0;
+        int reorder = product.getReorderLevel() != null ? product.getReorderLevel() : 0;
+        if (qty <= 0) {
+            response.setStatus("OUT_OF_STOCK");
+        } else if (qty <= reorder) {
+            response.setStatus("LOW_STOCK");
+        } else {
+            response.setStatus("IN_STOCK");
+        }
+
         response.setCreatedAt(product.getCreatedAt());
         response.setUpdatedAt(product.getUpdatedAt());
         return response;
