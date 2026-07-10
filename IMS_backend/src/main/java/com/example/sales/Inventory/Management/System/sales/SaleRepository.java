@@ -7,6 +7,11 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
+import java.time.LocalDate;
+
 @Repository
 public interface SaleRepository extends JpaRepository<Sale, Long> {
 
@@ -14,6 +19,49 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
 
     Optional<Sale> findBySaleNo(String saleNo);
 
-    @Query("SELECT COALESCE(SUM(s.totalAmount), 0) FROM Sale s")
+    @Query("SELECT COALESCE(SUM(s.totalAmount), 0) FROM Sale s WHERE s.status <> 'CANCELLED'")
     BigDecimal sumTotalSales();
+
+    @Query("SELECT s FROM Sale s WHERE " +
+           "(:search IS NULL OR :search = '' " +
+           "OR LOWER(s.saleNo) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "OR LOWER(s.customerName) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "OR LOWER(s.customerEmail) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "OR LOWER(s.customerPhone) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+           "AND (:status IS NULL OR :status = '' OR s.status = :status) " +
+           "AND (:paymentStatus IS NULL OR :paymentStatus = '' OR s.paymentStatus = :paymentStatus) " +
+           "AND (CAST(:startDate AS date) IS NULL OR s.saleDate >= :startDate) " +
+           "AND (CAST(:endDate AS date) IS NULL OR s.saleDate <= :endDate)")
+    Page<Sale> findSalesFiltered(
+            @Param("search") String search,
+            @Param("status") String status,
+            @Param("paymentStatus") String paymentStatus,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            Pageable pageable
+    );
+
+    @Query("SELECT COUNT(s) FROM Sale s")
+    long countAllSales();
+
+    @Query("SELECT COUNT(s) FROM Sale s WHERE s.status = 'PENDING'")
+    long countPendingSales();
+
+    @Query("SELECT COUNT(s) FROM Sale s WHERE s.status = 'COMPLETED'")
+    long countCompletedSales();
+
+    @Query("SELECT COUNT(s) FROM Sale s WHERE s.status = 'CANCELLED'")
+    long countCancelledSales();
+
+    @Query("SELECT COUNT(s) FROM Sale s WHERE s.saleDate = :today")
+    long countTodaySales(@Param("today") LocalDate today);
+
+    @Query("SELECT COALESCE(SUM(s.totalAmount), 0) FROM Sale s WHERE s.saleDate = :today AND s.status <> 'CANCELLED'")
+    BigDecimal sumTodayRevenue(@Param("today") LocalDate today);
+
+    @Query("SELECT COUNT(s) FROM Sale s WHERE s.saleDate >= :startOfMonth AND s.saleDate <= :endOfMonth")
+    long countMonthlySales(@Param("startOfMonth") LocalDate startOfMonth, @Param("endOfMonth") LocalDate endOfMonth);
+
+    @Query("SELECT COALESCE(SUM(s.totalAmount), 0) FROM Sale s WHERE s.saleDate >= :startOfMonth AND s.saleDate <= :endOfMonth AND s.status <> 'CANCELLED'")
+    BigDecimal sumMonthlyRevenue(@Param("startOfMonth") LocalDate startOfMonth, @Param("endOfMonth") LocalDate endOfMonth);
 }

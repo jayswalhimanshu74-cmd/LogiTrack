@@ -13,6 +13,8 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.util.List;
 
+import jakarta.validation.constraints.Email;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -26,6 +28,26 @@ public class SaleRequest {
     @NotBlank(message = "Customer name is required")
     @Size(max = 150, message = "Customer name must not exceed 150 characters")
     private String customerName;
+
+    @NotBlank(message = "Customer phone number is required")
+    @Size(max = 20, message = "Customer phone must not exceed 20 characters")
+    private String customerPhone;
+
+    @Email(message = "Invalid email format")
+    @Size(max = 100, message = "Customer email must not exceed 100 characters")
+    private String customerEmail;
+
+    @NotBlank(message = "Order status is required")
+    private String status; // PENDING, CONFIRMED, COMPLETED, CANCELLED
+
+    @NotBlank(message = "Payment status is required")
+    private String paymentStatus; // PENDING, PAID, REFUNDED
+
+    @NotBlank(message = "Payment method is required")
+    private String paymentMethod; // CASH, UPI, CARD, BANK_TRANSFER
+
+    @Size(max = 1000, message = "Notes must not exceed 1000 characters")
+    private String notes;
 
     @NotNull(message = "Sale date is required")
     private LocalDate saleDate;

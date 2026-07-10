@@ -30,6 +30,24 @@ public class Sale extends AuditableEntity {
     @Column(name = "customer_name", nullable = false, length = 150)
     private String customerName;
 
+    @Column(name = "customer_phone", nullable = false, length = 20)
+    private String customerPhone;
+
+    @Column(name = "customer_email", length = 100)
+    private String customerEmail;
+
+    @Column(name = "status", nullable = false, length = 20)
+    private String status = "PENDING"; // PENDING, CONFIRMED, COMPLETED, CANCELLED
+
+    @Column(name = "payment_status", nullable = false, length = 20)
+    private String paymentStatus = "PENDING"; // PENDING, PAID, REFUNDED
+
+    @Column(name = "payment_method", nullable = false, length = 20)
+    private String paymentMethod = "CASH"; // CASH, UPI, CARD, BANK_TRANSFER
+
+    @Column(name = "notes", length = 1000)
+    private String notes;
+
     @Column(name = "sale_date", nullable = false)
     private LocalDate saleDate = LocalDate.now();
 

@@ -19,6 +19,12 @@ public class SaleResponse {
     private Long id;
     private String saleNo;
     private String customerName;
+    private String customerPhone;
+    private String customerEmail;
+    private String status;
+    private String paymentStatus;
+    private String paymentMethod;
+    private String notes;
     private LocalDate saleDate;
     private BigDecimal totalAmount;
     private Long createdById;
