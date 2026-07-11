@@ -30,6 +30,27 @@ public class Purchase extends AuditableEntity {
     @Column(name = "supplier_name", nullable = false, length = 150)
     private String supplierName;
 
+    @Column(name = "supplier_phone", nullable = false, length = 20)
+    private String supplierPhone;
+
+    @Column(name = "supplier_email", length = 100)
+    private String supplierEmail;
+
+    @Column(name = "status", nullable = false, length = 20)
+    private String status = "PENDING"; // PENDING, RECEIVED, CANCELLED
+
+    @Column(name = "payment_status", nullable = false, length = 20)
+    private String paymentStatus = "PENDING"; // PENDING, PAID, CANCELLED
+
+    @Column(name = "payment_method", nullable = false, length = 20)
+    private String paymentMethod = "CASH"; // CASH, UPI, CARD, BANK_TRANSFER
+
+    @Column(name = "invoice_no", length = 50)
+    private String invoiceNo;
+
+    @Column(name = "notes", length = 1000)
+    private String notes;
+
     @Column(name = "purchase_date", nullable = false)
     private LocalDate purchaseDate = LocalDate.now();
 
@@ -40,7 +61,6 @@ public class Purchase extends AuditableEntity {
     @JoinColumn(name = "created_by")
     private User createdBy;
 
-    // cascade + orphanRemoval so saving/deleting the header manages its items automatically
     @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PurchaseItem> items = new ArrayList<>();
 

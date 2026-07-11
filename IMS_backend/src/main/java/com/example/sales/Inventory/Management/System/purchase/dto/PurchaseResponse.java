@@ -19,6 +19,13 @@ public class PurchaseResponse {
     private Long id;
     private String purchaseNo;
     private String supplierName;
+    private String supplierPhone;
+    private String supplierEmail;
+    private String status;
+    private String paymentStatus;
+    private String paymentMethod;
+    private String invoiceNo;
+    private String notes;
     private LocalDate purchaseDate;
     private BigDecimal totalAmount;
     private Long createdById;
