@@ -2,8 +2,9 @@ import { useState, useEffect, useCallback } from "react";
 import { 
   Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, FileText, 
   Calendar, DollarSign, TrendingUp, RefreshCw, Printer, Download,
-  ArrowDownLeft, Layers, ShieldAlert, BarChart3, AlertCircle, Sparkles
+  ArrowDownLeft, Layers, ShieldAlert, BarChart3, AlertCircle, Sparkles, AlertTriangle, CheckCircle2, X
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, 
   Tooltip, Legend, BarChart, Bar, PieChart, Pie, Cell
@@ -11,6 +12,7 @@ import {
 import Sidebar from "../components/Sidebar";
 import reportApi from "../api/reportApi";
 import productApi from "../api/productApi";
+import exportApi from "../api/exportApi";
 
 const COLORS = ["#3b82f6", "#10b981", "#8b5cf6", "#f59e0b", "#ef4444", "#ec4899", "#14b8a6"];
 
@@ -48,6 +50,16 @@ const Reports = () => {
   // UI Status
   const [isLoading, setIsLoading] = useState(true);
   const [connectionStatus, setConnectionStatus] = useState("checking");
+  const [isExporting, setIsExporting] = useState(false);
+  const [toasts, setToasts] = useState([]);
+
+  const showToast = useCallback((message, type = "success") => {
+    const id = Date.now();
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 4000);
+  }, []);
 
   // Load distinct product categories
   useEffect(() => {
@@ -284,38 +296,54 @@ const Reports = () => {
     setCurrentPage(0);
   };
 
-  // CSV Data Exporter (Constructs a string blob)
-  const handleExportCSV = () => {
-    let headers = [];
-    let rows = [];
-    let filename = `${activeTab}_report.csv`;
-
-    if (activeTab === "sales" && salesReport) {
-      headers = ["ID", "Sale No", "Customer Name", "Customer Phone", "Status", "Payment", "Date", "Total Amount"];
-      rows = salesReport.sales.content.map(s => [s.id, s.saleNo, s.customerName, s.customerPhone, s.status, s.paymentStatus, s.saleDate, s.totalAmount]);
-    } else if (activeTab === "purchases" && purchaseReport) {
-      headers = ["ID", "Purchase No", "Supplier Name", "Status", "Payment", "Date", "Total Cost"];
-      rows = purchaseReport.purchases.content.map(p => [p.id, p.purchaseNo, p.supplierName, p.status, p.paymentStatus, p.purchaseDate, p.totalAmount]);
-    } else if (activeTab === "inventory" && inventoryReport) {
-      headers = ["ID", "SKU", "Name", "Category", "Stock Qty", "Purchase Price", "Selling Price", "Value"];
-      rows = inventoryReport.products.content.map(p => [p.id, p.sku, p.name, p.category, p.quantityInStock, p.purchasePrice, p.sellingPrice, (p.quantityInStock * p.purchasePrice)]);
-    } else if (activeTab === "invoices" && invoiceReport) {
-      headers = ["ID", "Invoice No", "Customer Name", "Sale Ref", "Status", "Payment", "Date", "Grand Total"];
-      rows = invoiceReport.invoices.content.map(i => [i.id, i.invoiceNo, i.customerName, i.saleNo || "Standalone", i.status, i.paymentStatus, i.invoiceDate, i.grandTotal]);
-    } else {
-      alert("No data available to export");
-      return;
+  // CSV Data Exporter calling backend REST APIs
+  const handleExportCSV = async () => {
+    setIsExporting(true);
+    try {
+      if (activeTab === "financial") {
+        await exportApi.exportReports();
+      } else if (activeTab === "sales") {
+        await exportApi.exportSales({
+          search: searchVal,
+          status: statusFilter,
+          paymentStatus: paymentStatusFilter,
+          startDate,
+          endDate,
+          sort: `${sortField},${sortOrder}`
+        });
+      } else if (activeTab === "purchases") {
+        await exportApi.exportPurchases({
+          search: searchVal,
+          status: statusFilter,
+          paymentStatus: paymentStatusFilter,
+          startDate,
+          endDate,
+          sort: `${sortField},${sortOrder}`
+        });
+      } else if (activeTab === "inventory") {
+        await exportApi.exportProducts({
+          search: searchVal,
+          category: categoryFilter,
+          status: statusFilter,
+          sort: `${sortField},${sortOrder}`
+        });
+      } else if (activeTab === "invoices") {
+        await exportApi.exportInvoices({
+          search: searchVal,
+          status: statusFilter,
+          paymentStatus: paymentStatusFilter,
+          startDate,
+          endDate,
+          sort: `${sortField},${sortOrder}`
+        });
+      }
+      showToast(`${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} CSV exported successfully`, "success");
+    } catch (err) {
+      console.error(err);
+      showToast(`Failed to export ${activeTab} CSV`, "error");
+    } finally {
+      setIsExporting(false);
     }
-
-    const csvContent = "data:text/csv;charset=utf-8," 
-      + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", filename);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   // Print Friendly trigger
@@ -350,6 +378,17 @@ const Reports = () => {
             <h2 className="text-xl text-slate-800 font-semibold">Reports & Analytics</h2>
           </div>
           <div className="flex items-center gap-3">
+            {activeTab === "financial" && (
+              <button 
+                onClick={handleExportCSV} 
+                disabled={isExporting}
+                className="px-3.5 py-1.5 border border-slate-205 border-slate-200 text-slate-750 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:bg-slate-50 disabled:opacity-60"
+              >
+                <Download size={14} className={isExporting ? "animate-spin" : ""} />
+                <span>{isExporting ? "Exporting..." : "Export Report CSV"}</span>
+              </button>
+            )}
+
             {connectionStatus === "connected" ? (
               <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-4 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
                 <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
@@ -658,9 +697,9 @@ const Reports = () => {
                       <Printer size={14} />
                       <span>Print Page</span>
                     </button>
-                    <button onClick={handleExportCSV} className="px-3.5 py-1.5 border border-slate-200 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:bg-slate-50">
-                      <Download size={14} />
-                      <span>Export CSV</span>
+                    <button onClick={handleExportCSV} disabled={isExporting} className="px-3.5 py-1.5 border border-slate-200 text-slate-705 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:bg-slate-50 disabled:opacity-60">
+                      <Download size={14} className={isExporting ? "animate-spin" : ""} />
+                      <span>{isExporting ? "Exporting..." : "Export CSV"}</span>
                     </button>
                   </div>
                 </div>
@@ -745,9 +784,9 @@ const Reports = () => {
                       <Printer size={14} />
                       <span>Print Page</span>
                     </button>
-                    <button onClick={handleExportCSV} className="px-3.5 py-1.5 border border-slate-200 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:bg-slate-50">
-                      <Download size={14} />
-                      <span>Export CSV</span>
+                    <button onClick={handleExportCSV} disabled={isExporting} className="px-3.5 py-1.5 border border-slate-200 text-slate-705 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:bg-slate-50 disabled:opacity-60">
+                      <Download size={14} className={isExporting ? "animate-spin" : ""} />
+                      <span>{isExporting ? "Exporting..." : "Export CSV"}</span>
                     </button>
                   </div>
                 </div>
@@ -855,9 +894,9 @@ const Reports = () => {
                       <Printer size={14} />
                       <span>Print Page</span>
                     </button>
-                    <button onClick={handleExportCSV} className="px-3.5 py-1.5 border border-slate-200 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:bg-slate-50">
-                      <Download size={14} />
-                      <span>Export CSV</span>
+                    <button onClick={handleExportCSV} disabled={isExporting} className="px-3.5 py-1.5 border border-slate-200 text-slate-705 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:bg-slate-50 disabled:opacity-60">
+                      <Download size={14} className={isExporting ? "animate-spin" : ""} />
+                      <span>{isExporting ? "Exporting..." : "Export CSV"}</span>
                     </button>
                   </div>
                 </div>
@@ -959,9 +998,9 @@ const Reports = () => {
                       <Printer size={14} />
                       <span>Print Page</span>
                     </button>
-                    <button onClick={handleExportCSV} className="px-3.5 py-1.5 border border-slate-200 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:bg-slate-50">
-                      <Download size={14} />
-                      <span>Export CSV</span>
+                    <button onClick={handleExportCSV} disabled={isExporting} className="px-3.5 py-1.5 border border-slate-200 text-slate-705 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:bg-slate-50 disabled:opacity-60">
+                      <Download size={14} className={isExporting ? "animate-spin" : ""} />
+                      <span>{isExporting ? "Exporting..." : "Export CSV"}</span>
                     </button>
                   </div>
                 </div>

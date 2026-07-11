@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { 
   Search, Plus, Edit2, Trash2, Eye, Filter, ArrowUpDown, 
   ChevronLeft, ChevronRight, FileText, Calendar, DollarSign,
-  TrendingUp, CheckCircle2, AlertCircle, RefreshCw, Printer, ShoppingBag, ShieldAlert
+  TrendingUp, CheckCircle2, AlertCircle, RefreshCw, Printer, ShoppingBag, ShieldAlert, Download
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Sidebar from "../components/Sidebar";
@@ -10,6 +10,7 @@ import purchaseApi from "../api/purchaseApi";
 import PurchaseFormModal from "../components/PurchaseFormModal";
 import PurchaseDetailsDrawer from "../components/PurchaseDetailsDrawer";
 import DeleteConfirmModal from "../components/DeleteConfirmModal";
+import exportApi from "../api/exportApi";
 
 const Purchases = () => {
   // Purchases & Stats States
@@ -45,6 +46,7 @@ const Purchases = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState("checking");
+  const [isExporting, setIsExporting] = useState(false);
 
   // Modals & Slideouts
   const [selectedPurchase, setSelectedPurchase] = useState(null);
@@ -63,6 +65,26 @@ const Purchases = () => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 4000);
   }, []);
+
+  const handleExportCSV = async () => {
+    setIsExporting(true);
+    try {
+      await exportApi.exportPurchases({
+        search: searchVal,
+        status: statusFilter,
+        paymentStatus: paymentStatusFilter,
+        startDate,
+        endDate,
+        sort: `${sortField},${sortOrder}`
+      });
+      showToast("Purchases CSV exported successfully", "success");
+    } catch (err) {
+      console.error(err);
+      showToast("Failed to export purchases CSV", "error");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   // Listen to Global Axios Errors
   useEffect(() => {
@@ -419,6 +441,15 @@ const Purchases = () => {
                     </button>
                   )}
                 </div>
+
+                <button
+                  onClick={handleExportCSV}
+                  disabled={isExporting}
+                  className="border border-slate-205 border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all cursor-pointer disabled:opacity-60"
+                >
+                  <Download size={16} className={isExporting ? "animate-spin" : ""} />
+                  <span>{isExporting ? "Exporting..." : "Export CSV"}</span>
+                </button>
 
                 <button
                   onClick={() => { setSelectedPurchase(null); setIsFormOpen(true); }}

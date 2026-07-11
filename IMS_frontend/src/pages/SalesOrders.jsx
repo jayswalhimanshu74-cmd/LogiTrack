@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { 
   Search, Plus, Edit2, Trash2, Eye, Filter, ArrowUpDown, 
   ChevronLeft, ChevronRight, FileText, Calendar, DollarSign,
-  TrendingUp, CheckCircle2, AlertCircle, RefreshCw, Printer, ShoppingCart, ShieldAlert, Receipt
+  TrendingUp, CheckCircle2, AlertCircle, RefreshCw, Printer, ShoppingCart, ShieldAlert, Receipt, Download
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Sidebar from "../components/Sidebar";
@@ -12,6 +12,7 @@ import apiClient from "../api/apiClient";
 import SalesOrderFormModal from "../components/SalesOrderFormModal";
 import SalesOrderDetailsDrawer from "../components/SalesOrderDetailsDrawer";
 import DeleteConfirmModal from "../components/DeleteConfirmModal";
+import exportApi from "../api/exportApi";
 
 const SalesOrders = () => {
   // Sales & Filter States
@@ -47,6 +48,7 @@ const SalesOrders = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState("checking"); // checking | connected | demo
+  const [isExporting, setIsExporting] = useState(false);
 
   // Modals & Slideouts
   const [selectedSale, setSelectedSale] = useState(null);
@@ -65,6 +67,26 @@ const SalesOrders = () => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 4000);
   }, []);
+
+  const handleExportCSV = async () => {
+    setIsExporting(true);
+    try {
+      await exportApi.exportSales({
+        search: searchVal,
+        status: statusFilter,
+        paymentStatus: paymentStatusFilter,
+        startDate,
+        endDate,
+        sort: `${sortField},${sortOrder}`
+      });
+      showToast("Sales Orders CSV exported successfully", "success");
+    } catch (err) {
+      console.error(err);
+      showToast("Failed to export sales orders CSV", "error");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   // Listen to Global Axios Errors
   useEffect(() => {
@@ -440,6 +462,15 @@ const SalesOrders = () => {
                     </button>
                   )}
                 </div>
+
+                <button
+                  onClick={handleExportCSV}
+                  disabled={isExporting}
+                  className="border border-slate-205 border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all cursor-pointer disabled:opacity-60"
+                >
+                  <Download size={16} className={isExporting ? "animate-spin" : ""} />
+                  <span>{isExporting ? "Exporting..." : "Export CSV"}</span>
+                </button>
 
                 <button
                   onClick={() => { setSelectedSale(null); setIsFormOpen(true); }}
