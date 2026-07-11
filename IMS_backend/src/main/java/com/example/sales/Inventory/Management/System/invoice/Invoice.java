@@ -1,9 +1,14 @@
 package com.example.sales.Inventory.Management.System.invoice;
+
 import com.example.sales.Inventory.Management.System.sales.Sale;
 import com.example.sales.Inventory.Management.System.user.User;
 import com.example.sales.Inventory.Management.System.utill.AuditableEntity;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -27,21 +32,45 @@ public class Invoice extends AuditableEntity {
     @Column(name = "customer_name", nullable = false, length = 150)
     private String customerName;
 
-    // Optional link — an invoice can be generated from an existing sale,
-    // or created standalone (this stays null in that case)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sale_id")
-    private Sale sale;
+    @Column(name = "customer_phone", nullable = false, length = 20)
+    private String customerPhone;
+
+    @Column(name = "customer_email", length = 100)
+    private String customerEmail;
+
+    @Column(name = "billing_address", length = 500)
+    private String billingAddress;
+
+    @Column(name = "payment_method", nullable = false, length = 20)
+    private String paymentMethod = "CASH"; // CASH, UPI, CARD, BANK_TRANSFER
+
+    @Column(name = "payment_status", nullable = false, length = 20)
+    private String paymentStatus = "PENDING"; // PENDING, PAID, PARTIALLY_PAID, REFUNDED
+
+    @Column(name = "status", nullable = false, length = 20)
+    private String status = "DRAFT"; // DRAFT, ISSUED, PAID, CANCELLED
+
+    @Column(name = "notes", length = 1000)
+    private String notes;
+
+    @Column(name = "subtotal", nullable = false, precision = 14, scale = 2)
+    private BigDecimal subtotal = BigDecimal.ZERO;
+
+    @Column(name = "tax", nullable = false, precision = 14, scale = 2)
+    private BigDecimal tax = BigDecimal.ZERO;
+
+    @Column(name = "discount", nullable = false, precision = 14, scale = 2)
+    private BigDecimal discount = BigDecimal.ZERO;
+
+    @Column(name = "total_amount", nullable = false, precision = 14, scale = 2)
+    private BigDecimal grandTotal = BigDecimal.ZERO;
 
     @Column(name = "invoice_date", nullable = false)
     private LocalDate invoiceDate = LocalDate.now();
 
-    @Column(name = "total_amount", nullable = false, precision = 14, scale = 2)
-    private BigDecimal totalAmount = BigDecimal.ZERO;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private InvoiceStatus status = InvoiceStatus.UNPAID;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sale_id")
+    private Sale sale;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by")
@@ -53,11 +82,5 @@ public class Invoice extends AuditableEntity {
     public void addItem(InvoiceItem item) {
         items.add(item);
         item.setInvoice(this);
-    }
-
-    public enum InvoiceStatus {
-        UNPAID,
-        PAID,
-        CANCELLED
     }
 }

@@ -2,11 +2,12 @@ import { useState, useEffect, useCallback } from "react";
 import { 
   Search, Plus, Edit2, Trash2, Eye, Filter, ArrowUpDown, 
   ChevronLeft, ChevronRight, FileText, Calendar, DollarSign,
-  TrendingUp, CheckCircle2, AlertCircle, RefreshCw, Printer, ShoppingCart, ShieldAlert
+  TrendingUp, CheckCircle2, AlertCircle, RefreshCw, Printer, ShoppingCart, ShieldAlert, Receipt
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Sidebar from "../components/Sidebar";
 import salesApi from "../api/salesApi";
+import invoiceApi from "../api/invoiceApi";
 import apiClient from "../api/apiClient";
 import SalesOrderFormModal from "../components/SalesOrderFormModal";
 import SalesOrderDetailsDrawer from "../components/SalesOrderDetailsDrawer";
@@ -230,6 +231,19 @@ const SalesOrders = () => {
     setTimeout(() => {
       window.print();
     }, 1000);
+  };
+
+  // Generate Invoice from Sale Order
+  const handleGenerateInvoice = async (sale) => {
+    try {
+      await invoiceApi.generateInvoice(sale.id);
+      showToast(`Invoice successfully generated for order: ${sale.saleNo}`, "success");
+    } catch (err) {
+      console.error("Generate invoice failed:", err);
+      if (connectionStatus === "demo") {
+        showToast(`Demo Mode: Invoice generated for ${sale.saleNo}`, "info");
+      }
+    }
   };
 
   // Sort Toggle
@@ -543,6 +557,13 @@ const SalesOrders = () => {
                               title="Edit Details"
                             >
                               <Edit2 size={16} />
+                            </button>
+                            <button
+                              onClick={() => handleGenerateInvoice(sale)}
+                              className="p-2 hover:bg-blue-50 text-blue-600 rounded-lg transition-colors cursor-pointer"
+                              title="Generate Invoice"
+                            >
+                              <Receipt size={16} />
                             </button>
                             <button
                               onClick={() => handlePrintInvoice(sale)}

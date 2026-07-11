@@ -2,11 +2,7 @@ package com.example.sales.Inventory.Management.System.invoice;
 
 import com.example.sales.Inventory.Management.System.exception.DuplicateResourceException;
 import com.example.sales.Inventory.Management.System.exception.ResourceNotFoundException;
-import com.example.sales.Inventory.Management.System.invoice.Invoice.InvoiceStatus;
-import com.example.sales.Inventory.Management.System.invoice.dto.InvoiceItemRequest;
-import com.example.sales.Inventory.Management.System.invoice.dto.InvoiceItemResponse;
-import com.example.sales.Inventory.Management.System.invoice.dto.InvoiceRequest;
-import com.example.sales.Inventory.Management.System.invoice.dto.InvoiceResponse;
+import com.example.sales.Inventory.Management.System.invoice.dto.*;
 import com.example.sales.Inventory.Management.System.product.Product;
 import com.example.sales.Inventory.Management.System.product.ProductRepository;
 import com.example.sales.Inventory.Management.System.sales.Sale;
@@ -14,12 +10,15 @@ import com.example.sales.Inventory.Management.System.sales.SaleRepository;
 import com.example.sales.Inventory.Management.System.user.User;
 import com.example.sales.Inventory.Management.System.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,71 +32,230 @@ public class InvoiceService {
     private final SaleRepository saleRepository;
 
     @Transactional
+    public synchronized String generateNextInvoiceNumber() {
+        int currentYear = LocalDate.now().getYear();
+        String yearPrefix = "INV-" + currentYear + "-";
+        
+        String maxInvoiceNo = invoiceRepository.findMaxInvoiceNoForYear(yearPrefix);
+        if (maxInvoiceNo == null || maxInvoiceNo.isEmpty()) {
+            return yearPrefix + "000001";
+        }
+        
+        try {
+            String seqStr = maxInvoiceNo.substring(maxInvoiceNo.lastIndexOf("-") + 1);
+            int nextSeq = Integer.parseInt(seqStr) + 1;
+            return String.format("INV-%d-%06d", currentYear, nextSeq);
+        } catch (Exception e) {
+            return yearPrefix + "000001";
+        }
+    }
+
+    @Transactional
     public InvoiceResponse createInvoice(InvoiceRequest request) {
-        if (invoiceRepository.existsByInvoiceNo(request.getInvoiceNo())) {
-            throw new DuplicateResourceException("Invoice with number '" + request.getInvoiceNo() + "' already exists");
+        String invoiceNo = request.getInvoiceNo();
+        if (invoiceNo == null || invoiceNo.trim().isEmpty()) {
+            invoiceNo = generateNextInvoiceNumber();
+        } else if (invoiceRepository.existsByInvoiceNo(invoiceNo)) {
+            throw new DuplicateResourceException("Invoice with number '" + invoiceNo + "' already exists");
         }
 
         Invoice invoice = new Invoice();
-        invoice.setInvoiceNo(request.getInvoiceNo());
-        invoice.setInvoiceDate(request.getInvoiceDate());
-        invoice.setStatus(request.getStatus() != null ? request.getStatus() : InvoiceStatus.UNPAID);
+        invoice.setInvoiceNo(invoiceNo);
+        invoice.setCustomerName(request.getCustomerName());
+        invoice.setCustomerPhone(request.getCustomerPhone());
+        invoice.setCustomerEmail(request.getCustomerEmail());
+        invoice.setBillingAddress(request.getBillingAddress());
+        invoice.setPaymentMethod(request.getPaymentMethod() != null ? request.getPaymentMethod().toUpperCase() : "CASH");
+        invoice.setPaymentStatus(request.getPaymentStatus() != null ? request.getPaymentStatus().toUpperCase() : "PENDING");
+        invoice.setStatus(request.getStatus() != null ? request.getStatus().toUpperCase() : "DRAFT");
+        invoice.setNotes(request.getNotes());
+        invoice.setInvoiceDate(request.getInvoiceDate() != null ? request.getInvoiceDate() : LocalDate.now());
 
-        // Resolve creator
-        User creator = getAuthenticatedUser();
-        invoice.setCreatedBy(creator);
-
-        BigDecimal totalAmount = BigDecimal.ZERO;
-
-        if (request.getSaleId() != null) {
-            // Create Invoice from an existing Sale
-            Sale sale = saleRepository.findById(request.getSaleId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Sale not found with id: " + request.getSaleId()));
-
-            invoice.setSale(sale);
-            invoice.setCustomerName(sale.getCustomerName());
-
-            sale.getItems().forEach(saleItem -> {
-                InvoiceItem invoiceItem = new InvoiceItem();
-                invoiceItem.setProduct(saleItem.getProduct());
-                invoiceItem.setQuantity(saleItem.getQuantity());
-                invoiceItem.setUnitPrice(saleItem.getUnitPrice());
-                invoiceItem.setLineTotal(saleItem.getLineTotal());
-                invoice.addItem(invoiceItem);
-            });
-
-            totalAmount = sale.getTotalAmount();
-        } else {
-            // Standalone Invoice Creation
-            if (request.getCustomerName() == null || request.getCustomerName().trim().isEmpty()) {
-                throw new IllegalArgumentException("Customer name is required for standalone invoices");
-            }
-            if (request.getItems() == null || request.getItems().isEmpty()) {
-                throw new IllegalArgumentException("Invoice items are required for standalone invoices");
-            }
-
-            invoice.setCustomerName(request.getCustomerName());
-
-            for (InvoiceItemRequest itemRequest : request.getItems()) {
-                Product product = productRepository.findById(itemRequest.getProductId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + itemRequest.getProductId()));
-
-                BigDecimal lineTotal = itemRequest.getUnitPrice().multiply(BigDecimal.valueOf(itemRequest.getQuantity()));
-
-                InvoiceItem invoiceItem = new InvoiceItem();
-                invoiceItem.setProduct(product);
-                invoiceItem.setQuantity(itemRequest.getQuantity());
-                invoiceItem.setUnitPrice(itemRequest.getUnitPrice());
-                invoiceItem.setLineTotal(lineTotal);
-
-                invoice.addItem(invoiceItem);
-                totalAmount = totalAmount.add(lineTotal);
+        BigDecimal subtotal = BigDecimal.ZERO;
+        
+        if (request.getItems() != null && !request.getItems().isEmpty()) {
+            for (InvoiceItemRequest itemReq : request.getItems()) {
+                Product product = productRepository.findById(itemReq.getProductId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + itemReq.getProductId()));
+                
+                BigDecimal lineTotal = itemReq.getUnitPrice().multiply(BigDecimal.valueOf(itemReq.getQuantity()));
+                
+                InvoiceItem item = new InvoiceItem();
+                item.setProduct(product);
+                item.setQuantity(itemReq.getQuantity());
+                item.setUnitPrice(itemReq.getUnitPrice());
+                item.setLineTotal(lineTotal);
+                
+                invoice.addItem(item);
+                subtotal = subtotal.add(lineTotal);
             }
         }
 
-        invoice.setTotalAmount(totalAmount);
-        Invoice savedInvoice = invoiceRepository.save(invoice);
-        return mapEntityToResponse(savedInvoice);
+        BigDecimal tax = request.getTax() != null ? request.getTax() : BigDecimal.ZERO;
+        BigDecimal discount = request.getDiscount() != null ? request.getDiscount() : BigDecimal.ZERO;
+        BigDecimal grandTotal = subtotal.add(tax).subtract(discount);
+        
+        if (grandTotal.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Grand total cannot be negative");
+        }
+
+        invoice.setSubtotal(subtotal);
+        invoice.setTax(tax);
+        invoice.setDiscount(discount);
+        invoice.setGrandTotal(grandTotal);
+
+        User creator = getAuthenticatedUser();
+        invoice.setCreatedBy(creator);
+
+        Invoice saved = invoiceRepository.save(invoice);
+        return mapEntityToResponse(saved);
+    }
+
+    @Transactional
+    public InvoiceResponse generateInvoiceFromSale(Long saleId) {
+        Sale sale = saleRepository.findById(saleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Sale order not found with id: " + saleId));
+
+        String invoiceNo = generateNextInvoiceNumber();
+
+        Invoice invoice = new Invoice();
+        invoice.setInvoiceNo(invoiceNo);
+        invoice.setCustomerName(sale.getCustomerName());
+        invoice.setCustomerPhone(sale.getCustomerPhone());
+        invoice.setCustomerEmail(sale.getCustomerEmail());
+        invoice.setPaymentMethod(sale.getPaymentMethod());
+        invoice.setPaymentStatus(sale.getPaymentStatus());
+        invoice.setStatus("ISSUED");
+        invoice.setNotes(sale.getNotes());
+        invoice.setInvoiceDate(LocalDate.now());
+        invoice.setSale(sale);
+
+        BigDecimal subtotal = BigDecimal.ZERO;
+
+        for (var saleItem : sale.getItems()) {
+            InvoiceItem item = new InvoiceItem();
+            item.setProduct(saleItem.getProduct());
+            item.setQuantity(saleItem.getQuantity());
+            item.setUnitPrice(saleItem.getUnitPrice());
+            item.setLineTotal(saleItem.getLineTotal());
+            invoice.addItem(item);
+            subtotal = subtotal.add(saleItem.getLineTotal());
+        }
+
+        invoice.setSubtotal(subtotal);
+        invoice.setTax(BigDecimal.ZERO);
+        invoice.setDiscount(BigDecimal.ZERO);
+        invoice.setGrandTotal(subtotal);
+
+        User creator = getAuthenticatedUser();
+        invoice.setCreatedBy(creator);
+
+        Invoice saved = invoiceRepository.save(invoice);
+        return mapEntityToResponse(saved);
+    }
+
+    @Transactional
+    public InvoiceResponse updateInvoice(Long id, InvoiceRequest request) {
+        Invoice invoice = invoiceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Invoice not found with id: " + id));
+
+        if ("PAID".equals(invoice.getStatus())) {
+            throw new IllegalStateException("Paid invoices are read-only and cannot be updated");
+        }
+
+        String newStatus = request.getStatus() != null ? request.getStatus().toUpperCase() : invoice.getStatus();
+
+        // If it is in DRAFT state, allow updating everything
+        if ("DRAFT".equals(invoice.getStatus())) {
+            invoice.setCustomerName(request.getCustomerName());
+            invoice.setCustomerPhone(request.getCustomerPhone());
+            invoice.setCustomerEmail(request.getCustomerEmail());
+            invoice.setBillingAddress(request.getBillingAddress());
+            invoice.setPaymentMethod(request.getPaymentMethod() != null ? request.getPaymentMethod().toUpperCase() : invoice.getPaymentMethod());
+            invoice.setPaymentStatus(request.getPaymentStatus() != null ? request.getPaymentStatus().toUpperCase() : invoice.getPaymentStatus());
+            invoice.setStatus(newStatus);
+            invoice.setNotes(request.getNotes());
+            invoice.setInvoiceDate(request.getInvoiceDate() != null ? request.getInvoiceDate() : invoice.getInvoiceDate());
+
+            if (request.getItems() != null) {
+                invoice.getItems().clear();
+                BigDecimal subtotal = BigDecimal.ZERO;
+                
+                for (InvoiceItemRequest itemReq : request.getItems()) {
+                    Product product = productRepository.findById(itemReq.getProductId())
+                            .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + itemReq.getProductId()));
+                    
+                    BigDecimal lineTotal = itemReq.getUnitPrice().multiply(BigDecimal.valueOf(itemReq.getQuantity()));
+                    
+                    InvoiceItem item = new InvoiceItem();
+                    item.setProduct(product);
+                    item.setQuantity(itemReq.getQuantity());
+                    item.setUnitPrice(itemReq.getUnitPrice());
+                    item.setLineTotal(lineTotal);
+                    
+                    invoice.addItem(item);
+                    subtotal = subtotal.add(lineTotal);
+                }
+                invoice.setSubtotal(subtotal);
+            }
+
+            BigDecimal tax = request.getTax() != null ? request.getTax() : invoice.getTax();
+            BigDecimal discount = request.getDiscount() != null ? request.getDiscount() : invoice.getDiscount();
+            BigDecimal grandTotal = invoice.getSubtotal().add(tax).subtract(discount);
+            
+            if (grandTotal.compareTo(BigDecimal.ZERO) < 0) {
+                throw new IllegalArgumentException("Grand total cannot be negative");
+            }
+            invoice.setTax(tax);
+            invoice.setDiscount(discount);
+            invoice.setGrandTotal(grandTotal);
+
+        } else {
+            // For ISSUED/CANCELLED state, only allow status, paymentStatus, notes updates
+            invoice.setStatus(newStatus);
+            invoice.setPaymentStatus(request.getPaymentStatus() != null ? request.getPaymentStatus().toUpperCase() : invoice.getPaymentStatus());
+            invoice.setPaymentMethod(request.getPaymentMethod() != null ? request.getPaymentMethod().toUpperCase() : invoice.getPaymentMethod());
+            invoice.setNotes(request.getNotes());
+        }
+
+        Invoice saved = invoiceRepository.save(invoice);
+        return mapEntityToResponse(saved);
+    }
+
+    @Transactional
+    public InvoiceResponse updateInvoiceStatus(Long id, String status) {
+        Invoice invoice = invoiceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Invoice not found with id: " + id));
+        
+        invoice.setStatus(status.toUpperCase());
+        if ("PAID".equals(status.toUpperCase())) {
+            invoice.setPaymentStatus("PAID");
+        }
+        
+        Invoice saved = invoiceRepository.save(invoice);
+        return mapEntityToResponse(saved);
+    }
+
+    @Transactional
+    public void deleteInvoice(Long id) {
+        Invoice invoice = invoiceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Invoice not found with id: " + id));
+
+        if ("PAID".equals(invoice.getStatus())) {
+            throw new IllegalStateException("Paid invoices cannot be deleted");
+        }
+
+        invoiceRepository.delete(invoice);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<InvoiceResponse> getFilteredInvoices(String search, String status, String paymentStatus, 
+                                                    LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        String uStatus = (status != null && !status.isEmpty()) ? status.toUpperCase() : null;
+        String uPaymentStatus = (paymentStatus != null && !paymentStatus.isEmpty()) ? paymentStatus.toUpperCase() : null;
+
+        return invoiceRepository.findInvoicesFiltered(search, uStatus, uPaymentStatus, startDate, endDate, pageable)
+                .map(this::mapEntityToResponse);
     }
 
     @Transactional(readOnly = true)
@@ -114,13 +272,42 @@ public class InvoiceService {
         return mapEntityToResponse(invoice);
     }
 
-    @Transactional
-    public InvoiceResponse updateInvoiceStatus(Long id, InvoiceStatus status) {
-        Invoice invoice = invoiceRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Invoice not found with id: " + id));
-        invoice.setStatus(status);
-        Invoice updatedInvoice = invoiceRepository.save(invoice);
-        return mapEntityToResponse(updatedInvoice);
+    @Transactional(readOnly = true)
+    public List<InvoiceResponse> getRecentInvoices() {
+        org.springframework.data.domain.PageRequest pageRequest = 
+                org.springframework.data.domain.PageRequest.of(0, 5, org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "createdAt"));
+        return invoiceRepository.findAll(pageRequest).getContent().stream()
+                .map(this::mapEntityToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public InvoiceStatisticsResponse getInvoiceStatistics() {
+        LocalDate today = LocalDate.now();
+        LocalDate startOfMonth = today.withDayOfMonth(1);
+        LocalDate endOfMonth = today.with(java.time.temporal.TemporalAdjusters.lastDayOfMonth());
+
+        long total = invoiceRepository.countAllInvoices();
+        long todayCount = invoiceRepository.countTodayInvoices(today);
+        long monthlyCount = invoiceRepository.countMonthlyInvoices(startOfMonth, endOfMonth);
+        
+        long pendingPay = invoiceRepository.countPendingPayments();
+        long paidCount = invoiceRepository.countPaidInvoices();
+        long cancelledCount = invoiceRepository.countCancelledInvoices();
+
+        BigDecimal totalRevenue = invoiceRepository.sumTotalRevenue();
+        BigDecimal avgValue = invoiceRepository.averageInvoiceValue();
+
+        return new InvoiceStatisticsResponse(
+                total,
+                todayCount,
+                monthlyCount,
+                pendingPay,
+                paidCount,
+                cancelledCount,
+                totalRevenue,
+                avgValue
+        );
     }
 
     private User getAuthenticatedUser() {
@@ -136,14 +323,22 @@ public class InvoiceService {
         response.setId(invoice.getId());
         response.setInvoiceNo(invoice.getInvoiceNo());
         response.setCustomerName(invoice.getCustomerName());
-        response.setInvoiceDate(invoice.getInvoiceDate());
-        response.setTotalAmount(invoice.getTotalAmount());
+        response.setCustomerPhone(invoice.getCustomerPhone());
+        response.setCustomerEmail(invoice.getCustomerEmail());
+        response.setBillingAddress(invoice.getBillingAddress());
+        response.setPaymentMethod(invoice.getPaymentMethod());
+        response.setPaymentStatus(invoice.getPaymentStatus());
         response.setStatus(invoice.getStatus());
-        response.setCreatedAt(invoice.getCreatedAt());
-        response.setUpdatedAt(invoice.getUpdatedAt());
-
+        response.setNotes(invoice.getNotes());
+        response.setSubtotal(invoice.getSubtotal());
+        response.setTax(invoice.getTax());
+        response.setDiscount(invoice.getDiscount());
+        response.setGrandTotal(invoice.getGrandTotal());
+        response.setInvoiceDate(invoice.getInvoiceDate());
+        
         if (invoice.getSale() != null) {
             response.setSaleId(invoice.getSale().getId());
+            response.setSaleNo(invoice.getSale().getSaleNo());
         }
 
         if (invoice.getCreatedBy() != null) {
@@ -165,6 +360,8 @@ public class InvoiceService {
                 .collect(Collectors.toList());
 
         response.setItems(itemResponses);
+        response.setCreatedAt(invoice.getCreatedAt());
+        response.setUpdatedAt(invoice.getUpdatedAt());
         return response;
     }
 }

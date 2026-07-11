@@ -1,6 +1,5 @@
 package com.example.sales.Inventory.Management.System.invoice.dto;
 
-import com.example.sales.Inventory.Management.System.invoice.Invoice.InvoiceStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,10 +19,20 @@ public class InvoiceResponse {
     private Long id;
     private String invoiceNo;
     private String customerName;
-    private Long saleId;
+    private String customerPhone;
+    private String customerEmail;
+    private String billingAddress;
+    private String paymentMethod;
+    private String paymentStatus;
+    private String status; // DRAFT, ISSUED, PAID, CANCELLED
+    private String notes;
+    private BigDecimal subtotal;
+    private BigDecimal tax;
+    private BigDecimal discount;
+    private BigDecimal grandTotal;
     private LocalDate invoiceDate;
-    private BigDecimal totalAmount;
-    private InvoiceStatus status;
+    private Long saleId;
+    private String saleNo;
     private Long createdById;
     private String createdByFullName;
     private String createdByEmail;

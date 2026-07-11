@@ -48,4 +48,16 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("SELECT DISTINCT p.category FROM Product p WHERE p.category IS NOT NULL AND p.category <> '' ORDER BY p.category ASC")
     List<String> findDistinctCategories();
+
+    @Query("SELECT COALESCE(SUM(p.quantityInStock * p.purchasePrice), 0) FROM Product p")
+    java.math.BigDecimal sumTotalInventoryValue();
+
+    @Query("SELECT COUNT(p) FROM Product p WHERE p.quantityInStock = 0")
+    long countOutOfStockProducts();
+
+    @Query("SELECT p FROM Product p WHERE p.quantityInStock > 0 ORDER BY (p.quantityInStock * p.purchasePrice) DESC")
+    Page<Product> findHighestValueProducts(Pageable pageable);
+
+    @Query("SELECT new com.example.sales.Inventory.Management.System.report.dto.CategoryDistributionDto(p.category, COUNT(p)) FROM Product p WHERE p.quantityInStock <= p.reorderLevel GROUP BY p.category")
+    List<com.example.sales.Inventory.Management.System.report.dto.CategoryDistributionDto> getLowStockTrend();
 }

@@ -25,7 +25,7 @@ const Sidebar = ({ activeTab }) => {
   };
 
   return (
-    <aside className="hidden md:flex md:w-64 bg-white border-r border-slate-200 flex-col justify-between z-10 shrink-0">
+    <aside className="hidden md:flex md:w-64 bg-white border-r border-slate-200 flex-col justify-between z-10 shrink-0 h-screen sticky top-0 print:hidden">
       <div>
         {/* Logo */}
         <div className="p-6 flex items-center gap-2 border-b border-slate-100">
