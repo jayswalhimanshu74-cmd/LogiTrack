@@ -2,3 +2,6 @@
 .env
 */target/*
 Internship_Daily_Report.md
+*.zip
+example.properties
+**/example.properties

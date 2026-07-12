@@ -190,9 +190,9 @@ const Login = () => {
                                     />
                                     <span className="text-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Remember this device</span>
                                 </label>
-                                <a className="text-sm text-primary font-semibold hover:underline decoration-2 underline-offset-4 transition-all" href="#">
+                                <Link className="text-sm text-primary font-semibold hover:underline decoration-2 underline-offset-4 transition-all" to="/forgot-password">
                                     Forgot Password?
-                                </a>
+                                </Link>
                             </div>
 
                             {/* Login Button */}

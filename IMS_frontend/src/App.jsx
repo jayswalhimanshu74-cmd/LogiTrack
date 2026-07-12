@@ -2,6 +2,9 @@ import './App.css'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Register from './pages/Register'
 import Login from './pages/Login'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
+
 import Dashboard from './pages/Dashboard'
 import Products from './pages/Products'
 import SalesOrders from './pages/SalesOrders'
@@ -16,6 +19,9 @@ function App() {
     <Routes>
       <Route path="/" element={<Register />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/products" element={<Products />} />
       <Route path="/sales-orders" element={<SalesOrders />} />
