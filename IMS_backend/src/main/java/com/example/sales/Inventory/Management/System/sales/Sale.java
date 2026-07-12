@@ -31,18 +31,22 @@ public class Sale extends AuditableEntity {
     private String customerName;
 
     @Column(name = "customer_phone", nullable = false, length = 20)
-    private String customerPhone;
+    @org.hibernate.annotations.ColumnDefault("''")
+    private String customerPhone = "";
 
     @Column(name = "customer_email", length = 100)
     private String customerEmail;
 
     @Column(name = "status", nullable = false, length = 20)
+    @org.hibernate.annotations.ColumnDefault("'PENDING'")
     private String status = "PENDING"; // PENDING, CONFIRMED, COMPLETED, CANCELLED
 
     @Column(name = "payment_status", nullable = false, length = 20)
+    @org.hibernate.annotations.ColumnDefault("'PENDING'")
     private String paymentStatus = "PENDING"; // PENDING, PAID, REFUNDED
 
     @Column(name = "payment_method", nullable = false, length = 20)
+    @org.hibernate.annotations.ColumnDefault("'CASH'")
     private String paymentMethod = "CASH"; // CASH, UPI, CARD, BANK_TRANSFER
 
     @Column(name = "notes", length = 1000)

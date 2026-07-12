@@ -31,18 +31,22 @@ public class Purchase extends AuditableEntity {
     private String supplierName;
 
     @Column(name = "supplier_phone", nullable = false, length = 20)
-    private String supplierPhone;
+    @org.hibernate.annotations.ColumnDefault("''")
+    private String supplierPhone = "";
 
     @Column(name = "supplier_email", length = 100)
     private String supplierEmail;
 
     @Column(name = "status", nullable = false, length = 20)
+    @org.hibernate.annotations.ColumnDefault("'PENDING'")
     private String status = "PENDING"; // PENDING, RECEIVED, CANCELLED
 
     @Column(name = "payment_status", nullable = false, length = 20)
+    @org.hibernate.annotations.ColumnDefault("'PENDING'")
     private String paymentStatus = "PENDING"; // PENDING, PAID, CANCELLED
 
     @Column(name = "payment_method", nullable = false, length = 20)
+    @org.hibernate.annotations.ColumnDefault("'CASH'")
     private String paymentMethod = "CASH"; // CASH, UPI, CARD, BANK_TRANSFER
 
     @Column(name = "invoice_no", length = 50)
