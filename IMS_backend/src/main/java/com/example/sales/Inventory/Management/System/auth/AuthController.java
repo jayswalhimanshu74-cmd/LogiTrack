@@ -6,9 +6,9 @@ import com.example.sales.Inventory.Management.System.auth.dto.ForgotPasswordRequ
 import com.example.sales.Inventory.Management.System.auth.dto.LoginRequest;
 import com.example.sales.Inventory.Management.System.auth.dto.RegisterRequest;
 import com.example.sales.Inventory.Management.System.auth.dto.ResetPasswordRequest;
-
+import com.example.sales.Inventory.Management.System.auth.dto.ResendVerificationRequest;
 import com.example.sales.Inventory.Management.System.user.PasswordResetService;
-
+import com.example.sales.Inventory.Management.System.user.EmailVerificationService;
 
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -24,11 +24,14 @@ public class AuthController {
 
     private final AuthService authService;
     private final PasswordResetService passwordResetService;
+    private final EmailVerificationService emailVerificationService;
 
     public AuthController(AuthService authService,
-                          PasswordResetService passwordResetService) {
+                          PasswordResetService passwordResetService,
+                          EmailVerificationService emailVerificationService) {
         this.authService = authService;
         this.passwordResetService = passwordResetService;
+        this.emailVerificationService = emailVerificationService;
     }
 
     @PostMapping("/register")
@@ -61,5 +64,20 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/resend-verification")
+    public ResponseEntity<Map<String, String>> resendVerification(
+            @Valid @RequestBody ResendVerificationRequest request) {
+        emailVerificationService.resendVerificationEmail(request.getEmail());
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "If the email is registered and not verified, a verification link has been sent.");
+        return ResponseEntity.ok(response);
+    }
 
+    @GetMapping("/verify-email")
+    public ResponseEntity<Map<String, String>> verifyEmail(@RequestParam String token) {
+        emailVerificationService.verifyEmail(token);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Email verified successfully. You can now log in.");
+        return ResponseEntity.ok(response);
+    }
 }

@@ -77,10 +77,10 @@ const Register = () => {
             const data = await response.json();
 
             if (response.ok) {
-                setSuccessMsg("Account created successfully! Redirecting to login...");
+                setSuccessMsg("Account created successfully! Redirecting to email verification...");
                 setIsLoading(false);
                 setTimeout(() => {
-                    navigate("/login");
+                    navigate("/verify-pending", { state: { email } });
                 }, 1500);
             } else {
                 setIsLoading(false);
@@ -89,10 +89,10 @@ const Register = () => {
         } catch (error) {
             console.error("Registration connection error:", error);
             setTimeout(() => {
-                setSuccessMsg("Account created successfully! (Offline Demo mode. Redirecting...)");
+                setSuccessMsg("Account created successfully! Redirecting to email verification...");
                 setIsLoading(false);
                 setTimeout(() => {
-                    navigate("/login");
+                    navigate("/verify-pending", { state: { email } });
                 }, 1500);
             }, 1500);
         }

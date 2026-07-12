@@ -33,6 +33,9 @@ public class User extends AuditableEntity {
     @Column(nullable = false, length = 20)
     private Role role = Role.STAFF;
 
+    @Column(name = "is_verified", nullable = false)
+    private boolean verified = false;
+
     @Column(name = "is_active", nullable = false)
     private boolean active = true;
 }

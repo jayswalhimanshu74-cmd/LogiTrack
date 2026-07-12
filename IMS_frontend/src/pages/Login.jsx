@@ -45,7 +45,22 @@ const Login = () => {
                 }, 1000);
             } else {
                 setIsLoading(false);
-                setErrorMsg(data.message || "The credentials provided do not match our records. Please try again.");
+                if (data.message && data.message.toLowerCase().includes("verify")) {
+                    setErrorMsg(
+                        <span>
+                            {data.message}{" "}
+                            <button
+                                type="button"
+                                className="text-primary font-bold hover:underline decoration-2"
+                                onClick={() => navigate("/verify-pending", { state: { email } })}
+                            >
+                                Resend verification email
+                            </button>
+                        </span>
+                    );
+                } else {
+                    setErrorMsg(data.message || "The credentials provided do not match our records. Please try again.");
+                }
             }
         } catch (error) {
             console.error("Login connection error:", error);
