@@ -101,4 +101,12 @@ public class InvoiceController {
         response.put("message", "Deleted Invoice with id: " + id);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/{id}/send")
+    public ResponseEntity<Map<String, String>> sendInvoiceEmail(@PathVariable Long id) {
+        invoiceService.sendInvoiceEmail(id);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Invoice email sent successfully.");
+        return ResponseEntity.ok(response);
+    }
 }

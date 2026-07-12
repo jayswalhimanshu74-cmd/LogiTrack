@@ -22,6 +22,9 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
     @Query("SELECT MAX(i.invoiceNo) FROM Invoice i WHERE i.invoiceNo LIKE CONCAT(:yearPrefix, '%')")
     String findMaxInvoiceNoForYear(@Param("yearPrefix") String yearPrefix);
 
+    @Query("SELECT i.invoiceNo FROM Invoice i WHERE i.invoiceNo LIKE CONCAT(:yearPrefix, '%')")
+    List<String> findInvoiceNosForYear(@Param("yearPrefix") String yearPrefix);
+
     @Query("SELECT i FROM Invoice i WHERE " +
            "(:search IS NULL OR :search = '' " +
            "OR LOWER(i.invoiceNo) LIKE LOWER(CONCAT('%', :search, '%')) " +

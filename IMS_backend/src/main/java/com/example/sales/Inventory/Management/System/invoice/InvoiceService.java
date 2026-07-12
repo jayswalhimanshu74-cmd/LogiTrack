@@ -9,6 +9,7 @@ import com.example.sales.Inventory.Management.System.sales.Sale;
 import com.example.sales.Inventory.Management.System.sales.SaleRepository;
 import com.example.sales.Inventory.Management.System.user.User;
 import com.example.sales.Inventory.Management.System.user.UserRepository;
+import com.example.sales.Inventory.Management.System.email.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,32 +23,54 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class InvoiceService {
 
     private final InvoiceRepository invoiceRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final SaleRepository saleRepository;
+    private final InvoicePdfService invoicePdfService;
+    private final EmailService emailService;
 
     @Transactional
     public synchronized String generateNextInvoiceNumber() {
         int currentYear = LocalDate.now().getYear();
         String yearPrefix = "INV-" + currentYear + "-";
         
-        String maxInvoiceNo = invoiceRepository.findMaxInvoiceNoForYear(yearPrefix);
-        if (maxInvoiceNo == null || maxInvoiceNo.isEmpty()) {
-            return yearPrefix + "000001";
+        List<String> invoiceNos = invoiceRepository.findInvoiceNosForYear(yearPrefix);
+        int maxSeq = 0;
+        
+        if (invoiceNos != null) {
+            for (String num : invoiceNos) {
+                if (num != null && num.contains("-")) {
+                    try {
+                        String seqStr = num.substring(num.lastIndexOf("-") + 1);
+                        int seq = Integer.parseInt(seqStr);
+                        if (seq > maxSeq) {
+                            maxSeq = seq;
+                        }
+                    } catch (Exception e) {
+                        // Ignore malformed invoice numbers
+                    }
+                }
+            }
         }
         
-        try {
-            String seqStr = maxInvoiceNo.substring(maxInvoiceNo.lastIndexOf("-") + 1);
-            int nextSeq = Integer.parseInt(seqStr) + 1;
-            return String.format("INV-%d-%06d", currentYear, nextSeq);
-        } catch (Exception e) {
-            return yearPrefix + "000001";
+        int nextSeq = maxSeq + 1;
+        String nextInvoiceNo = String.format("INV-%d-%06d", currentYear, nextSeq);
+        
+        // Safety check to absolutely guarantee uniqueness
+        while (invoiceRepository.existsByInvoiceNo(nextInvoiceNo)) {
+            nextSeq++;
+            nextInvoiceNo = String.format("INV-%d-%06d", currentYear, nextSeq);
         }
+        
+        return nextInvoiceNo;
     }
 
     @Transactional
@@ -62,7 +85,7 @@ public class InvoiceService {
         Invoice invoice = new Invoice();
         invoice.setInvoiceNo(invoiceNo);
         invoice.setCustomerName(request.getCustomerName());
-        invoice.setCustomerPhone(request.getCustomerPhone());
+        invoice.setCustomerPhone(request.getCustomerPhone() != null ? request.getCustomerPhone() : "");
         invoice.setCustomerEmail(request.getCustomerEmail());
         invoice.setBillingAddress(request.getBillingAddress());
         invoice.setPaymentMethod(request.getPaymentMethod() != null ? request.getPaymentMethod().toUpperCase() : "CASH");
@@ -108,6 +131,25 @@ public class InvoiceService {
         invoice.setCreatedBy(creator);
 
         Invoice saved = invoiceRepository.save(invoice);
+
+        if (saved.getCustomerEmail() != null && !saved.getCustomerEmail().isBlank()) {
+            try {
+                byte[] pdfBytes = InvoiceTemplateBuilder.buildPdf(saved);
+                emailService.sendInvoiceEmail(
+                        saved.getCustomerEmail(),
+                        saved.getCustomerName(),
+                        saved.getInvoiceNo(),
+                        saved.getInvoiceDate().toString(),
+                        saved.getGrandTotal().setScale(2, BigDecimal.ROUND_HALF_UP).toString(),
+                        saved.getPaymentStatus(),
+                        pdfBytes
+                );
+                log.info("Auto-sent invoice email successfully for invoice #{}", saved.getInvoiceNo());
+            } catch (Exception e) {
+                log.error("Failed to auto-send invoice email for invoice #{}. Error: {}", saved.getInvoiceNo(), e.getMessage());
+            }
+        }
+
         return mapEntityToResponse(saved);
     }
 
@@ -120,11 +162,11 @@ public class InvoiceService {
 
         Invoice invoice = new Invoice();
         invoice.setInvoiceNo(invoiceNo);
-        invoice.setCustomerName(sale.getCustomerName());
-        invoice.setCustomerPhone(sale.getCustomerPhone());
+        invoice.setCustomerName(sale.getCustomerName() != null ? sale.getCustomerName() : "Unknown");
+        invoice.setCustomerPhone(sale.getCustomerPhone() != null ? sale.getCustomerPhone() : "");
         invoice.setCustomerEmail(sale.getCustomerEmail());
-        invoice.setPaymentMethod(sale.getPaymentMethod());
-        invoice.setPaymentStatus(sale.getPaymentStatus());
+        invoice.setPaymentMethod(sale.getPaymentMethod() != null ? sale.getPaymentMethod() : "CASH");
+        invoice.setPaymentStatus(sale.getPaymentStatus() != null ? sale.getPaymentStatus() : "PENDING");
         invoice.setStatus("ISSUED");
         invoice.setNotes(sale.getNotes());
         invoice.setInvoiceDate(LocalDate.now());
@@ -151,6 +193,25 @@ public class InvoiceService {
         invoice.setCreatedBy(creator);
 
         Invoice saved = invoiceRepository.save(invoice);
+
+        if (saved.getCustomerEmail() != null && !saved.getCustomerEmail().isBlank()) {
+            try {
+                byte[] pdfBytes = InvoiceTemplateBuilder.buildPdf(saved);
+                emailService.sendInvoiceEmail(
+                        saved.getCustomerEmail(),
+                        saved.getCustomerName(),
+                        saved.getInvoiceNo(),
+                        saved.getInvoiceDate().toString(),
+                        saved.getGrandTotal().setScale(2, BigDecimal.ROUND_HALF_UP).toString(),
+                        saved.getPaymentStatus(),
+                        pdfBytes
+                );
+                log.info("Auto-sent invoice email successfully for sale-based invoice #{}", saved.getInvoiceNo());
+            } catch (Exception e) {
+                log.error("Failed to auto-send invoice email for sale-based invoice #{}. Error: {}", saved.getInvoiceNo(), e.getMessage());
+            }
+        }
+
         return mapEntityToResponse(saved);
     }
 
@@ -363,5 +424,27 @@ public class InvoiceService {
         response.setCreatedAt(invoice.getCreatedAt());
         response.setUpdatedAt(invoice.getUpdatedAt());
         return response;
+    }
+
+    @Transactional(readOnly = true)
+    public void sendInvoiceEmail(Long id) {
+        Invoice invoice = invoiceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Invoice not found with id: " + id));
+
+        if (invoice.getCustomerEmail() == null || invoice.getCustomerEmail().isBlank()) {
+            throw new IllegalArgumentException("Customer email is missing for this invoice");
+        }
+
+        byte[] pdfBytes = invoicePdfService.generateInvoicePdf(id);
+
+        emailService.sendInvoiceEmail(
+                invoice.getCustomerEmail(),
+                invoice.getCustomerName(),
+                invoice.getInvoiceNo(),
+                invoice.getInvoiceDate().toString(),
+                invoice.getGrandTotal().setScale(2, BigDecimal.ROUND_HALF_UP).toString(),
+                invoice.getPaymentStatus(),
+                pdfBytes
+        );
     }
 }

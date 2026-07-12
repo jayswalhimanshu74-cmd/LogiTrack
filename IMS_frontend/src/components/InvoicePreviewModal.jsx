@@ -1,11 +1,52 @@
-import { X, Printer, Download, Receipt } from "lucide-react";
+import { useState } from "react";
+import { X, Printer, Download, Receipt, Mail, Loader2 } from "lucide-react";
+import invoiceApi from "../api/invoiceApi";
 
 const InvoicePreviewModal = ({ isOpen, onClose, invoice }) => {
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+
   if (!isOpen || !invoice) return null;
 
   const handlePrint = () => {
-    // Print specific element by setting temporary stylesheet or triggering window print
     window.print();
+  };
+
+  const handleDownload = async () => {
+    setIsDownloading(true);
+    try {
+      const blob = await invoiceApi.downloadInvoicePdf(invoice.id);
+      const url = window.URL.createObjectURL(new Blob([blob], { type: "application/pdf" }));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `invoice-${invoice.invoiceNo}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.dispatchEvent(new CustomEvent('app-toast', { detail: { message: "Invoice PDF downloaded successfully!", type: 'success' } }));
+    } catch (error) {
+      console.error(error);
+      window.dispatchEvent(new CustomEvent('app-toast', { detail: { message: "Failed to download invoice PDF.", type: 'error' } }));
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const handleSendEmail = async () => {
+    if (!invoice.customerEmail) {
+      window.dispatchEvent(new CustomEvent('app-toast', { detail: { message: "Customer email is missing for this invoice.", type: 'error' } }));
+      return;
+    }
+    setIsSendingEmail(true);
+    try {
+      await invoiceApi.sendInvoiceEmail(invoice.id);
+      window.dispatchEvent(new CustomEvent('app-toast', { detail: { message: `Invoice successfully emailed to ${invoice.customerEmail}!`, type: 'success' } }));
+    } catch (error) {
+      console.error(error);
+      window.dispatchEvent(new CustomEvent('app-toast', { detail: { message: "Failed to send invoice email.", type: 'error' } }));
+    } finally {
+      setIsSendingEmail(false);
+    }
   };
 
   const getStatusStyle = (status) => {
@@ -28,6 +69,21 @@ const InvoicePreviewModal = ({ isOpen, onClose, invoice }) => {
             <span className="text-sm font-bold text-slate-800 uppercase tracking-wider">Invoice Document Preview</span>
           </div>
           <div className="flex items-center gap-3">
+            {invoice.customerEmail && (
+              <button
+                onClick={handleSendEmail}
+                disabled={isSendingEmail}
+                className="px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors disabled:opacity-50"
+                title={`Send invoice to ${invoice.customerEmail}`}
+              >
+                {isSendingEmail ? (
+                  <Loader2 className="animate-spin text-slate-500" size={14} />
+                ) : (
+                  <Mail size={14} />
+                )}
+                <span>Email Invoice</span>
+              </button>
+            )}
             <button
               onClick={handlePrint}
               className="px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors"
@@ -36,10 +92,15 @@ const InvoicePreviewModal = ({ isOpen, onClose, invoice }) => {
               <span>Print Invoice</span>
             </button>
             <button
-              onClick={() => alert("PDF download service will be integrated here.")}
-              className="px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors"
+              onClick={handleDownload}
+              disabled={isDownloading}
+              className="px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors disabled:opacity-50"
             >
-              <Download size={14} />
+              {isDownloading ? (
+                <Loader2 className="animate-spin text-slate-500" size={14} />
+              ) : (
+                <Download size={14} />
+              )}
               <span>Download PDF</span>
             </button>
             <button onClick={onClose} className="p-1.5 hover:bg-slate-200 text-slate-400 hover:text-slate-650 rounded-lg transition-colors cursor-pointer">

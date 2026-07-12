@@ -56,6 +56,21 @@ export const invoiceApi = {
   getRecent: async () => {
     const response = await apiClient.get('/api/invoices/recent');
     return response.data;
+  },
+
+  downloadInvoicePdf: async (id) => {
+    const response = await apiClient.get(`/api/invoices/${id}/download`, { responseType: 'blob' });
+    return response.data;
+  },
+
+  getInvoicePdfInline: async (id) => {
+    const response = await apiClient.get(`/api/invoices/${id}/pdf`, { responseType: 'blob' });
+    return response.data;
+  },
+
+  sendInvoiceEmail: async (id) => {
+    const response = await apiClient.post(`/api/invoices/${id}/send`);
+    return response.data;
   }
 };
 
