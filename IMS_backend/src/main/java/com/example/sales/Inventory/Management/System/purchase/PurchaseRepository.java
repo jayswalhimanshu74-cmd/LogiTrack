@@ -20,6 +20,8 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
     
     Optional<Purchase> findByPurchaseNo(String purchaseNo);
 
+    List<Purchase> findTop5ByOrderByIdDesc();
+
     @Query("SELECT COALESCE(SUM(p.totalAmount), 0) FROM Purchase p WHERE p.status <> 'CANCELLED'")
     BigDecimal sumTotalPurchases();
 

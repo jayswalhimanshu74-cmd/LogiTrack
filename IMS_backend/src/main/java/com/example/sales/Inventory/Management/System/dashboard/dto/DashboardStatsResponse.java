@@ -18,4 +18,6 @@ public class DashboardStatsResponse {
     private Long totalProductsCount;
     private Long lowStockAlertCount;
     private List<CategoryStockDto> categoryStockBreakdown;
+    private List<RecentTransactionDto> recentTransactions;
 }
+

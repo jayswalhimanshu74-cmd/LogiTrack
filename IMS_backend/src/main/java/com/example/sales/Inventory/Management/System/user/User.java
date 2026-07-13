@@ -38,4 +38,13 @@ public class User extends AuditableEntity {
 
     @Column(name = "is_active", nullable = false)
     private boolean active = true;
+
+    @Column(name = "profile_image_url", nullable = true, length = 500)
+    private String profileImageUrl;
+
+    @Column(name = "last_password_changed", nullable = true)
+    private java.time.LocalDateTime lastPasswordChanged;
+
+    @Column(name = "oauth_provider", nullable = true, length = 50)
+    private String oauthProvider; // "LOCAL", "GOOGLE", "GITHUB"
 }

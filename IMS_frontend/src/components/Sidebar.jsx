@@ -63,12 +63,16 @@ const Sidebar = ({ activeTab }) => {
             <span className="material-symbols-outlined">analytics</span>
             <span>Reports</span>
           </Link>
+          <Link to="/profile" className={getLinkClass("profile")}>
+            <span className="material-symbols-outlined">person</span>
+            <span>My Profile</span>
+          </Link>
         </nav>
       </div>
 
       {/* User Info & Logout */}
       <div className="p-6 border-t border-slate-100">
-        <div className="flex items-center gap-4 mb-6">
+        <Link to="/profile" className="flex items-center gap-4 mb-6 hover:bg-slate-50 p-2 rounded-lg transition-colors cursor-pointer block">
           <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 font-bold border border-slate-200 shrink-0">
             {userEmail ? userEmail[0].toUpperCase() : "U"}
           </div>
@@ -76,7 +80,7 @@ const Sidebar = ({ activeTab }) => {
             <p className="text-sm text-slate-800 font-semibold truncate">{userEmail.split('@')[0]}</p>
             <p className="text-xs text-slate-500 truncate">{userEmail}</p>
           </div>
-        </div>
+        </Link>
         <button 
           onClick={handleLogout}
           className="w-full flex items-center justify-center gap-2 py-4 border border-slate-200 text-slate-700 hover:bg-slate-50 text-sm font-semibold rounded-lg transition-colors"

@@ -12,6 +12,7 @@ import SalesOrders from './pages/SalesOrders'
 import Invoices from './pages/Invoices'
 import Purchases from './pages/Purchases'
 import Reports from './pages/Reports'
+import Profile from './pages/Profile'
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
       <Route path="/invoices" element={<Invoices />} />
       <Route path="/purchases" element={<Purchases />} />
       <Route path="/reports" element={<Reports />} />
+      <Route path="/profile" element={<Profile />} />
     </Routes>
     </BrowserRouter>
     </>

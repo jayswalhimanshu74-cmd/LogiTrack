@@ -20,6 +20,8 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
 
     Optional<Sale> findBySaleNo(String saleNo);
 
+    List<Sale> findTop5ByOrderByIdDesc();
+
     @Query("SELECT COALESCE(SUM(s.totalAmount), 0) FROM Sale s WHERE s.status <> 'CANCELLED'")
     BigDecimal sumTotalSales();
 

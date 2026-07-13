@@ -10,6 +10,9 @@ CREATE TABLE IF NOT EXISTS users (
     role VARCHAR(20) NOT NULL DEFAULT 'STAFF',
     is_verified BOOLEAN NOT NULL DEFAULT FALSE,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    profile_image_url VARCHAR(500),
+    last_password_changed TIMESTAMP WITHOUT TIME ZONE,
+    oauth_provider VARCHAR(50),
     created_at TIMESTAMP WITHOUT TIME ZONE,
     updated_at TIMESTAMP WITHOUT TIME ZONE
 );

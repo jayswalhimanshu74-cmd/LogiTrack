@@ -128,7 +128,7 @@ const Dashboard = () => {
 
             <button className="p-4 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-lg transition-colors relative">
               <span className="material-symbols-outlined">notifications</span>
-              {stats?.lowStockAlertsCount > 0 && (
+              {stats?.lowStockAlertCount > 0 && (
                 <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full ring-2 ring-white"></span>
               )}
             </button>
@@ -189,7 +189,7 @@ const Dashboard = () => {
               <div>
                 <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">Catalog Products</p>
                 <h3 className="text-2xl font-bold text-slate-900 mt-1">
-                  {stats?.totalProductCount || 0}
+                  {stats?.totalProductsCount || 0}
                 </h3>
                 <span className="text-xs text-slate-500 font-semibold flex items-center gap-1 mt-2">
                   Active items in warehouse
@@ -202,17 +202,17 @@ const Dashboard = () => {
 
             {/* Low Stock Alerts */}
             <div className={`bg-white p-6 rounded-xl border shadow-sm flex items-center justify-between ${
-              stats?.lowStockAlertsCount > 0 ? "border-red-200 bg-red-50/10" : "border-slate-200"
+              stats?.lowStockAlertCount > 0 ? "border-red-200 bg-red-50/10" : "border-slate-200"
             }`}>
               <div>
                 <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">Low Stock Alerts</p>
-                <h3 className={`text-2xl font-bold mt-1 ${stats?.lowStockAlertsCount > 0 ? "text-red-600" : "text-slate-900"}`}>
-                  {stats?.lowStockAlertsCount || 0}
+                <h3 className={`text-2xl font-bold mt-1 ${stats?.lowStockAlertCount > 0 ? "text-red-600" : "text-slate-900"}`}>
+                  {stats?.lowStockAlertCount || 0}
                 </h3>
                 <span className={`text-xs font-semibold flex items-center gap-1 mt-2 ${
-                  stats?.lowStockAlertsCount > 0 ? "text-red-600" : "text-slate-500"
+                  stats?.lowStockAlertCount > 0 ? "text-red-600" : "text-slate-500"
                 }`}>
-                  {stats?.lowStockAlertsCount > 0 ? (
+                  {stats?.lowStockAlertCount > 0 ? (
                     <>
                       <span className="material-symbols-outlined text-xs animate-bounce">warning</span>
                       Immediate restock required
@@ -223,7 +223,7 @@ const Dashboard = () => {
                 </span>
               </div>
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                stats?.lowStockAlertsCount > 0 ? "bg-red-100 text-red-600" : "bg-slate-100 text-slate-600"
+                stats?.lowStockAlertCount > 0 ? "bg-red-100 text-red-600" : "bg-slate-100 text-slate-600"
               }`}>
                 <span className="material-symbols-outlined text-2xl">error_outline</span>
               </div>
@@ -240,19 +240,19 @@ const Dashboard = () => {
               </div>
               
               <div className="flex-grow space-y-6">
-                {stats?.categoryStats?.map((category, idx) => (
+                {stats?.categoryStockBreakdown?.map((category, idx) => (
                   <div key={idx} className="space-y-2">
                     <div className="flex justify-between items-center text-sm font-medium">
-                      <span className="text-slate-700">{category.categoryName}</span>
+                      <span className="text-slate-700">{category.category}</span>
                       <span className="text-slate-500 font-semibold">{category.totalStock} items</span>
                     </div>
                     {/* Progress Bar */}
                     <div className="w-full bg-slate-100 rounded-full h-2">
                       <div 
                         className={`h-2 rounded-full ${
-                          idx === 0 ? "bg-blue-600" :
-                          idx === 1 ? "bg-amber-500" :
-                          idx === 2 ? "bg-emerald-500" : "bg-purple-500"
+                          idx % 4 === 0 ? "bg-blue-600" :
+                          idx % 4 === 1 ? "bg-amber-500" :
+                          idx % 4 === 2 ? "bg-emerald-500" : "bg-purple-500"
                         }`}
                         style={{ width: `${Math.min(100, (category.totalStock / 3000) * 100)}%` }}
                       ></div>
