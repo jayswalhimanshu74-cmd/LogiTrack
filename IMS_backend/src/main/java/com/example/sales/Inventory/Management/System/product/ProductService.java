@@ -4,6 +4,7 @@ import com.example.sales.Inventory.Management.System.exception.DuplicateResource
 import com.example.sales.Inventory.Management.System.exception.ResourceNotFoundException;
 import com.example.sales.Inventory.Management.System.product.dto.ProductRequest;
 import com.example.sales.Inventory.Management.System.product.dto.ProductResponse;
+import com.example.sales.Inventory.Management.System.audit.Audit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,7 @@ public class ProductService {
     private final ProductRepository productRepository;
 
     @Transactional
+    @Audit(action = "PRODUCT_CREATED", entityName = "PRODUCT", description = "Product created successfully")
     public ProductResponse createProduct(ProductRequest request) {
         if (productRepository.existsBySku(request.getSku())) {
             throw new DuplicateResourceException("Product with SKU '" + request.getSku() + "' already exists");
@@ -47,6 +49,7 @@ public class ProductService {
     }
 
     @Transactional
+    @Audit(action = "PRODUCT_UPDATED", entityName = "PRODUCT", description = "Product updated successfully")
     public ProductResponse updateProduct(Long id, ProductRequest request) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
@@ -61,6 +64,7 @@ public class ProductService {
     }
 
     @Transactional
+    @Audit(action = "PRODUCT_DELETED", entityName = "PRODUCT", description = "Product deleted successfully")
     public void deleteProduct(Long id) {
         if (!productRepository.existsById(id)) {
             throw new ResourceNotFoundException("Product not found with id: " + id);

@@ -10,6 +10,7 @@ import com.example.sales.Inventory.Management.System.sales.SaleRepository;
 import com.example.sales.Inventory.Management.System.user.User;
 import com.example.sales.Inventory.Management.System.user.UserRepository;
 import com.example.sales.Inventory.Management.System.email.EmailService;
+import com.example.sales.Inventory.Management.System.audit.Audit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -74,6 +75,7 @@ public class InvoiceService {
     }
 
     @Transactional
+    @Audit(action = "INVOICE_GENERATED", entityName = "INVOICE", description = "Invoice generated successfully")
     public InvoiceResponse createInvoice(InvoiceRequest request) {
         String invoiceNo = request.getInvoiceNo();
         if (invoiceNo == null || invoiceNo.trim().isEmpty()) {
@@ -154,6 +156,7 @@ public class InvoiceService {
     }
 
     @Transactional
+    @Audit(action = "INVOICE_GENERATED", entityName = "INVOICE", description = "Invoice generated from Sales Order")
     public InvoiceResponse generateInvoiceFromSale(Long saleId) {
         Sale sale = saleRepository.findById(saleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Sale order not found with id: " + saleId));
@@ -427,6 +430,7 @@ public class InvoiceService {
     }
 
     @Transactional(readOnly = true)
+    @Audit(action = "INVOICE_EMAILED", entityName = "INVOICE", description = "Invoice sent to customer via email")
     public void sendInvoiceEmail(Long id) {
         Invoice invoice = invoiceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice not found with id: " + id));

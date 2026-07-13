@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.sales.Inventory.Management.System.audit.Audit;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Base64;
@@ -39,6 +40,7 @@ public class PasswordResetService {
     }
 
     @Transactional
+    @Audit(action = "FORGOT_PASSWORD_REQUEST", entityName = "USER", description = "Password reset link requested")
     public void initiateForgotPassword(String email) {
         log.info("Password reset request received for email: {}", email);
         
@@ -81,6 +83,7 @@ public class PasswordResetService {
     }
 
     @Transactional
+    @Audit(action = "PASSWORD_RESET", entityName = "USER", description = "Password successfully reset via token")
     public void resetPassword(String token, String newPassword) {
         log.info("Password reset attempt with token");
 

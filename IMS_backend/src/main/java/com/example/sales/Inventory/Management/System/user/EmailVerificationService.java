@@ -13,6 +13,8 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
+import com.example.sales.Inventory.Management.System.audit.Audit;
+
 @Service
 public class EmailVerificationService {
 
@@ -68,6 +70,7 @@ public class EmailVerificationService {
     }
 
     @Transactional
+    @Audit(action = "EMAIL_VERIFICATION", entityName = "USER", description = "Email verified successfully")
     public void verifyEmail(String token) {
         log.info("Attempting to verify email with token");
 

@@ -8,11 +8,15 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
   const [userEmail, setUserEmail] = useState("");
+  const [userRole, setUserRole] = useState("");
+  const [recentActivities, setRecentActivities] = useState([]);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     const email = localStorage.getItem("userEmail") || "admin@logitrack.com";
+    const role = localStorage.getItem("userRole") || "STAFF";
     setUserEmail(email);
+    setUserRole(role);
 
     if (!token) {
       navigate("/login");
@@ -44,7 +48,30 @@ const Dashboard = () => {
       }
     };
 
+    const fetchRecentActivities = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/api/audit?page=0&size=5&sortBy=timestamp&direction=desc", {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setRecentActivities(data.content || []);
+        } else {
+          loadMockActivities();
+        }
+      } catch (error) {
+        console.error("Error fetching recent activities:", error);
+        loadMockActivities();
+      }
+    };
+
     fetchStats();
+    if (role === "ADMIN") {
+      fetchRecentActivities();
+    }
   }, [navigate]);
 
   const loadMockStats = () => {
@@ -69,9 +96,21 @@ const Dashboard = () => {
     });
   };
 
+  const loadMockActivities = () => {
+    setRecentActivities([
+      { id: 1, action: "LOGIN", userName: "Administrator", userEmail: "admin@logitrack.com", timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(), status: "SUCCESS", description: "User logged in successfully" },
+      { id: 2, action: "UPDATE", entityName: "PRODUCT", entityId: 101, userName: "System Manager", userEmail: "staff@logitrack.com", timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(), status: "SUCCESS", description: "Updated stock count for item 'iPad Pro'" },
+      { id: 3, action: "CREATE", entityName: "INVOICE", entityId: 504, userName: "System Manager", userEmail: "staff@logitrack.com", timestamp: new Date(Date.now() - 1000 * 60 * 60).toISOString(), status: "SUCCESS", description: "Created invoice for sales order SO-4982" },
+      { id: 4, action: "EXPORT", entityName: "REPORT", userName: "Administrator", userEmail: "admin@logitrack.com", timestamp: new Date(Date.now() - 1000 * 60 * 120).toISOString(), status: "SUCCESS", description: "Exported category stock breakdown report" },
+      { id: 5, action: "DELETE", entityName: "PRODUCT", entityId: 88, userName: "Administrator", userEmail: "admin@logitrack.com", timestamp: new Date(Date.now() - 1000 * 60 * 240).toISOString(), status: "FAILED", description: "Execution failed: Cannot delete product referenced in Sales Order" },
+    ]);
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("userEmail");
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("userFullName");
     navigate("/login");
   };
 
@@ -315,6 +354,59 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
+
+          {userRole === "ADMIN" && (
+            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-indigo-600">history</span>
+                  <h3 className="text-lg font-bold text-slate-800">Recent Security & System Activities</h3>
+                </div>
+                <button 
+                  onClick={() => navigate("/audit-logs")}
+                  className="text-xs text-primary font-semibold hover:underline"
+                >
+                  View All Audit Logs
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {recentActivities.map((act) => (
+                  <div key={act.id} className="flex items-start gap-4 p-3 rounded-lg hover:bg-slate-50 transition-colors">
+                    <div className={`w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-xs font-bold border ${
+                      act.action === "DELETE" || act.status === "FAILED"
+                        ? "bg-rose-50 border-rose-100 text-rose-600"
+                        : act.action === "CREATE" || act.action === "LOGIN"
+                        ? "bg-emerald-50 border-emerald-100 text-emerald-600"
+                        : "bg-indigo-50 border-indigo-100 text-indigo-600"
+                    }`}>
+                      <span className="material-symbols-outlined text-sm">
+                        {act.action === "LOGIN" ? "login" : act.action === "DELETE" ? "delete" : "build"}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start">
+                        <p className="text-sm font-semibold text-slate-800 truncate">{act.description}</p>
+                        <span className="text-[10px] text-slate-400 font-mono whitespace-nowrap ml-2">
+                          {new Date(act.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        By <span className="font-medium text-slate-700">{act.userName}</span> ({act.userEmail}) • 
+                        Action: <span className="font-mono text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">{act.action}</span>
+                        {act.entityName && (
+                          <> • Module: <span className="font-mono text-[10px] bg-slate-150 text-slate-700 px-1.5 py-0.5 rounded">{act.entityName}</span></>
+                        )}
+                        {act.status === "FAILED" && (
+                          <span className="text-red-500 font-bold ml-1.5">(Failed)</span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </main>
       </div>
     </div>

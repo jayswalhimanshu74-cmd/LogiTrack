@@ -4,15 +4,20 @@ import { Link, useNavigate } from "react-router-dom";
 const Sidebar = ({ activeTab }) => {
   const navigate = useNavigate();
   const [userEmail, setUserEmail] = useState("");
+  const [userRole, setUserRole] = useState("");
 
   useEffect(() => {
     const email = localStorage.getItem("userEmail") || "admin@logitrack.com";
+    const role = localStorage.getItem("userRole") || "STAFF";
     setUserEmail(email);
+    setUserRole(role);
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("userEmail");
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("userFullName");
     navigate("/login");
   };
 
@@ -67,6 +72,12 @@ const Sidebar = ({ activeTab }) => {
             <span className="material-symbols-outlined">person</span>
             <span>My Profile</span>
           </Link>
+          {userRole === "ADMIN" && (
+            <Link to="/audit-logs" className={getLinkClass("audit-logs")}>
+              <span className="material-symbols-outlined">history</span>
+              <span>Audit Logs</span>
+            </Link>
+          )}
         </nav>
       </div>
 

@@ -11,6 +11,7 @@ import com.example.sales.Inventory.Management.System.sales.dto.SaleRequest;
 import com.example.sales.Inventory.Management.System.sales.dto.SaleResponse;
 import com.example.sales.Inventory.Management.System.user.User;
 import com.example.sales.Inventory.Management.System.user.UserRepository;
+import com.example.sales.Inventory.Management.System.audit.Audit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,6 +35,7 @@ public class SaleService {
     private final UserRepository userRepository;
 
     @Transactional
+    @Audit(action = "SALE_CREATED", entityName = "SALE", description = "Sales order created successfully")
     public SaleResponse createSale(SaleRequest request) {
         if (saleRepository.existsBySaleNo(request.getSaleNo())) {
             throw new DuplicateResourceException("Sale with number '" + request.getSaleNo() + "' already exists");
@@ -89,6 +91,7 @@ public class SaleService {
     }
 
     @Transactional
+    @Audit(action = "SALE_UPDATED", entityName = "SALE", description = "Sales order updated successfully")
     public SaleResponse updateSale(Long id, SaleRequest request) {
         Sale sale = saleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Sales order not found with id: " + id));
@@ -192,6 +195,7 @@ public class SaleService {
     }
 
     @Transactional
+    @Audit(action = "SALE_CANCELLED", entityName = "SALE", description = "Sales order deleted / cancelled")
     public void deleteSale(Long id) {
         Sale sale = saleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Sales order not found with id: " + id));

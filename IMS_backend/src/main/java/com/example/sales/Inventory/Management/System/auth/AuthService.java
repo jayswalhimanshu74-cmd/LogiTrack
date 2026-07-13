@@ -9,6 +9,7 @@ import com.example.sales.Inventory.Management.System.user.EmailVerificationServi
 import com.example.sales.Inventory.Management.System.user.Role;
 import com.example.sales.Inventory.Management.System.user.User;
 import com.example.sales.Inventory.Management.System.user.UserRepository;
+import com.example.sales.Inventory.Management.System.audit.Audit;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -38,6 +39,7 @@ public class AuthService {
     }
 
     @Transactional
+    @Audit(action = "REGISTRATION", entityName = "USER", description = "New user registered")
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("Email already registered: " + request.getEmail());
@@ -75,6 +77,7 @@ public class AuthService {
         return new AuthResponse(null, user.getFullName(), user.getEmail(), user.getRole().name());
     }
 
+    @Audit(action = "LOGIN", entityName = "USER", description = "User logged in")
     public AuthResponse login(LoginRequest request) {
         // this throws AuthenticationException automatically if credentials are wrong
         authenticationManager.authenticate(

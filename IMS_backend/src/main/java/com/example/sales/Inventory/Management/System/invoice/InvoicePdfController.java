@@ -1,5 +1,6 @@
 package com.example.sales.Inventory.Management.System.invoice;
 
+import com.example.sales.Inventory.Management.System.audit.Audit;
 import com.example.sales.Inventory.Management.System.exception.ResourceNotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -23,6 +24,7 @@ public class InvoicePdfController {
     }
 
     @GetMapping("/{id}/pdf")
+    @Audit(action = "INVOICE_DOWNLOADED", entityName = "INVOICE", description = "Invoice PDF viewed inline")
     public ResponseEntity<byte[]> getInvoicePdfInline(@PathVariable Long id) {
         byte[] pdfBytes = invoicePdfService.generateInvoicePdf(id);
         
@@ -38,6 +40,7 @@ public class InvoicePdfController {
     }
 
     @GetMapping("/{id}/download")
+    @Audit(action = "INVOICE_DOWNLOADED", entityName = "INVOICE", description = "Invoice PDF downloaded")
     public ResponseEntity<byte[]> downloadInvoicePdf(@PathVariable Long id) {
         byte[] pdfBytes = invoicePdfService.generateInvoicePdf(id);
 

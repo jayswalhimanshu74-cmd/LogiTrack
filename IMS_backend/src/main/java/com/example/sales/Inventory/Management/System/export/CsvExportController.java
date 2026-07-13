@@ -1,5 +1,6 @@
 package com.example.sales.Inventory.Management.System.export;
 
+import com.example.sales.Inventory.Management.System.audit.Audit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -32,6 +33,7 @@ public class CsvExportController {
     }
 
     @GetMapping("/products")
+    @Audit(action = "EXPORT_CSV", entityName = "PRODUCT", description = "Exported product inventory list to CSV")
     public ResponseEntity<byte[]> exportProducts(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String category,
@@ -56,6 +58,7 @@ public class CsvExportController {
     }
 
     @GetMapping("/sales")
+    @Audit(action = "EXPORT_CSV", entityName = "SALE", description = "Exported sales orders list to CSV")
     public ResponseEntity<byte[]> exportSales(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String status,
@@ -82,6 +85,7 @@ public class CsvExportController {
     }
 
     @GetMapping("/purchases")
+    @Audit(action = "EXPORT_CSV", entityName = "PURCHASE", description = "Exported purchase orders list to CSV")
     public ResponseEntity<byte[]> exportPurchases(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String status,
@@ -108,6 +112,7 @@ public class CsvExportController {
     }
 
     @GetMapping("/invoices")
+    @Audit(action = "EXPORT_CSV", entityName = "INVOICE", description = "Exported invoices list to CSV")
     public ResponseEntity<byte[]> exportInvoices(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String status,
@@ -134,6 +139,7 @@ public class CsvExportController {
     }
 
     @GetMapping("/reports")
+    @Audit(action = "EXPORT_CSV", entityName = "REPORT", description = "Exported report statistics to CSV")
     public ResponseEntity<byte[]> exportReports() {
 
         if (isNotAuthenticated()) {

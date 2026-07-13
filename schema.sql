@@ -143,3 +143,29 @@ CREATE TABLE IF NOT EXISTS email_verification_tokens (
     used BOOLEAN NOT NULL DEFAULT FALSE
 );
 CREATE UNIQUE INDEX IF NOT EXISTS idx_email_verification_token ON email_verification_tokens(token);
+
+-- 11. Create Audit Logs table
+CREATE TABLE IF NOT EXISTS audit_logs (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT,
+    user_name VARCHAR(120),
+    user_email VARCHAR(150),
+    role VARCHAR(50),
+    action VARCHAR(100) NOT NULL,
+    entity_name VARCHAR(100),
+    entity_id BIGINT,
+    description VARCHAR(1000),
+    old_value TEXT,
+    new_value TEXT,
+    ip_address VARCHAR(50),
+    user_agent VARCHAR(500),
+    request_method VARCHAR(10),
+    request_uri VARCHAR(255),
+    status VARCHAR(20) NOT NULL,
+    timestamp TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_audit_timestamp ON audit_logs(timestamp);
+CREATE INDEX IF NOT EXISTS idx_audit_user_id ON audit_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_audit_action ON audit_logs(action);
+CREATE INDEX IF NOT EXISTS idx_audit_entity_name ON audit_logs(entity_name);

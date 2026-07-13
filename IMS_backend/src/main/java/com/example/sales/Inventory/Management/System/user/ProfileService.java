@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.sales.Inventory.Management.System.audit.Audit;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -40,6 +41,7 @@ public class ProfileService {
     }
 
     @Transactional
+    @Audit(action = "PROFILE_UPDATE", entityName = "USER", description = "Updated user profile details")
     public UserProfileResponse updateProfile(User user, UserProfileRequest request) {
         user.setFullName(request.getFullName());
         user.setPhone(request.getPhone());
@@ -48,6 +50,7 @@ public class ProfileService {
     }
 
     @Transactional
+    @Audit(action = "PROFILE_UPDATE", entityName = "USER", description = "Uploaded user avatar image")
     public UserProfileResponse uploadAvatar(User user, MultipartFile file) {
         if (file.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File is empty");
@@ -103,6 +106,7 @@ public class ProfileService {
     }
 
     @Transactional
+    @Audit(action = "PASSWORD_CHANGE", entityName = "USER", description = "Manual password change successful")
     public void changePassword(User user, ChangePasswordRequest request) {
         if ("GOOGLE".equals(user.getOauthProvider()) || "GITHUB".equals(user.getOauthProvider())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "OAuth users cannot change passwords locally");

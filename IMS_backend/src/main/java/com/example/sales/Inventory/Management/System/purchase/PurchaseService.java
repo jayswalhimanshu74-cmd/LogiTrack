@@ -8,6 +8,7 @@ import com.example.sales.Inventory.Management.System.product.ProductRepository;
 import com.example.sales.Inventory.Management.System.purchase.dto.*;
 import com.example.sales.Inventory.Management.System.user.User;
 import com.example.sales.Inventory.Management.System.user.UserRepository;
+import com.example.sales.Inventory.Management.System.audit.Audit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +31,7 @@ public class PurchaseService {
     private final UserRepository userRepository;
 
     @Transactional
+    @Audit(action = "PURCHASE_CREATED", entityName = "PURCHASE", description = "Purchase order created successfully")
     public PurchaseResponse createPurchase(PurchaseRequest request) {
         if (purchaseRepository.existsByPurchaseNo(request.getPurchaseNo())) {
             throw new DuplicateResourceException("Purchase with number '" + request.getPurchaseNo() + "' already exists");
@@ -81,6 +83,7 @@ public class PurchaseService {
     }
 
     @Transactional
+    @Audit(action = "PURCHASE_UPDATED", entityName = "PURCHASE", description = "Purchase order updated successfully")
     public PurchaseResponse updatePurchase(Long id, PurchaseRequest request) {
         Purchase purchase = purchaseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Purchase order not found with id: " + id));
@@ -177,6 +180,7 @@ public class PurchaseService {
     }
 
     @Transactional
+    @Audit(action = "PURCHASE_DELETED", entityName = "PURCHASE", description = "Purchase order deleted successfully")
     public void deletePurchase(Long id) {
         Purchase purchase = purchaseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Purchase order not found with id: " + id));

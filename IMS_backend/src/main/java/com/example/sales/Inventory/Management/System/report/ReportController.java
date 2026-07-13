@@ -1,5 +1,6 @@
 package com.example.sales.Inventory.Management.System.report;
 
+import com.example.sales.Inventory.Management.System.audit.Audit;
 import com.example.sales.Inventory.Management.System.report.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +18,7 @@ public class ReportController {
     private final ReportService reportService;
 
     @GetMapping("/sales")
+    @Audit(action = "REPORT_GENERATED", entityName = "REPORT", description = "Generated sales report")
     public ResponseEntity<SalesReportResponse> getSalesReport(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String status,
@@ -29,6 +31,7 @@ public class ReportController {
     }
 
     @GetMapping("/purchases")
+    @Audit(action = "REPORT_GENERATED", entityName = "REPORT", description = "Generated purchases report")
     public ResponseEntity<PurchaseReportResponse> getPurchaseReport(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String status,
@@ -41,6 +44,7 @@ public class ReportController {
     }
 
     @GetMapping("/inventory")
+    @Audit(action = "REPORT_GENERATED", entityName = "REPORT", description = "Generated inventory report")
     public ResponseEntity<InventoryReportResponse> getInventoryReport(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String category,
@@ -51,6 +55,7 @@ public class ReportController {
     }
 
     @GetMapping("/invoices")
+    @Audit(action = "REPORT_GENERATED", entityName = "REPORT", description = "Generated invoice report")
     public ResponseEntity<InvoiceReportResponse> getInvoiceReport(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String status,

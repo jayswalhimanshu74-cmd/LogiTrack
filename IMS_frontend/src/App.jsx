@@ -13,6 +13,7 @@ import Invoices from './pages/Invoices'
 import Purchases from './pages/Purchases'
 import Reports from './pages/Reports'
 import Profile from './pages/Profile'
+import AuditLogs from './pages/AuditLogs'
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
       <Route path="/purchases" element={<Purchases />} />
       <Route path="/reports" element={<Reports />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/audit-logs" element={<AuditLogs />} />
     </Routes>
     </BrowserRouter>
     </>
