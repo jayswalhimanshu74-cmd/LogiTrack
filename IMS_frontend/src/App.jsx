@@ -14,6 +14,8 @@ import Purchases from './pages/Purchases'
 import Reports from './pages/Reports'
 import Profile from './pages/Profile'
 import AuditLogs from './pages/AuditLogs'
+import StockMovements from './pages/StockMovements'
+import Notifications from './pages/Notifications'
 
 function App() {
   return (
@@ -31,7 +33,9 @@ function App() {
       <Route path="/sales-orders" element={<SalesOrders />} />
       <Route path="/invoices" element={<Invoices />} />
       <Route path="/purchases" element={<Purchases />} />
+      <Route path="/stock-movements" element={<StockMovements />} />
       <Route path="/reports" element={<Reports />} />
+      <Route path="/notifications" element={<Notifications />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/audit-logs" element={<AuditLogs />} />
     </Routes>
@@ -41,4 +45,3 @@ function App() {
 }
 
 export default App
-

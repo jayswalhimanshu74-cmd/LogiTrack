@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Sidebar from "../components/Sidebar";
+import Header from "../components/Header";
 import purchaseApi from "../api/purchaseApi";
 import PurchaseFormModal from "../components/PurchaseFormModal";
 import PurchaseDetailsDrawer from "../components/PurchaseDetailsDrawer";
@@ -287,112 +288,109 @@ const Purchases = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex font-sans">
+    <div className="min-h-screen bg-slate-50 flex font-sans antialiased text-slate-900">
       <Sidebar activeTab="purchases" />
 
       {/* Main Workspace */}
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         
-        {/* Header */}
-        <header className="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-6 md:px-8 z-10 sticky top-0">
-          <div className="flex items-center gap-4">
-            <h2 className="text-xl text-slate-800 font-semibold">Purchase Management</h2>
-          </div>
-          <div className="flex items-center gap-4">
-            {connectionStatus === "connected" ? (
-              <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-4 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
-                <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                Connected
-              </span>
-            ) : (
-              <span className="bg-amber-50 text-amber-800 border border-amber-200 px-4 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
-                <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>
-                Demo Mode
-              </span>
-            )}
-            <button 
-              onClick={() => { fetchPurchases(); loadStats(); }} 
-              className="p-2 hover:bg-slate-50 border border-slate-200 rounded-lg text-slate-500 hover:text-slate-800 transition-all cursor-pointer"
-              title="Refresh Purchases"
-            >
-              <RefreshCw size={16} />
-            </button>
-          </div>
-        </header>
+        <Header 
+          workspaceName="Purchases" 
+          title="Purchases & Replenishment" 
+          onRefresh={async () => { fetchPurchases(); loadStats(); }} 
+        />
 
         {/* Dashboard Grid */}
-        <main className="flex-1 p-6 md:p-8 space-y-8 max-w-[1600px] w-full mx-auto">
+        <main className="flex-1 p-6 md:p-8 space-y-6 max-w-[1600px] w-full mx-auto">
           
-          {/* Stats Cards */}
+          {/* Stats Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">Total Purchases</p>
-                <h3 className="text-2xl font-bold text-slate-900 mt-1">{stats.totalPurchasesCount}</h3>
+            <div className="card-premium p-6 flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Purchases</p>
+                <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{stats.totalPurchasesCount}</h3>
+                <span className="text-[10px] text-slate-500 font-bold flex items-center gap-1 mt-2">
+                  <span className="material-symbols-outlined text-sm">local_mall</span>
+                  Procurements registered
+                </span>
               </div>
-              <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
-                <ShoppingBag size={24} />
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">Aggregate Purchase Cost</p>
-                <h3 className="text-2xl font-bold text-slate-900 mt-1">${stats.totalExpense?.toFixed(2)}</h3>
-              </div>
-              <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
-                <DollarSign size={24} />
+              <div className="w-11 h-11 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center border border-blue-100/50 shadow-sm shrink-0">
+                <ShoppingBag size={20} />
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">Today's Purchases</p>
-                <h3 className="text-2xl font-bold text-slate-900 mt-1">${stats.todayExpense?.toFixed(2)}</h3>
-                <span className="text-[10px] text-slate-400 font-semibold">{stats.todayPurchasesCount} purchases logged</span>
+            <div className="card-premium p-6 flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Aggregate Purchase Cost</p>
+                <h3 className="text-2xl font-bold text-slate-900 tracking-tight">${stats.totalExpense?.toFixed(2)}</h3>
+                <span className="text-[10px] text-slate-500 font-bold flex items-center gap-1 mt-2">
+                  <span className="material-symbols-outlined text-sm">payments</span>
+                  Total restock expense
+                </span>
               </div>
-              <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
-                <TrendingUp size={24} />
+              <div className="w-11 h-11 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center border border-emerald-100/50 shadow-sm shrink-0">
+                <DollarSign size={20} />
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">Pending Purchases</p>
-                <h3 className={`text-2xl font-bold mt-1 ${stats.pendingPurchasesCount > 0 ? "text-amber-600" : "text-slate-900"}`}>{stats.pendingPurchasesCount}</h3>
+            <div className="card-premium p-6 flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Today's Purchases</p>
+                <h3 className="text-2xl font-bold text-slate-900 tracking-tight">${stats.todayExpense?.toFixed(2)}</h3>
+                <span className="text-[10px] text-slate-500 font-bold flex items-center gap-1 mt-2">
+                  <span className="material-symbols-outlined text-sm">today</span>
+                  {stats.todayPurchasesCount} orders logged
+                </span>
               </div>
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stats.pendingPurchasesCount > 0 ? "bg-amber-50 text-amber-600" : "bg-slate-50 text-slate-500"}`}>
-                <ShieldAlert size={24} />
+              <div className="w-11 h-11 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center border border-purple-100/50 shadow-sm shrink-0">
+                <TrendingUp size={20} />
+              </div>
+            </div>
+
+            <div className="card-premium p-6 flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pending Purchases</p>
+                <h3 className={`text-2xl font-bold tracking-tight ${stats.pendingPurchasesCount > 0 ? "text-amber-600" : "text-slate-900"}`}>{stats.pendingPurchasesCount}</h3>
+                <span className={`text-[10px] font-bold flex items-center gap-1 mt-2 ${stats.pendingPurchasesCount > 0 ? "text-amber-600" : "text-slate-500"}`}>
+                  <span className="material-symbols-outlined text-xs">
+                    {stats.pendingPurchasesCount > 0 ? "pending_actions" : "check_circle"}
+                  </span>
+                  {stats.pendingPurchasesCount > 0 ? "Awaiting delivery" : "All items received"}
+                </span>
+              </div>
+              <div className={`w-11 h-11 rounded-xl flex items-center justify-center border shadow-sm shrink-0 ${stats.pendingPurchasesCount > 0 ? "bg-amber-50 text-amber-600 border-amber-100/50" : "bg-slate-50 text-slate-500 border-slate-100"}`}>
+                <ShieldAlert size={20} />
               </div>
             </div>
           </div>
 
           {/* Search, filters, listings */}
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <div className="bg-white p-6 rounded-xl border border-slate-200/70 shadow-sm space-y-4">
             
             <div className="flex flex-col xl:flex-row gap-4 items-center justify-between">
+              
               {/* Search Bar */}
               <div className="relative w-full xl:max-w-xs shrink-0">
-                <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
-                  <Search size={18} />
+                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 pointer-events-none">
+                  <Search size={16} />
                 </span>
                 <input
                   type="text"
                   placeholder="Search PO #, supplier..."
                   value={searchVal}
                   onChange={(e) => { setSearchVal(e.target.value); setCurrentPage(0); }}
-                  className="w-full pl-10 pr-4 py-2 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 rounded-lg text-sm transition-all"
+                  className="input-premium pl-9 py-2"
                 />
               </div>
 
               {/* Advanced multi-filters */}
               <div className="flex flex-wrap items-center gap-3 w-full justify-end">
-                <div className="flex items-center gap-2 border border-slate-200 px-3 py-2 rounded-lg bg-white">
-                  <Filter size={16} className="text-slate-500" />
+                <div className="flex items-center gap-2 border border-slate-200 rounded-lg bg-white px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-blue-500 transition-all">
+                  <Filter size={14} className="text-slate-400" />
                   <select
                     value={statusFilter}
                     onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(0); }}
-                    className="text-sm text-slate-700 bg-transparent outline-none focus:ring-0 cursor-pointer"
+                    className="text-xs text-slate-700 bg-transparent outline-none focus:ring-0 cursor-pointer font-medium"
                   >
                     <option value="">All Statuses</option>
                     <option value="PENDING">Pending</option>
@@ -401,11 +399,11 @@ const Purchases = () => {
                   </select>
                 </div>
 
-                <div className="flex items-center gap-2 border border-slate-200 px-3 py-2 rounded-lg bg-white">
+                <div className="flex items-center gap-2 border border-slate-200 rounded-lg bg-white px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-blue-500 transition-all">
                   <select
                     value={paymentStatusFilter}
                     onChange={(e) => { setPaymentStatusFilter(e.target.value); setCurrentPage(0); }}
-                    className="text-sm text-slate-700 bg-transparent outline-none focus:ring-0 cursor-pointer"
+                    className="text-xs text-slate-700 bg-transparent outline-none focus:ring-0 cursor-pointer font-medium"
                   >
                     <option value="">All Payments</option>
                     <option value="PENDING">Pending</option>
@@ -415,27 +413,27 @@ const Purchases = () => {
                 </div>
 
                 {/* Date range filters */}
-                <div className="flex items-center gap-1.5 border border-slate-200 px-3 py-1.5 rounded-lg bg-white text-slate-600 text-sm">
-                  <Calendar size={15} />
+                <div className="flex items-center gap-2 border border-slate-200 rounded-lg bg-white px-3 py-2 shadow-sm text-slate-650 text-xs">
+                  <Calendar size={14} className="text-slate-400" />
                   <input
                     type="date"
                     value={startDate}
                     onChange={(e) => { setStartDate(e.target.value); setCurrentPage(0); }}
-                    className="outline-none text-xs text-slate-700 cursor-pointer"
+                    className="outline-none text-xs text-slate-700 cursor-pointer font-semibold"
                     title="Start Date"
                   />
-                  <span className="text-slate-300">to</span>
+                  <span className="text-slate-400 px-1 font-bold">→</span>
                   <input
                     type="date"
                     value={endDate}
                     onChange={(e) => { setEndDate(e.target.value); setCurrentPage(0); }}
-                    className="outline-none text-xs text-slate-700 cursor-pointer"
+                    className="outline-none text-xs text-slate-700 cursor-pointer font-semibold"
                     title="End Date"
                   />
                   {(startDate || endDate) && (
                     <button 
                       onClick={() => { setStartDate(""); setEndDate(""); }} 
-                      className="ml-1 text-slate-400 hover:text-slate-600 cursor-pointer"
+                      className="ml-2 text-rose-500 hover:text-rose-700 font-bold cursor-pointer text-[10px] uppercase tracking-wider bg-rose-50 px-1.5 py-0.5 rounded border border-rose-100"
                     >
                       Clear
                     </button>
@@ -445,171 +443,173 @@ const Purchases = () => {
                 <button
                   onClick={handleExportCSV}
                   disabled={isExporting}
-                  className="border border-slate-205 border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all cursor-pointer disabled:opacity-60"
+                  className="btn-secondary py-2 px-3 flex items-center gap-2 text-xs"
                 >
-                  <Download size={16} className={isExporting ? "animate-spin" : ""} />
+                  <Download size={14} className={isExporting ? "animate-spin" : ""} />
                   <span>{isExporting ? "Exporting..." : "Export CSV"}</span>
                 </button>
 
                 <button
                   onClick={() => { setSelectedPurchase(null); setIsFormOpen(true); }}
-                  className="bg-premium-gradient hover:bg-premium-gradient-dark text-white px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all shadow-md cursor-pointer shrink-0"
+                  className="btn-primary py-2 px-4 flex items-center gap-2 text-xs cursor-pointer shadow-md shadow-blue-500/10 shrink-0 font-semibold"
                 >
-                  <Plus size={16} />
+                  <Plus size={14} />
                   <span>Log Purchase</span>
                 </button>
               </div>
             </div>
 
             {/* Purchases Table Grid */}
-            <div className="overflow-x-auto border border-slate-100 rounded-lg">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-slate-200 bg-slate-50/50">
-                    <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort("purchaseNo")}>
-                      <div className="flex items-center gap-1">
-                        <span>Purchase Number</span>
-                        <ArrowUpDown size={12} />
-                      </div>
-                    </th>
-                    <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort("supplierName")}>
-                      <div className="flex items-center gap-1">
-                        <span>Supplier</span>
-                        <ArrowUpDown size={12} />
-                      </div>
-                    </th>
-                    <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Items Quantity</th>
-                    <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort("totalAmount")}>
-                      <div className="flex items-center gap-1">
-                        <span>Total Cost</span>
-                        <ArrowUpDown size={12} />
-                      </div>
-                    </th>
-                    <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort("status")}>
-                      <div className="flex items-center gap-1">
-                        <span>Status</span>
-                        <ArrowUpDown size={12} />
-                      </div>
-                    </th>
-                    <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Payment Status</th>
-                    <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort("purchaseDate")}>
-                      <div className="flex items-center gap-1">
-                        <span>Purchase Date</span>
-                        <ArrowUpDown size={12} />
-                      </div>
-                    </th>
-                    <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-center">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {isLoading ? (
-                    Array.from({ length: pageSize }).map((_, idx) => (
-                      <tr key={idx} className="animate-pulse">
-                        <td className="p-4"><div className="h-4 bg-slate-100 rounded w-20"></div></td>
-                        <td className="p-4">
-                          <div className="h-4 bg-slate-100 rounded w-24 mb-1"></div>
-                          <div className="h-3 bg-slate-100 rounded w-16"></div>
-                        </td>
-                        <td className="p-4"><div className="h-4 bg-slate-100 rounded w-10"></div></td>
-                        <td className="p-4"><div className="h-4 bg-slate-100 rounded w-12"></div></td>
-                        <td className="p-4"><div className="h-6 bg-slate-100 rounded-full w-20"></div></td>
-                        <td className="p-4"><div className="h-6 bg-slate-100 rounded-full w-20"></div></td>
-                        <td className="p-4"><div className="h-4 bg-slate-100 rounded w-16"></div></td>
-                        <td className="p-4"><div className="h-8 bg-slate-100 rounded-lg w-28 mx-auto"></div></td>
-                      </tr>
-                    ))
-                  ) : purchases.length === 0 ? (
+            <div className="table-container-premium">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
                     <tr>
-                      <td colSpan="8" className="p-12 text-center">
-                        <div className="w-16 h-16 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-dashed border-slate-200">
-                          <FileText size={28} />
+                      <th className="th-premium cursor-pointer hover:bg-slate-100/50 transition-colors" onClick={() => handleSort("purchaseNo")}>
+                        <div className="flex items-center gap-1">
+                          <span>Purchase Number</span>
+                          <ArrowUpDown size={10} className="text-slate-400" />
                         </div>
-                        <p className="text-slate-800 font-semibold text-base">No Purchases Found</p>
-                        <p className="text-slate-500 text-xs mt-1">Try refining search parameters or logging a new purchase order.</p>
-                      </td>
+                      </th>
+                      <th className="th-premium cursor-pointer hover:bg-slate-100/50 transition-colors" onClick={() => handleSort("supplierName")}>
+                        <div className="flex items-center gap-1">
+                          <span>Supplier</span>
+                          <ArrowUpDown size={10} className="text-slate-400" />
+                        </div>
+                      </th>
+                      <th className="th-premium">Items Quantity</th>
+                      <th className="th-premium cursor-pointer hover:bg-slate-100/50 transition-colors" onClick={() => handleSort("totalAmount")}>
+                        <div className="flex items-center gap-1">
+                          <span>Total Cost</span>
+                          <ArrowUpDown size={10} className="text-slate-400" />
+                        </div>
+                      </th>
+                      <th className="th-premium cursor-pointer hover:bg-slate-100/50 transition-colors" onClick={() => handleSort("status")}>
+                        <div className="flex items-center gap-1">
+                          <span>Status</span>
+                          <ArrowUpDown size={10} className="text-slate-400" />
+                        </div>
+                      </th>
+                      <th className="th-premium">Payment Status</th>
+                      <th className="th-premium cursor-pointer hover:bg-slate-100/50 transition-colors" onClick={() => handleSort("purchaseDate")}>
+                        <div className="flex items-center gap-1">
+                          <span>Purchase Date</span>
+                          <ArrowUpDown size={10} className="text-slate-400" />
+                        </div>
+                      </th>
+                      <th className="th-premium text-center">Actions</th>
                     </tr>
-                  ) : (
-                    purchases.map((p) => (
-                      <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="p-4">
-                          <span className="font-mono text-xs bg-slate-100 border border-slate-200/60 px-2 py-1 rounded text-slate-700 font-semibold whitespace-nowrap">
-                            {p.purchaseNo}
-                          </span>
-                        </td>
-                        <td className="p-4">
-                          <div className="font-semibold text-slate-800 text-sm">{p.supplierName}</div>
-                          <div className="text-slate-400 text-xs mt-0.5">{p.supplierPhone}</div>
-                        </td>
-                        <td className="p-4 text-slate-700 text-sm font-semibold">
-                          {p.items?.reduce((s, item) => s + item.quantity, 0) || 0} items
-                        </td>
-                        <td className="p-4 text-slate-900 font-extrabold text-sm">
-                          ${p.totalAmount?.toFixed(2)}
-                        </td>
-                        <td className="p-4">{getStatusBadge(p.status)}</td>
-                        <td className="p-4">{getPaymentBadge(p.paymentStatus)}</td>
-                        <td className="p-4 text-slate-500 text-sm whitespace-nowrap">{p.purchaseDate}</td>
-                        <td className="p-4">
-                          <div className="flex items-center justify-center gap-1.5">
-                            <button
-                              onClick={() => { setSelectedPurchase(p); setIsDrawerOpen(true); }}
-                              className="p-2 hover:bg-slate-100 text-slate-600 hover:text-slate-800 rounded-lg transition-colors cursor-pointer"
-                              title="View Details"
-                            >
-                              <Eye size={16} />
-                            </button>
-                            <button
-                              onClick={() => { setSelectedPurchase(p); setIsFormOpen(true); }}
-                              className="p-2 hover:bg-slate-100 text-slate-600 hover:text-slate-800 rounded-lg transition-colors cursor-pointer"
-                              title="Edit Details"
-                            >
-                              <Edit2 size={16} />
-                            </button>
-                            <button
-                              onClick={() => handlePrintPurchase(p)}
-                              className="p-2 hover:bg-slate-100 text-slate-600 hover:text-slate-800 rounded-lg transition-colors cursor-pointer"
-                              title="Print PO"
-                            >
-                              <Printer size={16} />
-                            </button>
-                            <button
-                              onClick={() => { setSelectedPurchase(p); setIsDeleteOpen(true); }}
-                              className="p-2 hover:bg-red-50 text-red-600 rounded-lg transition-colors cursor-pointer"
-                              title="Delete Purchase"
-                            >
-                              <Trash2 size={16} />
-                            </button>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {isLoading ? (
+                      Array.from({ length: pageSize }).map((_, idx) => (
+                        <tr key={idx}>
+                          <td className="td-premium"><div className="h-4 skeleton-shimmer rounded w-20"></div></td>
+                          <td className="td-premium">
+                            <div className="h-4 skeleton-shimmer rounded w-24 mb-1"></div>
+                            <div className="h-3 skeleton-shimmer rounded w-16"></div>
+                          </td>
+                          <td className="td-premium"><div className="h-4 skeleton-shimmer rounded w-10"></div></td>
+                          <td className="td-premium"><div className="h-4 skeleton-shimmer rounded w-12"></div></td>
+                          <td className="td-premium"><div className="h-6 skeleton-shimmer rounded-full w-20"></div></td>
+                          <td className="td-premium"><div className="h-6 skeleton-shimmer rounded-full w-20"></div></td>
+                          <td className="td-premium"><div className="h-4 skeleton-shimmer rounded w-16"></div></td>
+                          <td className="td-premium"><div className="h-8 skeleton-shimmer rounded-lg w-28 mx-auto"></div></td>
+                        </tr>
+                      ))
+                    ) : purchases.length === 0 ? (
+                      <tr>
+                        <td colSpan="8" className="p-12 text-center">
+                          <div className="w-14 h-14 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-dashed border-slate-200 shadow-sm">
+                            <FileText size={24} className="stroke-[1.5]" />
                           </div>
+                          <p className="text-slate-800 font-bold text-sm">No Purchases Found</p>
+                          <p className="text-slate-400 text-xs mt-1">Try refining search parameters or logging a new purchase order.</p>
                         </td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+                    ) : (
+                      purchases.map((p) => (
+                        <tr key={p.id} className="tr-premium">
+                          <td className="td-premium font-mono text-xs">
+                            <span className="bg-slate-100 border border-slate-200/60 px-2 py-0.5 rounded text-slate-700 font-bold whitespace-nowrap">
+                              {p.purchaseNo}
+                            </span>
+                          </td>
+                          <td className="td-premium">
+                            <div className="font-bold text-slate-800 text-xs">{p.supplierName}</div>
+                            <div className="text-slate-400 text-[10px] font-semibold mt-0.5">{p.supplierPhone || "No contact"}</div>
+                          </td>
+                          <td className="td-premium text-slate-500 text-xs font-semibold">
+                            {p.items?.reduce((s, item) => s + item.quantity, 0) || 0} items
+                          </td>
+                          <td className="td-premium text-slate-900 font-extrabold text-xs">
+                            ${p.totalAmount?.toFixed(2)}
+                          </td>
+                          <td className="td-premium py-2">{getStatusBadge(p.status)}</td>
+                          <td className="td-premium py-2">{getPaymentBadge(p.paymentStatus)}</td>
+                          <td className="td-premium text-slate-500 font-semibold text-xs whitespace-nowrap">{p.purchaseDate}</td>
+                          <td className="td-premium py-2 text-center">
+                            <div className="flex items-center justify-center gap-1">
+                              <button
+                                onClick={() => { setSelectedPurchase(p); setIsDrawerOpen(true); }}
+                                className="btn-icon hover:bg-slate-100"
+                                title="View Details"
+                              >
+                                <Eye size={14} />
+                              </button>
+                              <button
+                                onClick={() => { setSelectedPurchase(p); setIsFormOpen(true); }}
+                                className="btn-icon hover:bg-slate-100"
+                                title="Edit Details"
+                              >
+                                <Edit2 size={14} />
+                              </button>
+                              <button
+                                onClick={() => handlePrintPurchase(p)}
+                                className="btn-icon hover:bg-slate-100"
+                                title="Print PO"
+                              >
+                                <Printer size={14} />
+                              </button>
+                              <button
+                                onClick={() => { setSelectedPurchase(p); setIsDeleteOpen(true); }}
+                                className="btn-icon hover:bg-rose-50 text-rose-600 hover:text-rose-750"
+                                title="Delete Purchase"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-between border-t border-slate-100 pt-4">
-                <span className="text-xs text-slate-500">
-                  Showing <span className="font-semibold text-slate-800">{currentPage * pageSize + 1}</span> to <span className="font-semibold text-slate-800">{Math.min(totalElements, (currentPage + 1) * pageSize)}</span> of <span className="font-semibold text-slate-800">{totalElements}</span> entries
+              <div className="flex items-center justify-between border-t border-slate-100 pt-4 bg-white/50 px-2 rounded-lg">
+                <span className="text-xs text-slate-500 font-medium">
+                  Showing <span className="font-bold text-slate-700">{currentPage * pageSize + 1}</span> to <span className="font-bold text-slate-700">{Math.min(totalElements, (currentPage + 1) * pageSize)}</span> of <span className="font-bold text-slate-700">{totalElements}</span> entries
                 </span>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1">
                   <button
                     onClick={() => setCurrentPage((prev) => Math.max(0, prev - 1))}
                     disabled={currentPage === 0}
-                    className="p-2 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                    className="p-2 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer flex items-center justify-center"
                   >
-                    <ChevronLeft size={16} />
+                    <ChevronLeft size={14} />
                   </button>
                   {Array.from({ length: totalPages }).map((_, idx) => (
                     <button
                       key={idx}
                       onClick={() => setCurrentPage(idx)}
-                      className={`px-3 py-1 text-sm font-semibold rounded-lg transition-all cursor-pointer ${
+                      className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
                         currentPage === idx
-                          ? "bg-premium-gradient text-white shadow-sm"
-                          : "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                          ? "bg-blue-600 text-white shadow-sm shadow-blue-500/10"
+                          : "border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-800"
                       }`}
                     >
                       {idx + 1}
@@ -618,9 +618,9 @@ const Purchases = () => {
                   <button
                     onClick={() => setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1))}
                     disabled={currentPage === totalPages - 1}
-                    className="p-2 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                    className="p-2 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer flex items-center justify-center"
                   >
-                    <ChevronRight size={16} />
+                    <ChevronRight size={14} />
                   </button>
                 </div>
               </div>
@@ -680,7 +680,7 @@ const Purchases = () => {
                 onClick={() => setToasts((prev) => prev.filter((item) => item.id !== t.id))}
                 className="text-slate-400 hover:text-slate-600 absolute top-2 right-2 cursor-pointer"
               >
-                X
+                <X size={14} />
               </button>
             </motion.div>
           ))}

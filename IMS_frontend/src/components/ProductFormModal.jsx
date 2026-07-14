@@ -69,175 +69,181 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, product, isLoading }) => 
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto antialiased">
         {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm"
+          className="fixed inset-0 bg-slate-900/30 backdrop-blur-sm"
         />
 
         {/* Modal Window */}
         <motion.div
-          initial={{ scale: 0.95, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.95, opacity: 0 }}
-          className="relative bg-white rounded-xl border border-slate-200 shadow-2xl max-w-2xl w-full p-6 md:p-8 z-10 max-h-[90vh] overflow-y-auto font-sans"
+          initial={{ scale: 0.97, opacity: 0, y: 10 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.97, opacity: 0, y: 10 }}
+          className="relative bg-white rounded-xl border border-slate-200/80 shadow-2xl max-w-2xl w-full p-6 md:p-8 z-10 max-h-[90vh] overflow-y-auto font-sans"
         >
           {/* Close Header Button */}
           <button 
             type="button"
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer"
+            className="absolute top-5 right-5 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer"
           >
-            <X size={20} />
+            <X size={16} />
           </button>
 
-          <h3 className="text-xl font-bold text-slate-800 mb-6">
-            {product ? "Edit Product Workspace" : "Create New Product Catalog"}
-          </h3>
+          <div className="mb-6">
+            <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest bg-blue-50 border border-blue-100/50 px-2.5 py-1 rounded-full shadow-sm">
+              {product ? "Update Product" : "New Catalog Entry"}
+            </span>
+            <h3 className="text-lg font-bold text-slate-800 mt-3">
+              {product ? "Edit Product Workspace" : "Create New Product Catalog"}
+            </h3>
+            <p className="text-xs text-slate-400 mt-1">Configure product specifications, tracking metrics, and cost details.</p>
+          </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {/* General Info */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-1">
-                <label className="text-sm font-semibold text-slate-700">Product Name *</label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Product Name *</label>
                 <input
                   type="text"
                   placeholder="e.g. Logitech MX Master 3S"
                   {...register("name")}
-                  className={`w-full px-4 py-2.5 border rounded-lg text-sm transition-all focus:outline-none focus:ring-2 ${
-                    errors.name ? "border-red-300 focus:ring-red-200" : "border-slate-200 focus:ring-blue-100 focus:border-blue-500"
+                  className={`input-premium ${
+                    errors.name ? "border-rose-300 focus:ring-rose-100" : ""
                   }`}
                 />
-                {errors.name && <p className="text-xs text-red-500 flex items-center gap-1 mt-1"><AlertCircle size={12}/>{errors.name.message}</p>}
+                {errors.name && <p className="text-xs text-rose-500 flex items-center gap-1 mt-1 font-semibold"><AlertCircle size={12}/>{errors.name.message}</p>}
               </div>
 
-              <div className="space-y-1">
-                <label className="text-sm font-semibold text-slate-700">SKU (Stock Keeping Unit) *</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">SKU (Stock Keeping Unit) *</label>
                 <input
                   type="text"
                   placeholder="e.g. LOGI-MX3S-BLK"
                   disabled={!!product}
                   {...register("sku")}
-                  className={`w-full px-4 py-2.5 border rounded-lg text-sm transition-all focus:outline-none focus:ring-2 ${
-                    product ? "bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed" :
-                    errors.sku ? "border-red-300 focus:ring-red-200" : "border-slate-200 focus:ring-blue-100 focus:border-blue-500"
+                  className={`input-premium ${
+                    product ? "bg-slate-50/80 border-slate-200 text-slate-400 cursor-not-allowed font-semibold" :
+                    errors.sku ? "border-rose-300 focus:ring-rose-100" : ""
                   }`}
                 />
-                {errors.sku && <p className="text-xs text-red-500 flex items-center gap-1 mt-1"><AlertCircle size={12}/>{errors.sku.message}</p>}
+                {errors.sku && <p className="text-xs text-rose-500 flex items-center gap-1 mt-1 font-semibold"><AlertCircle size={12}/>{errors.sku.message}</p>}
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-1">
-                <label className="text-sm font-semibold text-slate-700">Category</label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Category</label>
                 <input
                   type="text"
                   placeholder="e.g. Electronics"
                   {...register("category")}
-                  className={`w-full px-4 py-2.5 border rounded-lg text-sm border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500`}
+                  className="input-premium"
                 />
-                {errors.category && <p className="text-xs text-red-500 flex items-center gap-1 mt-1"><AlertCircle size={12}/>{errors.category.message}</p>}
+                {errors.category && <p className="text-xs text-rose-500 flex items-center gap-1 mt-1 font-semibold"><AlertCircle size={12}/>{errors.category.message}</p>}
               </div>
 
-              <div className="space-y-1">
-                <label className="text-sm font-semibold text-slate-700">Unit of Measurement</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Unit of Measurement</label>
                 <input
                   type="text"
                   placeholder="e.g. pcs, boxes, kgs"
                   {...register("unit")}
-                  className={`w-full px-4 py-2.5 border rounded-lg text-sm border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500`}
+                  className="input-premium"
                 />
-                {errors.unit && <p className="text-xs text-red-500 flex items-center gap-1 mt-1"><AlertCircle size={12}/>{errors.unit.message}</p>}
+                {errors.unit && <p className="text-xs text-rose-500 flex items-center gap-1 mt-1 font-semibold"><AlertCircle size={12}/>{errors.unit.message}</p>}
               </div>
             </div>
 
             {/* Financial Info */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-1">
-                <label className="text-sm font-semibold text-slate-700">Purchase Price ($) *</label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Purchase Price ($) *</label>
                 <input
                   type="number"
                   step="0.01"
                   placeholder="0.00"
                   {...register("purchasePrice")}
-                  className={`w-full px-4 py-2.5 border rounded-lg text-sm transition-all focus:outline-none focus:ring-2 ${
-                    errors.purchasePrice ? "border-red-300 focus:ring-red-200" : "border-slate-200 focus:ring-blue-100 focus:border-blue-500"
+                  className={`input-premium ${
+                    errors.purchasePrice ? "border-rose-300 focus:ring-rose-100" : ""
                   }`}
                 />
-                {errors.purchasePrice && <p className="text-xs text-red-500 flex items-center gap-1 mt-1"><AlertCircle size={12}/>{errors.purchasePrice.message}</p>}
+                {errors.purchasePrice && <p className="text-xs text-rose-500 flex items-center gap-1 mt-1 font-semibold"><AlertCircle size={12}/>{errors.purchasePrice.message}</p>}
               </div>
 
-              <div className="space-y-1">
-                <label className="text-sm font-semibold text-slate-700">Selling Price ($) *</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Selling Price ($) *</label>
                 <input
                   type="number"
                   step="0.01"
                   placeholder="0.00"
                   {...register("sellingPrice")}
-                  className={`w-full px-4 py-2.5 border rounded-lg text-sm transition-all focus:outline-none focus:ring-2 ${
-                    errors.sellingPrice ? "border-red-300 focus:ring-red-200" : "border-slate-200 focus:ring-blue-100 focus:border-blue-500"
+                  className={`input-premium ${
+                    errors.sellingPrice ? "border-rose-300 focus:ring-rose-100" : ""
                   }`}
                 />
-                {errors.sellingPrice && <p className="text-xs text-red-500 flex items-center gap-1 mt-1"><AlertCircle size={12}/>{errors.sellingPrice.message}</p>}
+                {errors.sellingPrice && <p className="text-xs text-rose-500 flex items-center gap-1 mt-1 font-semibold"><AlertCircle size={12}/>{errors.sellingPrice.message}</p>}
               </div>
             </div>
 
             {/* Stock Levels */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-1">
-                <label className="text-sm font-semibold text-slate-700">Quantity in Stock *</label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Quantity in Stock *</label>
                 <input
                   type="number"
                   placeholder="0"
                   {...register("quantityInStock")}
-                  className={`w-full px-4 py-2.5 border rounded-lg text-sm transition-all focus:outline-none focus:ring-2 ${
-                    errors.quantityInStock ? "border-red-300 focus:ring-red-200" : "border-slate-200 focus:ring-blue-100 focus:border-blue-500"
+                  className={`input-premium ${
+                    errors.quantityInStock ? "border-rose-300 focus:ring-rose-100" : ""
                   }`}
                 />
-                {errors.quantityInStock && <p className="text-xs text-red-500 flex items-center gap-1 mt-1"><AlertCircle size={12}/>{errors.quantityInStock.message}</p>}
+                {errors.quantityInStock && <p className="text-xs text-rose-500 flex items-center gap-1 mt-1 font-semibold"><AlertCircle size={12}/>{errors.quantityInStock.message}</p>}
               </div>
 
-              <div className="space-y-1">
-                <label className="text-sm font-semibold text-slate-700">Reorder Level *</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Reorder Level *</label>
                 <input
                   type="number"
                   placeholder="10"
                   {...register("reorderLevel")}
-                  className={`w-full px-4 py-2.5 border rounded-lg text-sm transition-all focus:outline-none focus:ring-2 ${
-                    errors.reorderLevel ? "border-red-300 focus:ring-red-200" : "border-slate-200 focus:ring-blue-100 focus:border-blue-500"
+                  className={`input-premium ${
+                    errors.reorderLevel ? "border-rose-300 focus:ring-rose-100" : ""
                   }`}
                 />
-                {errors.reorderLevel && <p className="text-xs text-red-500 flex items-center gap-1 mt-1"><AlertCircle size={12}/>{errors.reorderLevel.message}</p>}
+                {errors.reorderLevel && <p className="text-xs text-rose-500 flex items-center gap-1 mt-1 font-semibold"><AlertCircle size={12}/>{errors.reorderLevel.message}</p>}
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 mt-6">
+            <div className="flex justify-end gap-3 pt-5 border-t border-slate-100 mt-6">
               <button
                 type="button"
                 onClick={onClose}
                 disabled={isLoading}
-                className="px-5 py-2.5 border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-lg text-sm font-semibold transition-colors cursor-pointer"
+                className="btn-secondary py-2.5 px-5 font-semibold text-xs"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isLoading}
-                className="px-5 py-2.5 bg-premium-gradient hover:bg-premium-gradient-dark text-white rounded-lg text-sm font-semibold flex items-center gap-2 transition-all cursor-pointer shadow-md disabled:opacity-50"
+                className="btn-primary py-2.5 px-5 font-semibold text-xs flex items-center gap-2 shadow-md shadow-blue-500/10"
               >
                 {isLoading ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     <span>Saving...</span>
                   </>
                 ) : (
                   <>
-                    <Save size={16} />
+                    <Save size={14} />
                     <span>Save Product</span>
                   </>
                 )}

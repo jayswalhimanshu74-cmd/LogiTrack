@@ -147,16 +147,19 @@ const InvoiceFormModal = ({ isOpen, onClose, onSubmit, invoice, isLoading }) => 
   const isReadOnly = invoice && invoice.status === "PAID";
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto font-sans">
-      <div className="bg-white rounded-2xl shadow-xl border border-slate-200 max-w-4xl w-full max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto font-sans antialiased">
+      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200/80 max-w-4xl w-full max-h-[88vh] flex flex-col overflow-hidden">
         
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-slate-100 shrink-0">
-          <h2 className="text-xl font-bold text-slate-800">
-            {invoice ? `Edit Invoice: ${invoice.invoiceNo}` : "Log New Invoice"}
-          </h2>
-          <button onClick={onClose} className="p-2 hover:bg-slate-50 text-slate-400 hover:text-slate-600 rounded-lg cursor-pointer">
-            <X size={20} />
+          <div>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Document Log</span>
+            <h2 className="text-base font-bold text-slate-800 mt-0.5">
+              {invoice ? `Edit Invoice: ${invoice.invoiceNo}` : "Log New Invoice"}
+            </h2>
+          </div>
+          <button onClick={onClose} className="p-1.5 border border-slate-100 hover:bg-slate-50 text-slate-450 hover:text-slate-600 rounded-lg cursor-pointer transition-colors">
+            <X size={14} />
           </button>
         </div>
 
@@ -165,71 +168,71 @@ const InvoiceFormModal = ({ isOpen, onClose, onSubmit, invoice, isLoading }) => 
           
           {/* Metadata Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Invoice Number</label>
+            <div className="space-y-1">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Invoice Number</label>
               <input
                 type="text"
                 placeholder="[Auto Generated if Blank]"
                 disabled={isReadOnly}
                 {...register("invoiceNo")}
-                className="w-full px-3 py-2 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 rounded-lg text-sm disabled:bg-slate-50 disabled:cursor-not-allowed"
+                className="input-premium"
               />
-              {errors.invoiceNo && <p className="text-red-500 text-xs mt-1 font-semibold">{errors.invoiceNo.message}</p>}
+              {errors.invoiceNo && <p className="text-rose-600 text-[10px] mt-1 font-bold">{errors.invoiceNo.message}</p>}
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Customer Name *</label>
+            <div className="space-y-1">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Customer Name *</label>
               <input
                 type="text"
                 placeholder="e.g. John Smith"
                 disabled={isReadOnly}
                 {...register("customerName")}
-                className="w-full px-3 py-2 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 rounded-lg text-sm disabled:bg-slate-50 disabled:cursor-not-allowed"
+                className="input-premium"
               />
-              {errors.customerName && <p className="text-red-500 text-xs mt-1 font-semibold">{errors.customerName.message}</p>}
+              {errors.customerName && <p className="text-rose-600 text-[10px] mt-1 font-bold">{errors.customerName.message}</p>}
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Customer Phone *</label>
+            <div className="space-y-1">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Customer Phone *</label>
               <input
                 type="text"
                 placeholder="e.g. +1 555 9812"
                 disabled={isReadOnly}
                 {...register("customerPhone")}
-                className="w-full px-3 py-2 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 rounded-lg text-sm disabled:bg-slate-50 disabled:cursor-not-allowed"
+                className="input-premium"
               />
-              {errors.customerPhone && <p className="text-red-500 text-xs mt-1 font-semibold">{errors.customerPhone.message}</p>}
+              {errors.customerPhone && <p className="text-rose-600 text-[10px] mt-1 font-bold">{errors.customerPhone.message}</p>}
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Customer Email</label>
+            <div className="space-y-1">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Customer Email</label>
               <input
                 type="text"
                 placeholder="e.g. john@email.com"
                 disabled={isReadOnly}
                 {...register("customerEmail")}
-                className="w-full px-3 py-2 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 rounded-lg text-sm disabled:bg-slate-50 disabled:cursor-not-allowed"
+                className="input-premium"
               />
-              {errors.customerEmail && <p className="text-red-500 text-xs mt-1 font-semibold">{errors.customerEmail.message}</p>}
+              {errors.customerEmail && <p className="text-rose-600 text-[10px] mt-1 font-bold">{errors.customerEmail.message}</p>}
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Invoice Date *</label>
+            <div className="space-y-1">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Invoice Date *</label>
               <input
                 type="date"
                 disabled={isReadOnly}
                 {...register("invoiceDate")}
-                className="w-full px-3 py-2 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 rounded-lg text-sm cursor-pointer disabled:bg-slate-50 disabled:cursor-not-allowed"
+                className="input-premium py-1.5"
               />
-              {errors.invoiceDate && <p className="text-red-500 text-xs mt-1 font-semibold">{errors.invoiceDate.message}</p>}
+              {errors.invoiceDate && <p className="text-rose-600 text-[10px] mt-1 font-bold">{errors.invoiceDate.message}</p>}
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Payment Method *</label>
+            <div className="space-y-1">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Payment Method *</label>
               <select
                 disabled={isReadOnly}
                 {...register("paymentMethod")}
-                className="w-full px-3 py-2 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 rounded-lg text-sm cursor-pointer bg-white disabled:bg-slate-50 disabled:cursor-not-allowed"
+                className="input-premium py-2 cursor-pointer bg-white"
               >
                 <option value="CASH">Cash</option>
                 <option value="UPI">UPI</option>
@@ -238,12 +241,12 @@ const InvoiceFormModal = ({ isOpen, onClose, onSubmit, invoice, isLoading }) => 
               </select>
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Invoice Status *</label>
+            <div className="space-y-1">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Invoice Status *</label>
               <select
                 disabled={isReadOnly}
                 {...register("status")}
-                className="w-full px-3 py-2 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 rounded-lg text-sm cursor-pointer bg-white disabled:bg-slate-50 disabled:cursor-not-allowed"
+                className="input-premium py-2 cursor-pointer bg-white"
               >
                 <option value="DRAFT">Draft</option>
                 <option value="ISSUED">Issued</option>
@@ -252,12 +255,12 @@ const InvoiceFormModal = ({ isOpen, onClose, onSubmit, invoice, isLoading }) => 
               </select>
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Payment Status *</label>
+            <div className="space-y-1">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Payment Status *</label>
               <select
                 disabled={isReadOnly}
                 {...register("paymentStatus")}
-                className="w-full px-3 py-2 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 rounded-lg text-sm cursor-pointer bg-white disabled:bg-slate-50 disabled:cursor-not-allowed"
+                className="input-premium py-2 cursor-pointer bg-white"
               >
                 <option value="PENDING">Pending</option>
                 <option value="PAID">Paid</option>
@@ -266,14 +269,14 @@ const InvoiceFormModal = ({ isOpen, onClose, onSubmit, invoice, isLoading }) => 
               </select>
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Billing Address</label>
+            <div className="space-y-1">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Billing Address</label>
               <input
                 type="text"
                 placeholder="e.g. 123 Main St, NY"
                 disabled={isReadOnly}
                 {...register("billingAddress")}
-                className="w-full px-3 py-2 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 rounded-lg text-sm disabled:bg-slate-50 disabled:cursor-not-allowed"
+                className="input-premium"
               />
             </div>
           </div>
@@ -281,45 +284,45 @@ const InvoiceFormModal = ({ isOpen, onClose, onSubmit, invoice, isLoading }) => 
           {/* Items Section */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Invoice Items</h3>
+              <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Invoice Items</h3>
               {!isReadOnly && (
                 <button
                   type="button"
                   onClick={() => append({ productId: "", quantity: 1, unitPrice: 0 })}
-                  className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1.5 cursor-pointer bg-blue-50/50 hover:bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100 transition-all"
+                  className="btn-secondary py-1.5 px-3 flex items-center gap-1.5 text-xs font-semibold"
                 >
-                  <PlusCircle size={14} />
+                  <PlusCircle size={13} />
                   <span>Add Line Item</span>
                 </button>
               )}
             </div>
 
-            <div className="border border-slate-100 rounded-xl overflow-hidden">
-              <table className="w-full text-left border-collapse">
+            <div className="border border-slate-200/80 rounded-xl overflow-hidden shadow-sm">
+              <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-slate-100">
-                    <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider w-[40%]">Product</th>
-                    <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider w-[15%]">Available Stock</th>
-                    <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider w-[15%]">Quantity</th>
-                    <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider w-[15%]">Unit Price</th>
-                    <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider w-[10%] text-right">Subtotal</th>
-                    <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider w-[5%] text-center"></th>
+                  <tr className="bg-slate-50/50 border-b border-slate-200">
+                    <th className="th-premium w-[40%] font-bold text-slate-500">Product</th>
+                    <th className="th-premium w-[15%] font-bold text-slate-500">Available Stock</th>
+                    <th className="th-premium w-[15%] font-bold text-slate-500">Quantity</th>
+                    <th className="th-premium w-[15%] font-bold text-slate-500">Unit Price</th>
+                    <th className="th-premium w-[10%] font-bold text-slate-500 text-right">Subtotal</th>
+                    <th className="th-premium w-[5%] font-bold text-slate-500 text-center"></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50">
+                <tbody className="divide-y divide-slate-100">
                   {fields.map((field, index) => {
                     const selectedId = watchedItems?.[index]?.productId;
                     const stock = stockMap[selectedId] !== undefined ? stockMap[selectedId] : 0;
 
                     return (
-                      <tr key={field.id} className="hover:bg-slate-50/40">
+                      <tr key={field.id} className="hover:bg-slate-50/20">
                         {/* Product Dropdown */}
-                        <td className="p-3">
+                        <td className="p-2.5">
                           <select
                             disabled={isReadOnly}
                             {...register(`items.${index}.productId`)}
                             onChange={(e) => handleProductSelect(index, e.target.value)}
-                            className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-sm bg-white cursor-pointer disabled:bg-slate-50 disabled:cursor-not-allowed"
+                            className="input-premium py-1.5 cursor-pointer bg-white text-xs"
                           >
                             <option value="">Select Product...</option>
                             {catalogProducts.map(p => (
@@ -331,23 +334,23 @@ const InvoiceFormModal = ({ isOpen, onClose, onSubmit, invoice, isLoading }) => 
                         </td>
 
                         {/* Current Stock */}
-                        <td className="p-3 text-slate-500 text-xs font-semibold">
+                        <td className="p-2.5 text-slate-500 text-xs font-semibold">
                           {selectedId ? `${stock} available` : <span className="text-slate-400 font-normal">-</span>}
                         </td>
 
                         {/* Quantity */}
-                        <td className="p-3">
+                        <td className="p-2.5">
                           <input
                             type="number"
                             min="1"
                             disabled={isReadOnly}
                             {...register(`items.${index}.quantity`)}
-                            className="w-full px-2.5 py-1.5 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 rounded-lg text-sm disabled:bg-slate-50 disabled:cursor-not-allowed"
+                            className="input-premium py-1.5 text-xs"
                           />
                         </td>
 
                         {/* Price */}
-                        <td className="p-3">
+                        <td className="p-2.5">
                           <div className="relative">
                             <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center text-slate-400 text-xs font-bold">$</span>
                             <input
@@ -356,26 +359,26 @@ const InvoiceFormModal = ({ isOpen, onClose, onSubmit, invoice, isLoading }) => 
                               min="0"
                               disabled={isReadOnly}
                               {...register(`items.${index}.unitPrice`)}
-                              className="w-full pl-6 pr-2.5 py-1.5 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 rounded-lg text-sm disabled:bg-slate-50 disabled:cursor-not-allowed"
+                              className="input-premium pl-6 py-1.5 text-xs"
                             />
                           </div>
                         </td>
 
                         {/* Line Total */}
-                        <td className="p-3 text-right text-slate-800 font-bold text-sm">
+                        <td className="p-2.5 text-right text-slate-800 font-bold text-xs">
                           ${((Number(watchedItems?.[index]?.quantity) || 0) * (Number(watchedItems?.[index]?.unitPrice) || 0)).toFixed(2)}
                         </td>
 
                         {/* Actions */}
-                        <td className="p-3 text-center">
+                        <td className="p-2.5 text-center">
                           {!isReadOnly && (
                             <button
                               type="button"
                               onClick={() => remove(index)}
                               disabled={fields.length === 1}
-                              className="p-1.5 text-slate-400 hover:text-red-500 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                              className="p-1.5 text-slate-400 hover:text-rose-500 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
                             >
-                              <Trash2 size={15} />
+                              <Trash2 size={13} />
                             </button>
                           )}
                         </td>
@@ -385,28 +388,28 @@ const InvoiceFormModal = ({ isOpen, onClose, onSubmit, invoice, isLoading }) => 
                 </tbody>
               </table>
             </div>
-            {errors.items && <p className="text-red-500 text-xs mt-1 font-semibold">{errors.items.message}</p>}
+            {errors.items && <p className="text-rose-600 text-[10px] mt-1 font-bold">{errors.items.message}</p>}
           </div>
 
           {/* Notes, tax, discount, grand total */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-slate-100 items-start">
-            <div className="md:col-span-2">
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Remarks / Remarks</label>
+            <div className="md:col-span-2 space-y-1">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Remarks / Remarks</label>
               <textarea
                 rows="4"
                 placeholder="Supplier instructions, warranty tags, logistics notes..."
                 disabled={isReadOnly}
                 {...register("notes")}
-                className="w-full px-3 py-2 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 rounded-lg text-sm disabled:bg-slate-50 disabled:cursor-not-allowed"
+                className="input-premium"
               />
             </div>
 
-            <div className="bg-slate-50 p-5 rounded-xl border border-slate-100 space-y-3.5">
-              <div className="flex justify-between items-center text-sm font-semibold text-slate-500">
+            <div className="bg-slate-50/50 p-5 rounded-xl border border-slate-205 border-slate-200/60 shadow-sm space-y-3.5">
+              <div className="flex justify-between items-center text-xs font-semibold text-slate-500">
                 <span>Subtotal</span>
-                <span className="text-slate-800">${subtotal.toFixed(2)}</span>
+                <span className="text-slate-800 font-bold">${subtotal.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between items-center text-sm font-semibold text-slate-500">
+              <div className="flex justify-between items-center text-xs font-semibold text-slate-500">
                 <span>Tax (+)</span>
                 <input
                   type="number"
@@ -414,10 +417,10 @@ const InvoiceFormModal = ({ isOpen, onClose, onSubmit, invoice, isLoading }) => 
                   min="0"
                   disabled={isReadOnly}
                   {...register("tax")}
-                  className="w-20 px-2 py-1 text-right border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm disabled:bg-slate-50 disabled:cursor-not-allowed bg-white"
+                  className="w-20 px-2 py-1 text-right border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-xs disabled:bg-slate-50 disabled:cursor-not-allowed bg-white"
                 />
               </div>
-              <div className="flex justify-between items-center text-sm font-semibold text-slate-500">
+              <div className="flex justify-between items-center text-xs font-semibold text-slate-500">
                 <span>Discount (-)</span>
                 <input
                   type="number"
@@ -425,23 +428,23 @@ const InvoiceFormModal = ({ isOpen, onClose, onSubmit, invoice, isLoading }) => 
                   min="0"
                   disabled={isReadOnly}
                   {...register("discount")}
-                  className="w-20 px-2 py-1 text-right border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm disabled:bg-slate-50 disabled:cursor-not-allowed bg-white"
+                  className="w-20 px-2 py-1 text-right border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-xs disabled:bg-slate-50 disabled:cursor-not-allowed bg-white"
                 />
               </div>
               <div className="border-t border-slate-200 pt-3 flex justify-between items-end">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Grand Total</span>
-                <span className="text-2xl font-extrabold text-slate-900">${grandTotal.toFixed(2)}</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Grand Total</span>
+                <span className="text-xl font-extrabold text-slate-900 tracking-tight">${grandTotal.toFixed(2)}</span>
               </div>
             </div>
           </div>
         </form>
 
         {/* Footer */}
-        <div className="p-6 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex items-center justify-end gap-3 shrink-0">
+        <div className="p-5 border-t border-slate-100 bg-slate-50/50 flex items-center justify-end gap-3 shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2.5 border border-slate-200 hover:bg-white text-slate-600 hover:text-slate-800 rounded-lg text-sm font-semibold transition-all cursor-pointer"
+            className="btn-secondary py-2.5 px-5 font-semibold text-xs"
           >
             Cancel
           </button>
@@ -449,7 +452,7 @@ const InvoiceFormModal = ({ isOpen, onClose, onSubmit, invoice, isLoading }) => 
             <button
               onClick={handleSubmit(onSubmit)}
               disabled={isLoading}
-              className="bg-premium-gradient hover:bg-premium-gradient-dark text-white px-6 py-2.5 rounded-lg text-sm font-bold shadow-md cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="btn-primary py-2.5 px-6 font-bold text-xs shadow-md shadow-blue-500/10"
             >
               {isLoading ? "Saving..." : invoice ? "Update Invoice" : "Log Invoice"}
             </button>

@@ -12,34 +12,34 @@ const AuditFilters = ({ filters, onFilterChange, onReset }) => {
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm mb-6">
+    <div className="card-premium p-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Search */}
-        <div className="relative">
-          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Search Logs</label>
+        <div className="space-y-1">
+          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Search Logs</label>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
             <input
               type="text"
               name="search"
               value={filters.search || ""}
               onChange={handleChange}
               placeholder="Search user, action..."
-              className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+              className="input-premium pl-9 text-xs"
             />
           </div>
         </div>
 
         {/* Action Type */}
-        <div>
-          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Action Type</label>
+        <div className="space-y-1">
+          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Action Type</label>
           <div className="relative">
-            <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
             <select
               name="action"
               value={filters.action || ""}
               onChange={handleChange}
-              className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-sm text-slate-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors appearance-none cursor-pointer"
+              className="input-premium pl-9 pr-8 text-xs cursor-pointer bg-white"
             >
               <option value="">All Actions</option>
               {actions.map((act) => (
@@ -52,15 +52,15 @@ const AuditFilters = ({ filters, onFilterChange, onReset }) => {
         </div>
 
         {/* Entity Type */}
-        <div>
-          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Entity Module</label>
+        <div className="space-y-1">
+          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Entity Module</label>
           <div className="relative">
-            <Layers className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Layers className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
             <select
               name="entityName"
               value={filters.entityName || ""}
               onChange={handleChange}
-              className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-sm text-slate-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors appearance-none cursor-pointer"
+              className="input-premium pl-9 pr-8 text-xs cursor-pointer bg-white"
             >
               <option value="">All Entities</option>
               {entities.map((ent) => (
@@ -73,15 +73,15 @@ const AuditFilters = ({ filters, onFilterChange, onReset }) => {
         </div>
 
         {/* Status */}
-        <div>
-          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Status</label>
+        <div className="space-y-1">
+          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Status</label>
           <div className="relative">
-            <ToggleLeft className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <ToggleLeft className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
             <select
               name="status"
               value={filters.status || ""}
               onChange={handleChange}
-              className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-sm text-slate-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors appearance-none cursor-pointer"
+              className="input-premium pl-9 pr-8 text-xs cursor-pointer bg-white"
             >
               <option value="">All Statuses</option>
               {statuses.map((st) => (
@@ -94,15 +94,15 @@ const AuditFilters = ({ filters, onFilterChange, onReset }) => {
         </div>
 
         {/* Role */}
-        <div>
-          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">User Role</label>
+        <div className="space-y-1">
+          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">User Role</label>
           <div className="relative">
-            <Shield className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Shield className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
             <select
               name="role"
               value={filters.role || ""}
               onChange={handleChange}
-              className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-sm text-slate-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors appearance-none cursor-pointer"
+              className="input-premium pl-9 pr-8 text-xs cursor-pointer bg-white"
             >
               <option value="">All Roles</option>
               {roles.map((r) => (
@@ -115,31 +115,31 @@ const AuditFilters = ({ filters, onFilterChange, onReset }) => {
         </div>
 
         {/* Start Date */}
-        <div>
-          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Start Date</label>
+        <div className="space-y-1">
+          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Start Date</label>
           <div className="relative">
-            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
             <input
               type="datetime-local"
               name="startDate"
               value={filters.startDate || ""}
               onChange={handleChange}
-              className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-sm text-slate-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors cursor-pointer"
+              className="input-premium pl-9 text-xs cursor-pointer py-1.5"
             />
           </div>
         </div>
 
         {/* End Date */}
-        <div>
-          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">End Date</label>
+        <div className="space-y-1">
+          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">End Date</label>
           <div className="relative">
-            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
             <input
               type="datetime-local"
               name="endDate"
               value={filters.endDate || ""}
               onChange={handleChange}
-              className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-sm text-slate-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors cursor-pointer"
+              className="input-premium pl-9 text-xs cursor-pointer py-1.5"
             />
           </div>
         </div>
@@ -148,9 +148,9 @@ const AuditFilters = ({ filters, onFilterChange, onReset }) => {
         <div className="flex items-end">
           <button
             onClick={onReset}
-            className="w-full flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-700 font-semibold py-2 px-4 rounded-xl border border-slate-200 hover:border-slate-350 transition-colors shadow-sm group cursor-pointer text-sm"
+            className="btn-secondary w-full py-2 flex items-center justify-center gap-2 text-xs font-semibold shadow-sm group"
           >
-            <RotateCcw className="w-4 h-4 group-hover:rotate-[-45deg] transition-transform duration-300" />
+            <RotateCcw className="w-3.5 h-3.5 group-hover:rotate-[-45deg] transition-transform duration-300" />
             Reset Filters
           </button>
         </div>

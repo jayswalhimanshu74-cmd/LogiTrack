@@ -366,87 +366,81 @@ const Reports = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex font-sans print:bg-white">
+    <div className="min-h-screen bg-slate-50 flex font-sans print:bg-white antialiased text-slate-900">
       <Sidebar activeTab="reports" />
 
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto print:overflow-visible">
         
-        {/* Header toolbar */}
-        <header className="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-6 md:px-8 z-10 sticky top-0 print:hidden shrink-0">
-          <div className="flex items-center gap-2">
-            <BarChart3 className="text-blue-600" size={20} />
-            <h2 className="text-xl text-slate-800 font-semibold">Reports & Analytics</h2>
+        {/* Top Header */}
+        <header className="bg-white border-b border-slate-200/80 h-16 flex items-center justify-between px-6 md:px-8 z-10 sticky top-0 print:hidden shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.01)]">
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <span>Workspace</span>
+              <span className="material-symbols-outlined text-xs">chevron_right</span>
+              <span>Reports</span>
+            </div>
+            <h2 className="text-sm font-bold text-slate-800 mt-0.5">Business Intelligence & Reports</h2>
           </div>
           <div className="flex items-center gap-3">
             {activeTab === "financial" && (
               <button 
                 onClick={handleExportCSV} 
                 disabled={isExporting}
-                className="px-3.5 py-1.5 border border-slate-205 border-slate-200 text-slate-750 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:bg-slate-50 disabled:opacity-60"
+                className="btn-secondary py-1.5 px-3 flex items-center gap-1.5 text-xs font-bold"
               >
-                <Download size={14} className={isExporting ? "animate-spin" : ""} />
+                <Download size={13} className={isExporting ? "animate-spin" : ""} />
                 <span>{isExporting ? "Exporting..." : "Export Report CSV"}</span>
               </button>
             )}
 
             {connectionStatus === "connected" ? (
-              <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-4 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
-                <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+              <span className="bg-emerald-50 text-emerald-800 border border-emerald-200/60 px-3 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase flex items-center gap-1.5 shadow-sm">
+                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
                 Connected
               </span>
             ) : (
-              <span className="bg-amber-50 text-amber-800 border border-amber-200 px-4 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
-                <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>
+              <span className="bg-amber-50 text-amber-800 border border-amber-200/60 px-3 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase flex items-center gap-1.5 shadow-sm">
+                <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>
                 Demo Mode
               </span>
             )}
             <button 
               onClick={fetchReportData} 
-              className="p-2 hover:bg-slate-50 border border-slate-200 rounded-lg text-slate-500 hover:text-slate-800 cursor-pointer"
+              className="btn-icon border border-slate-200"
+              title="Refresh Report"
             >
-              <RefreshCw size={16} />
+              <RefreshCw size={14} className="text-slate-500" />
             </button>
           </div>
         </header>
 
-        {/* Tab Selection Header (Width aligned with main layout content container) */}
-        <div className="bg-white border-b border-slate-200 print:hidden shrink-0">
-          <div className="w-full px-6 md:px-8 py-3.5 flex gap-2 overflow-x-auto">
-            <button 
-              onClick={() => handleTabChange("financial")}
-              className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg border transition-all cursor-pointer ${activeTab === "financial" ? "bg-blue-50 text-blue-600 border-blue-150 border-blue-200 font-extrabold" : "text-slate-500 hover:bg-slate-50 hover:text-slate-800 border-transparent"}`}
-            >
-              Financials
-            </button>
-            <button 
-              onClick={() => handleTabChange("sales")}
-              className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg border transition-all cursor-pointer ${activeTab === "sales" ? "bg-blue-50 text-blue-600 border-blue-150 border-blue-200 font-extrabold" : "text-slate-500 hover:bg-slate-50 hover:text-slate-800 border-transparent"}`}
-            >
-              Sales Report
-            </button>
-            <button 
-              onClick={() => handleTabChange("purchases")}
-              className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg border transition-all cursor-pointer ${activeTab === "purchases" ? "bg-blue-50 text-blue-600 border-blue-150 border-blue-200 font-extrabold" : "text-slate-500 hover:bg-slate-50 hover:text-slate-800 border-transparent"}`}
-            >
-              Procurement
-            </button>
-            <button 
-              onClick={() => handleTabChange("inventory")}
-              className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg border transition-all cursor-pointer ${activeTab === "inventory" ? "bg-blue-50 text-blue-600 border-blue-150 border-blue-200 font-extrabold" : "text-slate-500 hover:bg-slate-50 hover:text-slate-800 border-transparent"}`}
-            >
-              Inventory Stock
-            </button>
-            <button 
-              onClick={() => handleTabChange("invoices")}
-              className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg border transition-all cursor-pointer ${activeTab === "invoices" ? "bg-blue-50 text-blue-600 border-blue-150 border-blue-200 font-extrabold" : "text-slate-500 hover:bg-slate-50 hover:text-slate-800 border-transparent"}`}
-            >
-              Invoice Ledger
-            </button>
+        {/* Tab Selection Header */}
+        <div className="bg-white border-b border-slate-200/80 print:hidden shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.01)]">
+          <div className="w-full px-6 md:px-8 py-3 flex gap-2 overflow-x-auto scrollbar-none">
+            {[
+              { id: "financial", label: "Financials" },
+              { id: "sales", label: "Sales Report" },
+              { id: "purchases", label: "Procurement" },
+              { id: "inventory", label: "Inventory Stock" },
+              { id: "invoices", label: "Invoice Ledger" }
+            ].map(tab => (
+              <button 
+                key={tab.id}
+                onClick={() => handleTabChange(tab.id)}
+                className={`px-4 py-2 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer border ${
+                  activeTab === tab.id 
+                    ? "bg-blue-50 text-blue-600 border-blue-100 shadow-sm" 
+                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-800 border-transparent"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
         </div>
 
         {/* Main Panel Content */}
-        <main className="flex-1 p-6 md:p-8 space-y-8 w-full print:p-0">
+        <main className="flex-1 p-6 md:p-8 space-y-6 w-full print:p-0 max-w-[1600px] mx-auto">
           
           {/* Printable visual header */}
           <div className="hidden print:block mb-8">
@@ -465,82 +459,100 @@ const Reports = () => {
 
           {/* TAB 1: FINANCIAL SUMMARY */}
           {activeTab === "financial" && financialSummary && (
-            <div className="space-y-8 animate-fade-in">
+            <div className="space-y-6 animate-fade-in">
               
               {/* Financial KPI Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Sales Revenue</p>
-                    <h3 className="text-2xl font-black text-slate-900 mt-1.5">${financialSummary.totalRevenue?.toFixed(2)}</h3>
+                <div className="card-premium p-6 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Sales Revenue</p>
+                    <h3 className="text-2xl font-bold text-slate-900 tracking-tight">${financialSummary.totalRevenue?.toFixed(2)}</h3>
+                    <span className="text-[10px] text-emerald-600 font-bold flex items-center gap-1 mt-2">
+                      <span className="material-symbols-outlined text-sm">trending_up</span>
+                      Gross value generated
+                    </span>
                   </div>
-                  <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center print:hidden">
-                    <TrendingUp size={22} />
-                  </div>
-                </div>
-
-                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Procurements</p>
-                    <h3 className="text-2xl font-black text-slate-900 mt-1.5">${financialSummary.totalPurchaseCost?.toFixed(2)}</h3>
-                  </div>
-                  <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center print:hidden">
-                    <ArrowDownLeft size={22} />
+                  <div className="w-11 h-11 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center border border-blue-100/50 shadow-sm shrink-0 print:hidden">
+                    <TrendingUp size={20} />
                   </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Estimated Profit</p>
-                    <h3 className={`text-2xl font-black mt-1.5 ${financialSummary.estimatedProfit >= 0 ? "text-emerald-600" : "text-red-650 text-red-600"}`}>
+                <div className="card-premium p-6 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Procurements</p>
+                    <h3 className="text-2xl font-bold text-slate-900 tracking-tight">${financialSummary.totalPurchaseCost?.toFixed(2)}</h3>
+                    <span className="text-[10px] text-slate-500 font-bold flex items-center gap-1 mt-2">
+                      <span className="material-symbols-outlined text-sm">payments</span>
+                      Total replenishment cost
+                    </span>
+                  </div>
+                  <div className="w-11 h-11 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center border border-amber-100/50 shadow-sm shrink-0 print:hidden">
+                    <ArrowDownLeft size={20} />
+                  </div>
+                </div>
+
+                <div className="card-premium p-6 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Estimated Profit</p>
+                    <h3 className={`text-2xl font-bold tracking-tight ${financialSummary.estimatedProfit >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
                       ${financialSummary.estimatedProfit?.toFixed(2)}
                     </h3>
+                    <span className={`text-[10px] font-bold flex items-center gap-1 mt-2 ${financialSummary.estimatedProfit >= 0 ? "text-emerald-605 text-emerald-600" : "text-rose-600"}`}>
+                      <span className="material-symbols-outlined text-xs">
+                        {financialSummary.estimatedProfit >= 0 ? "check_circle" : "error"}
+                      </span>
+                      Net difference of ledger
+                    </span>
                   </div>
-                  <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center print:hidden">
-                    <DollarSign size={22} />
+                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center border shadow-sm shrink-0 print:hidden ${financialSummary.estimatedProfit >= 0 ? "bg-emerald-50 text-emerald-600 border-emerald-100/50" : "bg-rose-50 text-rose-600 border-rose-100/50"}`}>
+                    <DollarSign size={20} />
                   </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Profit Margin</p>
-                    <h3 className="text-2xl font-black text-slate-900 mt-1.5">{financialSummary.estimatedProfitMargin?.toFixed(2)}%</h3>
+                <div className="card-premium p-6 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Profit Margin</p>
+                    <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{financialSummary.estimatedProfitMargin?.toFixed(2)}%</h3>
+                    <span className="text-[10px] text-slate-500 font-bold flex items-center gap-1 mt-2">
+                      <span className="material-symbols-outlined text-sm">calculate</span>
+                      Estimated percentage return
+                    </span>
                   </div>
-                  <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center print:hidden">
-                    <Sparkles size={22} />
+                  <div className="w-11 h-11 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center border border-purple-100/50 shadow-sm shrink-0 print:hidden">
+                    <Sparkles size={20} />
                   </div>
                 </div>
               </div>
 
               {/* Revenue Trends */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Today's Revenue</p>
-                    <h3 className="text-2xl font-black text-slate-900 mt-1.5">${financialSummary.todayRevenue?.toFixed(2)}</h3>
+                <div className="card-premium p-5 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Today's Revenue</p>
+                    <h3 className="text-2xl font-bold text-slate-900 tracking-tight">${financialSummary.todayRevenue?.toFixed(2)}</h3>
                   </div>
-                  <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center print:hidden">
-                    <Calendar size={22} />
-                  </div>
-                </div>
-
-                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">This Month's Revenue</p>
-                    <h3 className="text-2xl font-black text-slate-900 mt-1.5">${financialSummary.monthlyRevenue?.toFixed(2)}</h3>
-                  </div>
-                  <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center print:hidden">
-                    <TrendingUp size={22} />
+                  <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center border border-blue-100/50 shadow-sm shrink-0 print:hidden">
+                    <Calendar size={20} />
                   </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">This Year's Revenue</p>
-                    <h3 className="text-2xl font-black text-slate-900 mt-1.5">${financialSummary.yearlyRevenue?.toFixed(2)}</h3>
+                <div className="card-premium p-5 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">This Month's Revenue</p>
+                    <h3 className="text-2xl font-bold text-slate-900 tracking-tight">${financialSummary.monthlyRevenue?.toFixed(2)}</h3>
                   </div>
-                  <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center print:hidden">
-                    <Sparkles size={22} />
+                  <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center border border-emerald-100/50 shadow-sm shrink-0 print:hidden">
+                    <TrendingUp size={20} />
+                  </div>
+                </div>
+
+                <div className="card-premium p-5 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">This Year's Revenue</p>
+                    <h3 className="text-2xl font-bold text-slate-900 tracking-tight">${financialSummary.yearlyRevenue?.toFixed(2)}</h3>
+                  </div>
+                  <div className="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center border border-purple-100/50 shadow-sm shrink-0 print:hidden">
+                    <Sparkles size={20} />
                   </div>
                 </div>
               </div>
@@ -549,8 +561,8 @@ const Reports = () => {
               {chartData && (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 print:block print:space-y-8">
                   {/* Revenue area chart */}
-                  <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                    <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4">Monthly Revenue Flow</h3>
+                  <div className="bg-white p-6 rounded-xl border border-slate-200/70 shadow-sm">
+                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Monthly Revenue Flow</h3>
                     <div className="h-[300px] w-full">
                       <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={getChartTimelineData(chartData.monthlyRevenue)}>
@@ -571,8 +583,8 @@ const Reports = () => {
                   </div>
 
                   {/* Monthly Sales vs Purchases double bar chart */}
-                  <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                    <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4">Sales Revenue vs Procurement Expense</h3>
+                  <div className="bg-white p-6 rounded-xl border border-slate-200/70 shadow-sm">
+                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Sales Revenue vs Procurement Expense</h3>
                     <div className="h-[300px] w-full">
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={chartData.monthlySales?.map((val, idx) => ({
@@ -593,8 +605,8 @@ const Reports = () => {
                   </div>
 
                   {/* Category Breakdown Pie Chart */}
-                  <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                    <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4">Stock Breakdown by Category</h3>
+                  <div className="bg-white p-6 rounded-xl border border-slate-200/70 shadow-sm">
+                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Stock Breakdown by Category</h3>
                     <div className="h-[300px] w-full">
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
@@ -620,12 +632,12 @@ const Reports = () => {
                   </div>
 
                   {/* Low Stock category items bar */}
-                  <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                    <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4">Low Stock Warning Trend</h3>
+                  <div className="bg-white p-6 rounded-xl border border-slate-200/70 shadow-sm">
+                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Low Stock Warning Trend</h3>
                     <div className="h-[300px] w-full">
                       {chartData.lowStockTrend?.length === 0 ? (
                         <div className="h-full flex flex-col items-center justify-center text-slate-400">
-                          <AlertCircle size={24} />
+                          <AlertCircle size={24} className="stroke-[1.5]" />
                           <span className="text-xs font-semibold mt-1">No low-stock items detected!</span>
                         </div>
                       ) : (
@@ -652,33 +664,45 @@ const Reports = () => {
               
               {/* Sales KPIs */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Sales Invoiced</p>
-                    <h3 className="text-2xl font-black text-slate-900 mt-1.5">{salesReport.totalSalesCount} orders</h3>
+                <div className="card-premium p-6 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Sales Invoiced</p>
+                    <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{salesReport.totalSalesCount} orders</h3>
+                    <span className="text-[10px] text-slate-500 font-bold flex items-center gap-1 mt-2">
+                      <span className="material-symbols-outlined text-sm">assignment</span>
+                      Cumulative orders completed
+                    </span>
                   </div>
-                  <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center print:hidden">
-                    <Layers size={18} />
-                  </div>
-                </div>
-                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Aggregate Sales Revenue</p>
-                    <h3 className="text-2xl font-black text-slate-900 mt-1.5">${salesReport.totalSalesRevenue?.toFixed(2)}</h3>
-                  </div>
-                  <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center print:hidden">
-                    <DollarSign size={18} />
+                  <div className="w-11 h-11 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center border border-blue-100/50 shadow-sm shrink-0 print:hidden">
+                    <Layers size={20} />
                   </div>
                 </div>
-                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Top Selling SKU</p>
-                    <h4 className="text-base font-bold text-slate-800 mt-1 truncate max-w-[200px]" title={salesReport.topProducts?.[0]?.name}>
+                <div className="card-premium p-6 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Aggregate Sales Revenue</p>
+                    <h3 className="text-2xl font-bold text-slate-900 tracking-tight">${salesReport.totalSalesRevenue?.toFixed(2)}</h3>
+                    <span className="text-[10px] text-emerald-600 font-bold flex items-center gap-1 mt-2">
+                      <span className="material-symbols-outlined text-sm">trending_up</span>
+                      Gross billing generated
+                    </span>
+                  </div>
+                  <div className="w-11 h-11 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center border border-emerald-100/50 shadow-sm shrink-0 print:hidden">
+                    <DollarSign size={20} />
+                  </div>
+                </div>
+                <div className="card-premium p-6 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Top Selling SKU</p>
+                    <h4 className="text-sm font-bold text-slate-800 truncate max-w-[200px]" title={salesReport.topProducts?.[0]?.name}>
                       {salesReport.topProducts?.[0]?.sku || "N/A"}
                     </h4>
+                    <span className="text-[10px] text-slate-500 font-bold flex items-center gap-1 mt-2">
+                      <span className="material-symbols-outlined text-sm">workspace_premium</span>
+                      Most ordered item SKU
+                    </span>
                   </div>
                   {salesReport.topProducts?.[0] && (
-                    <span className="bg-blue-50 text-blue-700 px-2.5 py-1 rounded text-xs font-bold font-mono">
+                    <span className="bg-blue-50 text-blue-700 px-2.5 py-1 border border-blue-100 rounded-lg text-[10px] font-bold font-mono shadow-sm shrink-0">
                       {salesReport.topProducts[0].quantitySold} sold
                     </span>
                   )}
@@ -689,56 +713,58 @@ const Reports = () => {
               {renderFiltersPanel()}
 
               {/* Data Table */}
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="p-5 border-b border-slate-100 flex items-center justify-between flex-wrap gap-4">
-                  <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Sales Invoices Grid</h3>
+              <div className="bg-white rounded-xl border border-slate-200/70 shadow-sm space-y-4 p-6">
+                <div className="flex items-center justify-between flex-wrap gap-4 pb-2 border-b border-slate-100">
+                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sales Invoices Grid</h3>
                   <div className="flex items-center gap-2">
-                    <button onClick={handlePrint} className="px-3.5 py-1.5 border border-slate-200 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:bg-slate-50">
+                    <button onClick={handlePrint} className="btn-secondary py-1.5 px-3 flex items-center gap-2 text-xs">
                       <Printer size={14} />
                       <span>Print Page</span>
                     </button>
-                    <button onClick={handleExportCSV} disabled={isExporting} className="px-3.5 py-1.5 border border-slate-200 text-slate-705 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:bg-slate-50 disabled:opacity-60">
+                    <button onClick={handleExportCSV} disabled={isExporting} className="btn-secondary py-1.5 px-3 flex items-center gap-2 text-xs">
                       <Download size={14} className={isExporting ? "animate-spin" : ""} />
                       <span>{isExporting ? "Exporting..." : "Export CSV"}</span>
                     </button>
                   </div>
                 </div>
 
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse text-sm">
-                    <thead>
-                      <tr className="bg-slate-50 border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider">
-                        <th className="p-4 cursor-pointer hover:bg-slate-100" onClick={() => handleSort("saleNo")}>Sale No</th>
-                        <th className="p-4 cursor-pointer hover:bg-slate-100" onClick={() => handleSort("customerName")}>Customer</th>
-                        <th className="p-4">Status</th>
-                        <th className="p-4">Payment</th>
-                        <th className="p-4">Method</th>
-                        <th className="p-4 cursor-pointer hover:bg-slate-100" onClick={() => handleSort("saleDate")}>Date</th>
-                        <th className="p-4 cursor-pointer hover:bg-slate-100 text-right" onClick={() => handleSort("totalAmount")}>Revenue</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {salesReport.sales.content?.map((s) => (
-                        <tr key={s.id} className="hover:bg-slate-50/40">
-                          <td className="p-4 font-mono font-bold text-xs text-slate-700">{s.saleNo}</td>
-                          <td className="p-4 font-semibold text-slate-800">{s.customerName}</td>
-                          <td className="p-4">
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${s.status === "COMPLETED" ? "bg-emerald-50 text-emerald-800 border-emerald-100" : "bg-amber-50 text-amber-800 border-amber-100"}`}>
-                              {s.status}
-                            </span>
-                          </td>
-                          <td className="p-4">
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${s.paymentStatus === "PAID" ? "bg-emerald-50 text-emerald-800 border-emerald-100" : "bg-amber-50 text-amber-800 border-amber-100"}`}>
-                              {s.paymentStatus}
-                            </span>
-                          </td>
-                          <td className="p-4 font-semibold text-xs text-slate-500">{s.paymentMethod}</td>
-                          <td className="p-4 text-slate-500">{s.saleDate}</td>
-                          <td className="p-4 text-right font-extrabold text-slate-900">${s.totalAmount?.toFixed(2)}</td>
+                <div className="table-container-premium">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr>
+                          <th className="th-premium cursor-pointer hover:bg-slate-100/50 transition-colors" onClick={() => handleSort("saleNo")}>Sale No</th>
+                          <th className="th-premium cursor-pointer hover:bg-slate-100/50 transition-colors" onClick={() => handleSort("customerName")}>Customer</th>
+                          <th className="th-premium">Status</th>
+                          <th className="th-premium">Payment</th>
+                          <th className="th-premium">Method</th>
+                          <th className="th-premium cursor-pointer hover:bg-slate-100/50 transition-colors" onClick={() => handleSort("saleDate")}>Date</th>
+                          <th className="th-premium cursor-pointer hover:bg-slate-100/50 text-right" onClick={() => handleSort("totalAmount")}>Revenue</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {salesReport.sales.content?.map((s) => (
+                          <tr key={s.id} className="tr-premium">
+                            <td className="td-premium font-mono font-bold text-xs text-slate-700">{s.saleNo}</td>
+                            <td className="td-premium font-semibold text-slate-800 text-xs">{s.customerName}</td>
+                            <td className="td-premium py-2">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${s.status === "COMPLETED" ? "bg-emerald-50 text-emerald-800 border-emerald-100/50" : "bg-amber-50 text-amber-800 border-amber-100/50"}`}>
+                                {s.status}
+                              </span>
+                            </td>
+                            <td className="td-premium py-2">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${s.paymentStatus === "PAID" ? "bg-emerald-50 text-emerald-800 border-emerald-100/50" : "bg-amber-50 text-amber-800 border-amber-100/50"}`}>
+                                {s.paymentStatus}
+                              </span>
+                            </td>
+                            <td className="td-premium font-semibold text-xs text-slate-500">{s.paymentMethod}</td>
+                            <td className="td-premium text-slate-500 text-xs">{s.saleDate}</td>
+                            <td className="td-premium text-right font-extrabold text-slate-900 text-xs">${s.totalAmount?.toFixed(2)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
 
                 {renderPagination()}
@@ -752,22 +778,30 @@ const Reports = () => {
               
               {/* Purchase KPIs */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Purchase Orders</p>
-                    <h3 className="text-2xl font-black text-slate-900 mt-1.5">{purchaseReport.totalPurchasesCount} orders</h3>
+                <div className="card-premium p-6 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Purchase Orders</p>
+                    <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{purchaseReport.totalPurchasesCount} orders</h3>
+                    <span className="text-[10px] text-slate-500 font-bold flex items-center gap-1 mt-2">
+                      <span className="material-symbols-outlined text-sm">assignment</span>
+                      Cumulative orders completed
+                    </span>
                   </div>
-                  <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center print:hidden">
-                    <Layers size={18} />
+                  <div className="w-11 h-11 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center border border-blue-100/50 shadow-sm shrink-0 print:hidden">
+                    <Layers size={20} />
                   </div>
                 </div>
-                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Procured Expense</p>
-                    <h3 className="text-2xl font-black text-slate-900 mt-1.5">${purchaseReport.totalPurchasesCost?.toFixed(2)}</h3>
+                <div className="card-premium p-6 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Procured Expense</p>
+                    <h3 className="text-2xl font-bold text-slate-900 tracking-tight">${purchaseReport.totalPurchasesCost?.toFixed(2)}</h3>
+                    <span className="text-[10px] text-slate-500 font-bold flex items-center gap-1 mt-2">
+                      <span className="material-symbols-outlined text-sm">payments</span>
+                      Replenishment cost registered
+                    </span>
                   </div>
-                  <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center print:hidden">
-                    <ArrowDownLeft size={18} />
+                  <div className="w-11 h-11 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center border border-amber-100/50 shadow-sm shrink-0 print:hidden">
+                    <ArrowDownLeft size={20} />
                   </div>
                 </div>
               </div>
@@ -776,54 +810,56 @@ const Reports = () => {
               {renderFiltersPanel()}
 
               {/* Purchase Table */}
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="p-5 border-b border-slate-100 flex items-center justify-between flex-wrap gap-4">
-                  <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Procurement Ledgers</h3>
+              <div className="bg-white rounded-xl border border-slate-200/70 shadow-sm space-y-4 p-6">
+                <div className="flex items-center justify-between flex-wrap gap-4 pb-2 border-b border-slate-100">
+                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Procurement Ledgers</h3>
                   <div className="flex items-center gap-2">
-                    <button onClick={handlePrint} className="px-3.5 py-1.5 border border-slate-200 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:bg-slate-50">
+                    <button onClick={handlePrint} className="btn-secondary py-1.5 px-3 flex items-center gap-2 text-xs">
                       <Printer size={14} />
                       <span>Print Page</span>
                     </button>
-                    <button onClick={handleExportCSV} disabled={isExporting} className="px-3.5 py-1.5 border border-slate-200 text-slate-705 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:bg-slate-50 disabled:opacity-60">
+                    <button onClick={handleExportCSV} disabled={isExporting} className="btn-secondary py-1.5 px-3 flex items-center gap-2 text-xs">
                       <Download size={14} className={isExporting ? "animate-spin" : ""} />
                       <span>{isExporting ? "Exporting..." : "Export CSV"}</span>
                     </button>
                   </div>
                 </div>
 
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse text-sm">
-                    <thead>
-                      <tr className="bg-slate-50 border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider">
-                        <th className="p-4 cursor-pointer hover:bg-slate-100" onClick={() => handleSort("purchaseNo")}>Purchase No</th>
-                        <th className="p-4 cursor-pointer hover:bg-slate-100" onClick={() => handleSort("supplierName")}>Supplier</th>
-                        <th className="p-4">Status</th>
-                        <th className="p-4">Payment</th>
-                        <th className="p-4 cursor-pointer hover:bg-slate-100" onClick={() => handleSort("purchaseDate")}>Date</th>
-                        <th className="p-4 cursor-pointer hover:bg-slate-100 text-right" onClick={() => handleSort("totalAmount")}>Cost</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {purchaseReport.purchases.content?.map((p) => (
-                        <tr key={p.id} className="hover:bg-slate-50/40">
-                          <td className="p-4 font-mono font-bold text-xs text-slate-700">{p.purchaseNo}</td>
-                          <td className="p-4 font-semibold text-slate-800">{p.supplierName}</td>
-                          <td className="p-4">
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${p.status === "RECEIVED" ? "bg-emerald-50 text-emerald-800 border-emerald-100" : "bg-amber-50 text-amber-800 border-amber-100"}`}>
-                              {p.status}
-                            </span>
-                          </td>
-                          <td className="p-4">
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${p.paymentStatus === "PAID" ? "bg-emerald-50 text-emerald-800 border-emerald-100" : "bg-amber-50 text-amber-800 border-amber-100"}`}>
-                              {p.paymentStatus}
-                            </span>
-                          </td>
-                          <td className="p-4 text-slate-500">{p.purchaseDate}</td>
-                          <td className="p-4 text-right font-extrabold text-slate-900">${p.totalAmount?.toFixed(2)}</td>
+                <div className="table-container-premium">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr>
+                          <th className="th-premium cursor-pointer hover:bg-slate-100/50 transition-colors" onClick={() => handleSort("purchaseNo")}>Purchase No</th>
+                          <th className="th-premium cursor-pointer hover:bg-slate-100/50 transition-colors" onClick={() => handleSort("supplierName")}>Supplier</th>
+                          <th className="th-premium">Status</th>
+                          <th className="th-premium">Payment</th>
+                          <th className="th-premium cursor-pointer hover:bg-slate-100/50 transition-colors" onClick={() => handleSort("purchaseDate")}>Date</th>
+                          <th className="th-premium cursor-pointer hover:bg-slate-100/50 text-right" onClick={() => handleSort("totalAmount")}>Cost</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {purchaseReport.purchases.content?.map((p) => (
+                          <tr key={p.id} className="tr-premium">
+                            <td className="td-premium font-mono font-bold text-xs text-slate-700">{p.purchaseNo}</td>
+                            <td className="td-premium font-semibold text-slate-800 text-xs">{p.supplierName}</td>
+                            <td className="td-premium py-2">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${p.status === "RECEIVED" ? "bg-emerald-50 text-emerald-800 border-emerald-100/50" : "bg-amber-50 text-amber-800 border-amber-100/50"}`}>
+                                {p.status}
+                              </span>
+                            </td>
+                            <td className="td-premium py-2">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${p.paymentStatus === "PAID" ? "bg-emerald-50 text-emerald-800 border-emerald-100/50" : "bg-amber-50 text-amber-800 border-amber-100/50"}`}>
+                                {p.paymentStatus}
+                              </span>
+                            </td>
+                            <td className="td-premium text-slate-500 text-xs">{p.purchaseDate}</td>
+                            <td className="td-premium text-right font-extrabold text-slate-900 text-xs">${p.totalAmount?.toFixed(2)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
 
                 {renderPagination()}
@@ -837,47 +873,67 @@ const Reports = () => {
               
               {/* Stock metrics */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Products SKUs</p>
-                    <h3 className="text-2xl font-black text-slate-900 mt-1">{inventoryReport.totalProductsCount}</h3>
+                <div className="card-premium p-6 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Products SKUs</p>
+                    <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{inventoryReport.totalProductsCount}</h3>
+                    <span className="text-[10px] text-slate-500 font-bold flex items-center gap-1 mt-2">
+                      <span className="material-symbols-outlined text-sm">inventory_2</span>
+                      Active stock items
+                    </span>
                   </div>
-                  <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center print:hidden">
-                    <Layers size={18} />
-                  </div>
-                </div>
-
-                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Current Inventory Value</p>
-                    <h3 className="text-2xl font-black text-slate-900 mt-1">${inventoryReport.totalInventoryValue?.toFixed(2)}</h3>
-                  </div>
-                  <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center print:hidden">
-                    <DollarSign size={18} />
+                  <div className="w-11 h-11 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center border border-blue-100/50 shadow-sm shrink-0 print:hidden">
+                    <Layers size={20} />
                   </div>
                 </div>
 
-                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Low Stock Products</p>
-                    <h3 className={`text-2xl font-black mt-1 ${inventoryReport.lowStockCount > 0 ? "text-amber-600" : "text-slate-900"}`}>
+                <div className="card-premium p-6 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Current Inventory Value</p>
+                    <h3 className="text-2xl font-bold text-slate-900 tracking-tight">${inventoryReport.totalInventoryValue?.toFixed(2)}</h3>
+                    <span className="text-[10px] text-emerald-600 font-bold flex items-center gap-1 mt-2">
+                      <span className="material-symbols-outlined text-sm">trending_up</span>
+                      Estimated asset worth
+                    </span>
+                  </div>
+                  <div className="w-11 h-11 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center border border-emerald-100/50 shadow-sm shrink-0 print:hidden">
+                    <DollarSign size={20} />
+                  </div>
+                </div>
+
+                <div className="card-premium p-6 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Low Stock Products</p>
+                    <h3 className={`text-2xl font-bold tracking-tight ${inventoryReport.lowStockCount > 0 ? "text-amber-600" : "text-slate-900"}`}>
                       {inventoryReport.lowStockCount}
                     </h3>
+                    <span className={`text-[10px] font-bold flex items-center gap-1 mt-2 ${inventoryReport.lowStockCount > 0 ? "text-amber-600" : "text-slate-500"}`}>
+                      <span className="material-symbols-outlined text-xs">
+                        {inventoryReport.lowStockCount > 0 ? "warning" : "check_circle"}
+                      </span>
+                      {inventoryReport.lowStockCount > 0 ? "Reorder suggested" : "Stock level normal"}
+                    </span>
                   </div>
-                  <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center print:hidden">
-                    <AlertCircle size={18} />
+                  <div className="w-11 h-11 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center border border-amber-100/50 shadow-sm shrink-0 print:hidden">
+                    <AlertCircle size={20} />
                   </div>
                 </div>
 
-                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Out of Stock Products</p>
-                    <h3 className={`text-2xl font-black mt-1 ${inventoryReport.outOfStockCount > 0 ? "text-red-600" : "text-slate-900"}`}>
+                <div className="card-premium p-6 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Out of Stock Products</p>
+                    <h3 className={`text-2xl font-bold tracking-tight ${inventoryReport.outOfStockCount > 0 ? "text-rose-600" : "text-slate-900"}`}>
                       {inventoryReport.outOfStockCount}
                     </h3>
+                    <span className={`text-[10px] font-bold flex items-center gap-1 mt-2 ${inventoryReport.outOfStockCount > 0 ? "text-rose-600" : "text-slate-500"}`}>
+                      <span className="material-symbols-outlined text-xs">
+                        {inventoryReport.outOfStockCount > 0 ? "error" : "check_circle"}
+                      </span>
+                      {inventoryReport.outOfStockCount > 0 ? "Critical deficit" : "Zero-out normal"}
+                    </span>
                   </div>
-                  <div className="w-10 h-10 bg-red-50 text-red-650 rounded-lg flex items-center justify-center print:hidden">
-                    <ShieldAlert size={18} />
+                  <div className="w-11 h-11 bg-rose-50 text-rose-650 rounded-xl flex items-center justify-center border border-rose-100/50 shadow-sm shrink-0 print:hidden">
+                    <ShieldAlert size={20} />
                   </div>
                 </div>
               </div>
@@ -886,55 +942,57 @@ const Reports = () => {
               {renderFiltersPanel()}
 
               {/* Stock Inventory Table */}
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="p-5 border-b border-slate-100 flex items-center justify-between flex-wrap gap-4">
-                  <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Inventory Stock Valuations</h3>
+              <div className="bg-white rounded-xl border border-slate-200/70 shadow-sm space-y-4 p-6">
+                <div className="flex items-center justify-between flex-wrap gap-4 pb-2 border-b border-slate-100">
+                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Inventory Stock Valuations</h3>
                   <div className="flex items-center gap-2">
-                    <button onClick={handlePrint} className="px-3.5 py-1.5 border border-slate-200 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:bg-slate-50">
+                    <button onClick={handlePrint} className="btn-secondary py-1.5 px-3 flex items-center gap-2 text-xs">
                       <Printer size={14} />
                       <span>Print Page</span>
                     </button>
-                    <button onClick={handleExportCSV} disabled={isExporting} className="px-3.5 py-1.5 border border-slate-200 text-slate-705 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:bg-slate-50 disabled:opacity-60">
+                    <button onClick={handleExportCSV} disabled={isExporting} className="btn-secondary py-1.5 px-3 flex items-center gap-2 text-xs">
                       <Download size={14} className={isExporting ? "animate-spin" : ""} />
                       <span>{isExporting ? "Exporting..." : "Export CSV"}</span>
                     </button>
                   </div>
                 </div>
 
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse text-sm">
-                    <thead>
-                      <tr className="bg-slate-50 border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider">
-                        <th className="p-4 cursor-pointer hover:bg-slate-100" onClick={() => handleSort("sku")}>SKU</th>
-                        <th className="p-4 cursor-pointer hover:bg-slate-100" onClick={() => handleSort("name")}>Product Name</th>
-                        <th className="p-4 cursor-pointer hover:bg-slate-100" onClick={() => handleSort("category")}>Category</th>
-                        <th className="p-4 cursor-pointer hover:bg-slate-100" onClick={() => handleSort("quantityInStock")}>Stock Level</th>
-                        <th className="p-4">Buying Price</th>
-                        <th className="p-4">Selling Price</th>
-                        <th className="p-4 text-right">Value (Cost)</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {inventoryReport.products.content?.map((p) => (
-                        <tr key={p.id} className="hover:bg-slate-50/40">
-                          <td className="p-4 font-mono font-bold text-xs text-slate-700">{p.sku}</td>
-                          <td className="p-4 font-semibold text-slate-800">{p.name}</td>
-                          <td className="p-4 text-slate-500">{p.category}</td>
-                          <td className="p-4 font-semibold text-slate-700">
-                            {p.quantityInStock} {p.unit}
-                            {p.quantityInStock === 0 ? (
-                              <span className="ml-2 text-[10px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100">Out of Stock</span>
-                            ) : p.quantityInStock <= p.reorderLevel ? (
-                              <span className="ml-2 text-[10px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-100">Low Stock</span>
-                            ) : null}
-                          </td>
-                          <td className="p-4 text-slate-500">${p.purchasePrice?.toFixed(2)}</td>
-                          <td className="p-4 text-slate-500">${p.sellingPrice?.toFixed(2)}</td>
-                          <td className="p-4 text-right font-extrabold text-slate-900">${(p.quantityInStock * p.purchasePrice)?.toFixed(2)}</td>
+                <div className="table-container-premium">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr>
+                          <th className="th-premium cursor-pointer hover:bg-slate-100/50 transition-colors" onClick={() => handleSort("sku")}>SKU</th>
+                          <th className="th-premium cursor-pointer hover:bg-slate-100/50 transition-colors" onClick={() => handleSort("name")}>Product Name</th>
+                          <th className="th-premium cursor-pointer hover:bg-slate-100/50 transition-colors" onClick={() => handleSort("category")}>Category</th>
+                          <th className="th-premium cursor-pointer hover:bg-slate-100/50 transition-colors" onClick={() => handleSort("quantityInStock")}>Stock Level</th>
+                          <th className="th-premium">Buying Price</th>
+                          <th className="th-premium">Selling Price</th>
+                          <th className="th-premium text-right">Value (Cost)</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {inventoryReport.products.content?.map((p) => (
+                          <tr key={p.id} className="tr-premium">
+                            <td className="td-premium font-mono font-bold text-xs text-slate-700">{p.sku}</td>
+                            <td className="td-premium font-semibold text-slate-800 text-xs">{p.name}</td>
+                            <td className="td-premium text-slate-500 text-xs">{p.category}</td>
+                            <td className="td-premium font-semibold text-slate-700 text-xs py-2">
+                              {p.quantityInStock} {p.unit}
+                              {p.quantityInStock === 0 ? (
+                                <span className="ml-2 text-[9px] font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-100/60">Out of Stock</span>
+                              ) : p.quantityInStock <= p.reorderLevel ? (
+                                <span className="ml-2 text-[9px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-100/60">Low Stock</span>
+                              ) : null}
+                            </td>
+                            <td className="td-premium text-slate-500 text-xs">${p.purchasePrice?.toFixed(2)}</td>
+                            <td className="td-premium text-slate-500 text-xs">${p.sellingPrice?.toFixed(2)}</td>
+                            <td className="td-premium text-right font-extrabold text-slate-900 text-xs">${(p.quantityInStock * p.purchasePrice)?.toFixed(2)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
 
                 {renderPagination()}
@@ -948,40 +1006,56 @@ const Reports = () => {
               
               {/* Invoice KPIs */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Invoices</p>
-                    <h3 className="text-2xl font-black text-slate-900 mt-1.5">{invoiceReport.totalInvoicesCount}</h3>
+                <div className="card-premium p-6 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Invoices</p>
+                    <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{invoiceReport.totalInvoicesCount}</h3>
+                    <span className="text-[10px] text-slate-500 font-bold flex items-center gap-1 mt-2">
+                      <span className="material-symbols-outlined text-sm">receipt</span>
+                      Billing records issued
+                    </span>
                   </div>
-                  <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center print:hidden">
-                    <Layers size={18} />
-                  </div>
-                </div>
-                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Paid Invoices</p>
-                    <h3 className="text-2xl font-black text-emerald-600 mt-1.5">{invoiceReport.paidInvoicesCount}</h3>
-                  </div>
-                  <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center print:hidden">
-                    <DollarSign size={18} />
+                  <div className="w-11 h-11 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center border border-blue-100/50 shadow-sm shrink-0 print:hidden">
+                    <Layers size={20} />
                   </div>
                 </div>
-                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Revenue Generated</p>
-                    <h3 className="text-2xl font-black text-slate-900 mt-1.5">${invoiceReport.totalRevenue?.toFixed(2)}</h3>
+                <div className="card-premium p-6 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Paid Invoices</p>
+                    <h3 className="text-2xl font-bold text-emerald-600 tracking-tight">{invoiceReport.paidInvoicesCount}</h3>
+                    <span className="text-[10px] text-emerald-600 font-bold flex items-center gap-1 mt-2">
+                      <span className="material-symbols-outlined text-sm">check_circle</span>
+                      Settled/completed accounts
+                    </span>
                   </div>
-                  <div className="w-10 h-10 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center print:hidden">
-                    <Sparkles size={18} />
+                  <div className="w-11 h-11 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center border border-emerald-100/50 shadow-sm shrink-0 print:hidden">
+                    <DollarSign size={20} />
                   </div>
                 </div>
-                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Average Invoice Value</p>
-                    <h3 className="text-2xl font-black text-slate-900 mt-1.5">${invoiceReport.averageInvoiceValue?.toFixed(2)}</h3>
+                <div className="card-premium p-6 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Revenue Generated</p>
+                    <h3 className="text-2xl font-bold text-slate-900 tracking-tight">${invoiceReport.totalRevenue?.toFixed(2)}</h3>
+                    <span className="text-[10px] text-slate-500 font-bold flex items-center gap-1 mt-2">
+                      <span className="material-symbols-outlined text-sm">trending_up</span>
+                      Total receivables closed
+                    </span>
                   </div>
-                  <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center print:hidden">
-                    <DollarSign size={18} />
+                  <div className="w-11 h-11 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center border border-purple-100/50 shadow-sm shrink-0 print:hidden">
+                    <Sparkles size={20} />
+                  </div>
+                </div>
+                <div className="card-premium p-6 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Average Invoice Value</p>
+                    <h3 className="text-2xl font-bold text-slate-900 tracking-tight">${invoiceReport.averageInvoiceValue?.toFixed(2)}</h3>
+                    <span className="text-[10px] text-slate-500 font-bold flex items-center gap-1 mt-2">
+                      <span className="material-symbols-outlined text-sm">calculate</span>
+                      Mean billing value
+                    </span>
+                  </div>
+                  <div className="w-11 h-11 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center border border-amber-100/50 shadow-sm shrink-0 print:hidden">
+                    <DollarSign size={20} />
                   </div>
                 </div>
               </div>
@@ -990,56 +1064,58 @@ const Reports = () => {
               {renderFiltersPanel()}
 
               {/* Invoices Table */}
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="p-5 border-b border-slate-100 flex items-center justify-between flex-wrap gap-4">
-                  <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Invoice Ledgers</h3>
+              <div className="bg-white rounded-xl border border-slate-200/70 shadow-sm space-y-4 p-6">
+                <div className="flex items-center justify-between flex-wrap gap-4 pb-2 border-b border-slate-100">
+                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Invoice Ledgers</h3>
                   <div className="flex items-center gap-2">
-                    <button onClick={handlePrint} className="px-3.5 py-1.5 border border-slate-200 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:bg-slate-50">
+                    <button onClick={handlePrint} className="btn-secondary py-1.5 px-3 flex items-center gap-2 text-xs">
                       <Printer size={14} />
                       <span>Print Page</span>
                     </button>
-                    <button onClick={handleExportCSV} disabled={isExporting} className="px-3.5 py-1.5 border border-slate-200 text-slate-705 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:bg-slate-50 disabled:opacity-60">
+                    <button onClick={handleExportCSV} disabled={isExporting} className="btn-secondary py-1.5 px-3 flex items-center gap-2 text-xs">
                       <Download size={14} className={isExporting ? "animate-spin" : ""} />
                       <span>{isExporting ? "Exporting..." : "Export CSV"}</span>
                     </button>
                   </div>
                 </div>
 
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse text-sm">
-                    <thead>
-                      <tr className="bg-slate-50 border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider">
-                        <th className="p-4 cursor-pointer hover:bg-slate-100" onClick={() => handleSort("invoiceNo")}>Invoice No</th>
-                        <th className="p-4 cursor-pointer hover:bg-slate-100" onClick={() => handleSort("customerName")}>Customer</th>
-                        <th className="p-4">Sales Order</th>
-                        <th className="p-4">Status</th>
-                        <th className="p-4">Payment</th>
-                        <th className="p-4 cursor-pointer hover:bg-slate-100" onClick={() => handleSort("invoiceDate")}>Date</th>
-                        <th className="p-4 cursor-pointer hover:bg-slate-100 text-right" onClick={() => handleSort("grandTotal")}>Grand Total</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {invoiceReport.invoices.content?.map((i) => (
-                        <tr key={i.id} className="hover:bg-slate-50/40">
-                          <td className="p-4 font-mono font-bold text-xs text-slate-700">{i.invoiceNo}</td>
-                          <td className="p-4 font-semibold text-slate-800">{i.customerName}</td>
-                          <td className="p-4 font-mono text-xs text-slate-500">{i.saleNo || "Standalone"}</td>
-                          <td className="p-4">
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${i.status === "PAID" ? "bg-emerald-50 text-emerald-800 border-emerald-100" : i.status === "ISSUED" ? "bg-blue-50 text-blue-800 border-blue-100" : "bg-amber-50 text-amber-800 border-amber-100"}`}>
-                              {i.status}
-                            </span>
-                          </td>
-                          <td className="p-4">
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${i.paymentStatus === "PAID" ? "bg-emerald-50 text-emerald-800 border-emerald-100" : "bg-amber-50 text-amber-800 border-amber-100"}`}>
-                              {i.paymentStatus}
-                            </span>
-                          </td>
-                          <td className="p-4 text-slate-500">{i.invoiceDate}</td>
-                          <td className="p-4 text-right font-extrabold text-slate-900">${i.grandTotal?.toFixed(2)}</td>
+                <div className="table-container-premium">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr>
+                          <th className="th-premium cursor-pointer hover:bg-slate-100/50 transition-colors" onClick={() => handleSort("invoiceNo")}>Invoice No</th>
+                          <th className="th-premium cursor-pointer hover:bg-slate-100/50 transition-colors" onClick={() => handleSort("customerName")}>Customer</th>
+                          <th className="th-premium">Sales Order</th>
+                          <th className="th-premium">Status</th>
+                          <th className="th-premium">Payment</th>
+                          <th className="th-premium cursor-pointer hover:bg-slate-100/50 transition-colors" onClick={() => handleSort("invoiceDate")}>Date</th>
+                          <th className="th-premium cursor-pointer hover:bg-slate-100/50 text-right" onClick={() => handleSort("grandTotal")}>Grand Total</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {invoiceReport.invoices.content?.map((i) => (
+                          <tr key={i.id} className="tr-premium">
+                            <td className="td-premium font-mono font-bold text-xs text-slate-700">{i.invoiceNo}</td>
+                            <td className="td-premium font-semibold text-slate-800 text-xs">{i.customerName}</td>
+                            <td className="td-premium font-mono text-xs text-slate-500">{i.saleNo || "Standalone"}</td>
+                            <td className="td-premium py-2">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${i.status === "PAID" ? "bg-emerald-50 text-emerald-800 border-emerald-100/50" : i.status === "ISSUED" ? "bg-blue-50 text-blue-800 border-blue-100/50" : "bg-amber-50 text-amber-800 border-amber-100/50"}`}>
+                                {i.status}
+                              </span>
+                            </td>
+                            <td className="td-premium py-2">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${i.paymentStatus === "PAID" ? "bg-emerald-50 text-emerald-800 border-emerald-100/50" : "bg-amber-50 text-amber-800 border-amber-100/50"}`}>
+                                {i.paymentStatus}
+                              </span>
+                            </td>
+                            <td className="td-premium text-slate-500 text-xs">{i.invoiceDate}</td>
+                            <td className="td-premium text-right font-extrabold text-slate-900 text-xs">${i.grandTotal?.toFixed(2)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
 
                 {renderPagination()}
