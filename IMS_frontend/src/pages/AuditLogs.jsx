@@ -230,7 +230,7 @@ const AuditLogs = () => {
         <Header 
           workspaceName="Audit Logs" 
           title="Platform Activity Logs"
-          onRefresh={fetchLogs}
+          onRefresh={loadLogs}
         >
           <button
             onClick={() => handleExport("csv")}
