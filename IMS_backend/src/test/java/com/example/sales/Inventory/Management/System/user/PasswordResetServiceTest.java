@@ -30,6 +30,9 @@ class PasswordResetServiceTest {
     @Mock
     private EmailService emailService;
 
+    @Mock
+    private org.springframework.context.ApplicationEventPublisher eventPublisher;
+
     @InjectMocks
     private PasswordResetService passwordResetService;
 

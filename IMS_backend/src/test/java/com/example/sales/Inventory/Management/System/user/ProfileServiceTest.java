@@ -34,6 +34,9 @@ public class ProfileServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private org.springframework.context.ApplicationEventPublisher eventPublisher;
+
     @InjectMocks
     private ProfileService profileService;
 

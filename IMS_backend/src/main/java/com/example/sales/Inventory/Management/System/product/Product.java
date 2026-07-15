@@ -41,4 +41,7 @@ public class Product extends AuditableEntity {
 
     @Column(name = "reorder_level")
     private Integer reorderLevel = 10;
+
+    @Column(name = "low_stock_alert_sent", nullable = false, columnDefinition = "boolean default false")
+    private Boolean lowStockAlertSent = false;
 }
