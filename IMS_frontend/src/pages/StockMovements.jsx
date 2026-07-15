@@ -329,134 +329,154 @@ const StockMovements = () => {
                     placeholder="Search ledger remarks or ref..."
                     value={searchVal}
                     onChange={(e) => { setSearchVal(e.target.value); setCurrentPage(0); }}
-                    className="w-full pl-9 pr-3.5 py-1.5 text-xs bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-600 focus:ring-4 focus:ring-blue-100/50 rounded-lg outline-none transition-all shadow-sm"
+                    className="input-premium pl-9 py-2"
                   />
                 </div>
 
-                <select
-                  value={selectedTypeFilter}
-                  onChange={(e) => { setSelectedTypeFilter(e.target.value); setCurrentPage(0); }}
-                  className="px-3 py-1.5 text-xs bg-white border border-slate-200 hover:border-slate-300 rounded-lg outline-none cursor-pointer text-slate-600 font-semibold"
-                >
-                  <option value="">All Movement Types</option>
-                  <option value="PURCHASE">Purchases</option>
-                  <option value="SALE">Sales</option>
-                  <option value="ADJUSTMENT">Adjustments</option>
-                  <option value="RETURN">Returns</option>
-                </select>
+                <div className="flex items-center gap-2 border border-slate-200 px-3 py-2 rounded-lg bg-white shadow-sm focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-blue-500 transition-all">
+                  <select
+                    value={selectedTypeFilter}
+                    onChange={(e) => { setSelectedTypeFilter(e.target.value); setCurrentPage(0); }}
+                    className="text-xs text-slate-700 bg-transparent outline-none focus:ring-0 cursor-pointer font-semibold"
+                  >
+                    <option value="">All Movement Types</option>
+                    <option value="PURCHASE">Purchases</option>
+                    <option value="SALE">Sales</option>
+                    <option value="ADJUSTMENT">Adjustments</option>
+                    <option value="RETURN">Returns</option>
+                  </select>
+                </div>
 
-                <select
-                  value={selectedProductFilter}
-                  onChange={(e) => { setSelectedProductFilter(e.target.value); setCurrentPage(0); }}
-                  className="px-3 py-1.5 text-xs bg-white border border-slate-200 hover:border-slate-300 rounded-lg outline-none cursor-pointer text-slate-600 font-semibold max-w-[200px]"
-                >
-                  <option value="">All Products</option>
-                  {products.map(p => (
-                    <option key={p.id} value={p.id}>{p.name}</option>
-                  ))}
-                </select>
+                <div className="flex items-center gap-2 border border-slate-200 px-3 py-2 rounded-lg bg-white shadow-sm focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-blue-500 transition-all">
+                  <select
+                    value={selectedProductFilter}
+                    onChange={(e) => { setSelectedProductFilter(e.target.value); setCurrentPage(0); }}
+                    className="text-xs text-slate-700 bg-transparent outline-none focus:ring-0 cursor-pointer font-semibold max-w-[200px]"
+                  >
+                    <option value="">All Products</option>
+                    {products.map(p => (
+                      <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               {/* Date Filters & Adjust Button */}
               <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-end">
-                <div className="flex items-center gap-1.5 border border-slate-200 rounded-lg px-2 py-1.5 bg-slate-50">
+                <div className="flex items-center gap-1.5 border border-slate-200 rounded-lg px-3 py-2 bg-white shadow-sm font-semibold text-xs text-slate-650">
+                  <Calendar size={14} className="text-slate-400" />
                   <span className="text-[10px] font-bold text-slate-400 uppercase">From</span>
                   <input 
                     type="date"
                     value={startDateFilter}
                     onChange={(e) => { setStartDateFilter(e.target.value); setCurrentPage(0); }}
-                    className="text-xs bg-transparent border-none outline-none font-semibold text-slate-600"
+                    className="text-xs bg-transparent border-none outline-none font-semibold text-slate-600 cursor-pointer"
                   />
                   <span className="text-[10px] font-bold text-slate-400 uppercase">To</span>
                   <input 
                     type="date"
                     value={endDateFilter}
                     onChange={(e) => { setEndDateFilter(e.target.value); setCurrentPage(0); }}
-                    className="text-xs bg-transparent border-none outline-none font-semibold text-slate-600"
+                    className="text-xs bg-transparent border-none outline-none font-semibold text-slate-600 cursor-pointer"
                   />
                 </div>
 
                 <button
                   onClick={() => setIsModalOpen(true)}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-all text-xs flex items-center gap-1.5 cursor-pointer shadow-sm"
+                  className="btn-primary py-2 px-4 text-xs flex items-center gap-1.5 cursor-pointer shadow-md shadow-blue-500/10"
                 >
                   <PlusCircle size={14} />
-                  Manual Correction
+                  <span>Manual Correction</span>
                 </button>
               </div>
             </div>
           </div>
 
           {/* Movements Data Table */}
-          <div className="card-premium overflow-hidden">
-            {isLoading ? (
-              <div className="p-12 text-center flex flex-col items-center justify-center">
-                <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-                <p className="text-xs text-slate-400 font-bold uppercase tracking-wide">Reading Ledger Records...</p>
-              </div>
-            ) : movements.length === 0 ? (
-              <div className="p-16 text-center">
-                <div className="w-14 h-14 bg-slate-50 border border-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <SlidersHorizontal className="w-6 h-6 text-slate-450 text-slate-400 opacity-60" />
-                </div>
-                <h3 className="text-sm font-bold text-slate-800">No stock movements found</h3>
-                <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
-                  Try tweaking your product, date range, or movement type filters.
-                </p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse text-left">
-                  <thead>
-                    <tr className="bg-slate-50/70 border-b border-slate-250 border-slate-200/80 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                      <th className="px-6 py-4">Timestamp</th>
-                      <th className="px-6 py-4">Movement No</th>
-                      <th className="px-6 py-4">Product Details</th>
-                      <th className="px-6 py-4 text-center">Movement Type</th>
-                      <th className="px-6 py-4 text-center">Previous Qty</th>
-                      <th className="px-6 py-4 text-center">Ledger Net</th>
-                      <th className="px-6 py-4 text-center">New Qty</th>
-                      <th className="px-6 py-4">Reference No</th>
-                      <th className="px-6 py-4">Operator</th>
-                      <th className="px-6 py-4">Remarks</th>
+          <div className="table-container-premium">
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-left">
+                <thead>
+                  <tr className="border-b border-slate-200 bg-slate-50/50">
+                    <th className="th-premium py-3">Timestamp</th>
+                    <th className="th-premium py-3">Movement No</th>
+                    <th className="th-premium py-3">Product Details</th>
+                    <th className="th-premium py-3 text-center">Movement Type</th>
+                    <th className="th-premium py-3 text-center">Previous Qty</th>
+                    <th className="th-premium py-3 text-center">Ledger Net</th>
+                    <th className="th-premium py-3 text-center">New Qty</th>
+                    <th className="th-premium py-3">Reference No</th>
+                    <th className="th-premium py-3">Operator</th>
+                    <th className="th-premium py-3">Remarks</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-xs">
+                  {isLoading ? (
+                    Array.from({ length: pageSize }).map((_, idx) => (
+                      <tr key={idx}>
+                        <td className="td-premium py-3"><div className="h-4 skeleton-shimmer rounded w-20"></div></td>
+                        <td className="td-premium py-3"><div className="h-4 skeleton-shimmer rounded w-16"></div></td>
+                        <td className="td-premium py-3">
+                          <div className="h-4 skeleton-shimmer rounded w-32 mb-1.5"></div>
+                          <div className="h-3 skeleton-shimmer rounded w-20"></div>
+                        </td>
+                        <td className="td-premium py-3"><div className="h-6 skeleton-shimmer rounded-full w-20 mx-auto"></div></td>
+                        <td className="td-premium py-3"><div className="h-4 skeleton-shimmer rounded w-10 mx-auto"></div></td>
+                        <td className="td-premium py-3"><div className="h-5 skeleton-shimmer rounded w-12 mx-auto"></div></td>
+                        <td className="td-premium py-3"><div className="h-4 skeleton-shimmer rounded w-10 mx-auto"></div></td>
+                        <td className="td-premium py-3"><div className="h-4 skeleton-shimmer rounded w-16"></div></td>
+                        <td className="td-premium py-3"><div className="h-4 skeleton-shimmer rounded w-24"></div></td>
+                        <td className="td-premium py-3"><div className="h-4 skeleton-shimmer rounded w-40"></div></td>
+                      </tr>
+                    ))
+                  ) : movements.length === 0 ? (
+                    <tr>
+                      <td colSpan="10" className="p-16 text-center">
+                        <div className="w-14 h-14 bg-slate-50 border border-slate-200/60 rounded-full flex items-center justify-center mx-auto mb-4 border-dashed shadow-sm">
+                          <SlidersHorizontal className="w-6 h-6 text-slate-400" />
+                        </div>
+                        <h3 className="text-sm font-bold text-slate-800">No stock movements found</h3>
+                        <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+                          Try tweaking your product, date range, or movement type filters.
+                        </p>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 text-xs">
-                    {movements.map((m) => (
-                      <tr key={m.id} className="hover:bg-slate-50/30 transition-colors">
-                        <td className="px-6 py-4 text-slate-500 whitespace-nowrap">
+                  ) : (
+                    movements.map((m) => (
+                      <tr key={m.id} className="hover:bg-slate-50/30 transition-colors tr-premium">
+                        <td className="td-premium py-3 text-slate-500 whitespace-nowrap">
                           {new Date(m.timestamp).toLocaleDateString()} <span className="text-[10px] text-slate-400 ml-1">{new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                         </td>
-                        <td className="px-6 py-4 font-bold text-slate-800 whitespace-nowrap">{m.movementNo}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="td-premium py-3 font-bold text-slate-800 whitespace-nowrap">{m.movementNo}</td>
+                        <td className="td-premium py-3 whitespace-nowrap">
                           <div className="flex flex-col">
                             <span className="font-bold text-slate-800 leading-snug">{m.productName}</span>
-                            <span className="text-[10px] text-slate-450 font-bold text-slate-400 mt-0.5">{m.productSku}</span>
+                            <span className="text-[10px] text-slate-400 mt-0.5 font-mono">{m.productSku}</span>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <td className="td-premium py-3 whitespace-nowrap text-center">
                           <span className={`px-2 py-0.5 border rounded-full text-[9px] font-extrabold uppercase tracking-wide ${getTypeColor(m.movementType)}`}>
                             {m.movementType}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-center font-bold text-slate-500">{m.previousQuantity}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <td className="td-premium py-3 text-center font-semibold text-slate-500">{m.previousQuantity}</td>
+                        <td className="td-premium py-3 whitespace-nowrap text-center">
                           <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold ${
                             m.difference > 0 ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"
                           }`}>
                             {m.difference > 0 ? `+${m.difference}` : m.difference}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-center font-bold text-slate-800">{m.newQuantity}</td>
-                        <td className="px-6 py-4 font-semibold text-slate-600">{m.referenceNo || "-"}</td>
-                        <td className="px-6 py-4 text-slate-650 font-bold whitespace-nowrap">{m.performedByFullName || "System"}</td>
-                        <td className="px-6 py-4 text-slate-500 max-w-xs truncate" title={m.remarks}>{m.remarks || "-"}</td>
+                        <td className="td-premium py-3 text-center font-bold text-slate-800">{m.newQuantity}</td>
+                        <td className="td-premium py-3 font-semibold text-slate-600">{m.referenceNo || "-"}</td>
+                        <td className="td-premium py-3 text-slate-700 font-bold whitespace-nowrap">{m.performedByFullName || "System"}</td>
+                        <td className="td-premium py-3 text-slate-500 max-w-xs truncate" title={m.remarks}>{m.remarks || "-"}</td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
 
             {/* Pagination */}
             {totalPages > 1 && (

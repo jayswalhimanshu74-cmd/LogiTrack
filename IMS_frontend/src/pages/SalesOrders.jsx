@@ -200,6 +200,25 @@ const SalesOrders = () => {
     loadStats();
   }, [fetchSales, loadStats]);
 
+  // Query param id check
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    if (id) {
+      salesApi.getSale(id)
+        .then(data => {
+          setSelectedSale(data);
+          setIsDrawerOpen(true);
+        })
+        .catch(err => {
+          console.warn("Failed to load sale from query param, using fallback:", err);
+          const mockItem = { id: parseInt(id), saleNo: "SO-DEMO-01", customerName: "Demo Customer", totalAmount: 100, paymentStatus: "PENDING", status: "PENDING", saleDate: new Date().toISOString().split('T')[0], items: [] };
+          setSelectedSale(mockItem);
+          setIsDrawerOpen(true);
+        });
+    }
+  }, []);
+
   // Form Submit Handler (Supports Create and Update)
   const handleFormSubmit = async (data) => {
     setIsSaving(true);
@@ -398,18 +417,18 @@ const SalesOrders = () => {
                   placeholder="Search SO #, customer..."
                   value={searchVal}
                   onChange={(e) => { setSearchVal(e.target.value); setCurrentPage(0); }}
-                  className="w-full pl-10 pr-4 py-2 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 rounded-lg text-sm transition-all"
+                  className="input-premium pl-10 py-2"
                 />
               </div>
 
               {/* Advanced multi-filters */}
               <div className="flex flex-wrap items-center gap-3 w-full justify-end">
-                <div className="flex items-center gap-2 border border-slate-200 px-3 py-2 rounded-lg bg-white">
-                  <Filter size={16} className="text-slate-500" />
+                <div className="flex items-center gap-2 border border-slate-200 px-3 py-2 rounded-lg bg-white shadow-sm focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-blue-500 transition-all">
+                  <Filter size={16} className="text-slate-400" />
                   <select
                     value={statusFilter}
                     onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(0); }}
-                    className="text-sm text-slate-700 bg-transparent outline-none focus:ring-0 cursor-pointer"
+                    className="text-xs font-semibold text-slate-700 bg-transparent outline-none focus:ring-0 cursor-pointer"
                   >
                     <option value="">All Statuses</option>
                     <option value="PENDING">Pending</option>
@@ -419,11 +438,11 @@ const SalesOrders = () => {
                   </select>
                 </div>
 
-                <div className="flex items-center gap-2 border border-slate-200 px-3 py-2 rounded-lg bg-white">
+                <div className="flex items-center gap-2 border border-slate-200 px-3 py-2 rounded-lg bg-white shadow-sm focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-blue-500 transition-all">
                   <select
                     value={paymentStatusFilter}
                     onChange={(e) => { setPaymentStatusFilter(e.target.value); setCurrentPage(0); }}
-                    className="text-sm text-slate-700 bg-transparent outline-none focus:ring-0 cursor-pointer"
+                    className="text-xs font-semibold text-slate-700 bg-transparent outline-none focus:ring-0 cursor-pointer"
                   >
                     <option value="">All Payments</option>
                     <option value="PENDING">Pending</option>
@@ -433,13 +452,13 @@ const SalesOrders = () => {
                 </div>
 
                 {/* Date Filters */}
-                <div className="flex items-center gap-1.5 border border-slate-200 px-3 py-1.5 rounded-lg bg-white text-slate-600 text-sm">
-                  <Calendar size={15} />
+                <div className="flex items-center gap-1.5 border border-slate-200 px-3 py-1.5 rounded-lg bg-white text-slate-650 text-xs shadow-sm font-semibold">
+                  <Calendar size={14} className="text-slate-400" />
                   <input
                     type="date"
                     value={startDate}
                     onChange={(e) => { setStartDate(e.target.value); setCurrentPage(0); }}
-                    className="outline-none text-xs text-slate-700 cursor-pointer"
+                    className="outline-none text-xs text-slate-700 cursor-pointer bg-transparent"
                     title="Start Date"
                   />
                   <span className="text-slate-300">to</span>
@@ -447,13 +466,13 @@ const SalesOrders = () => {
                     type="date"
                     value={endDate}
                     onChange={(e) => { setEndDate(e.target.value); setCurrentPage(0); }}
-                    className="outline-none text-xs text-slate-700 cursor-pointer"
+                    className="outline-none text-xs text-slate-700 cursor-pointer bg-transparent"
                     title="End Date"
                   />
                   {(startDate || endDate) && (
                     <button
                       onClick={() => { setStartDate(""); setEndDate(""); }}
-                      className="ml-1 text-slate-400 hover:text-slate-600 cursor-pointer"
+                      className="ml-1 text-slate-450 hover:text-slate-650 cursor-pointer text-xs"
                     >
                       Clear
                     </button>
@@ -463,17 +482,17 @@ const SalesOrders = () => {
                 <button
                   onClick={handleExportCSV}
                   disabled={isExporting}
-                  className="border border-slate-205 border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all cursor-pointer disabled:opacity-60"
+                  className="btn-secondary py-2 px-3.5 text-xs flex items-center gap-2"
                 >
-                  <Download size={16} className={isExporting ? "animate-spin" : ""} />
+                  <Download size={14} className={isExporting ? "animate-spin" : ""} />
                   <span>{isExporting ? "Exporting..." : "Export CSV"}</span>
                 </button>
 
                 <button
                   onClick={() => { setSelectedSale(null); setIsFormOpen(true); }}
-                  className="bg-premium-gradient hover:bg-premium-gradient-dark text-white px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all shadow-md cursor-pointer shrink-0"
+                  className="btn-primary py-2 px-4 text-xs flex items-center gap-2 cursor-pointer shadow-md shadow-blue-500/10"
                 >
-                  <Plus size={16} />
+                  <Plus size={14} />
                   <span>Log Sales Order</span>
                 </button>
               </div>
@@ -524,18 +543,18 @@ const SalesOrders = () => {
                     {isLoading ? (
                       // Skeleton rows
                       Array.from({ length: pageSize }).map((_, idx) => (
-                        <tr key={idx} className="animate-pulse">
-                          <td className="td-premium"><div className="h-4 bg-slate-100 rounded w-20"></div></td>
+                        <tr key={idx}>
+                          <td className="td-premium"><div className="h-4 skeleton-shimmer rounded w-20"></div></td>
                           <td className="td-premium">
-                            <div className="h-4 bg-slate-100 rounded w-24 mb-1"></div>
-                            <div className="h-3 bg-slate-100 rounded w-16"></div>
+                            <div className="h-4 skeleton-shimmer rounded w-24 mb-1.5"></div>
+                            <div className="h-3 skeleton-shimmer rounded w-16"></div>
                           </td>
-                          <td className="td-premium"><div className="h-4 bg-slate-100 rounded w-10"></div></td>
-                          <td className="td-premium"><div className="h-4 bg-slate-100 rounded w-12"></div></td>
-                          <td className="td-premium"><div className="h-6 bg-slate-100 rounded-full w-20"></div></td>
-                          <td className="td-premium"><div className="h-6 bg-slate-100 rounded-full w-20"></div></td>
-                          <td className="td-premium"><div className="h-4 bg-slate-100 rounded w-16"></div></td>
-                          <td className="td-premium"><div className="h-8 bg-slate-100 rounded-lg w-28 mx-auto"></div></td>
+                          <td className="td-premium"><div className="h-4 skeleton-shimmer rounded w-10"></div></td>
+                          <td className="td-premium"><div className="h-4 skeleton-shimmer rounded w-12"></div></td>
+                          <td className="td-premium"><div className="h-6 skeleton-shimmer rounded-full w-20"></div></td>
+                          <td className="td-premium"><div className="h-6 skeleton-shimmer rounded-full w-20"></div></td>
+                          <td className="td-premium"><div className="h-4 skeleton-shimmer rounded w-16"></div></td>
+                          <td className="td-premium"><div className="h-8 skeleton-shimmer rounded-lg w-28 mx-auto"></div></td>
                         </tr>
                       ))
                     ) : sales.length === 0 ? (

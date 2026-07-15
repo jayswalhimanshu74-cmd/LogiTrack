@@ -46,17 +46,17 @@ const AuditTable = ({ logs, loading, onViewDetails }) => {
           <tbody className="divide-y divide-slate-100 text-xs">
             {loading ? (
               [...Array(5)].map((_, i) => (
-                <tr key={i} className="animate-pulse">
-                  <td className="td-premium py-3"><div className="h-3.5 bg-slate-100 rounded w-28"></div></td>
+                <tr key={i}>
+                  <td className="td-premium py-3"><div className="h-3.5 skeleton-shimmer rounded w-28"></div></td>
                   <td className="td-premium py-3">
-                    <div className="h-3.5 bg-slate-100 rounded w-32 mb-1.5"></div>
-                    <div className="h-3 bg-slate-100 rounded w-24"></div>
+                    <div className="h-3.5 skeleton-shimmer rounded w-32 mb-1.5"></div>
+                    <div className="h-3 skeleton-shimmer rounded w-24"></div>
                   </td>
-                  <td className="td-premium py-3"><div className="h-5 bg-slate-100 rounded w-24"></div></td>
-                  <td className="td-premium py-3"><div className="h-3.5 bg-slate-100 rounded w-16"></div></td>
-                  <td className="td-premium py-3"><div className="h-5 bg-slate-100 rounded w-16 mx-auto"></div></td>
-                  <td className="td-premium py-3"><div className="h-3.5 bg-slate-100 rounded w-48"></div></td>
-                  <td className="td-premium py-3 text-center"><div className="h-7 bg-slate-100 rounded w-7 mx-auto"></div></td>
+                  <td className="td-premium py-3"><div className="h-5 skeleton-shimmer rounded w-24"></div></td>
+                  <td className="td-premium py-3"><div className="h-3.5 skeleton-shimmer rounded w-16"></div></td>
+                  <td className="td-premium py-3"><div className="h-5 skeleton-shimmer rounded w-16 mx-auto"></div></td>
+                  <td className="td-premium py-3"><div className="h-3.5 skeleton-shimmer rounded w-48"></div></td>
+                  <td className="td-premium py-3 text-center"><div className="h-7 skeleton-shimmer rounded w-7 mx-auto"></div></td>
                 </tr>
               ))
             ) : logs.length === 0 ? (

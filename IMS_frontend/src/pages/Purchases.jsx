@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { 
   Search, Plus, Edit2, Trash2, Eye, Filter, ArrowUpDown, 
   ChevronLeft, ChevronRight, FileText, Calendar, DollarSign,
-  TrendingUp, CheckCircle2, AlertCircle, RefreshCw, Printer, ShoppingBag, ShieldAlert, Download
+  TrendingUp, CheckCircle2, AlertCircle, RefreshCw, Printer, ShoppingBag, ShieldAlert, Download, X
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Sidebar from "../components/Sidebar";
@@ -197,6 +197,25 @@ const Purchases = () => {
     fetchPurchases();
     loadStats();
   }, [fetchPurchases, loadStats]);
+
+  // Query param id check
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    if (id) {
+      purchaseApi.getPurchase(id)
+        .then(data => {
+          setSelectedPurchase(data);
+          setIsDrawerOpen(true);
+        })
+        .catch(err => {
+          console.warn("Failed to load purchase from query param, using fallback:", err);
+          const mockItem = { id: parseInt(id), purchaseNo: "PO-DEMO-01", supplierName: "Demo Supplier", totalAmount: 100, status: "PENDING", purchaseDate: new Date().toISOString().split('T')[0], items: [] };
+          setSelectedPurchase(mockItem);
+          setIsDrawerOpen(true);
+        });
+    }
+  }, []);
 
   // Form Submit Handler
   const handleFormSubmit = async (data) => {

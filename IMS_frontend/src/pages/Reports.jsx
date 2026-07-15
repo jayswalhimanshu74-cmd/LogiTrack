@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import { 
   Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, FileText, 
   Calendar, DollarSign, TrendingUp, RefreshCw, Printer, Download,
@@ -17,8 +18,15 @@ import exportApi from "../api/exportApi";
 const COLORS = ["#3b82f6", "#10b981", "#8b5cf6", "#f59e0b", "#ef4444", "#ec4899", "#14b8a6"];
 
 const Reports = () => {
+  const location = useLocation();
   // Navigation Tabs
   const [activeTab, setActiveTab] = useState("financial"); // financial | sales | purchases | inventory | invoices
+  
+  useEffect(() => {
+    if (location.state && location.state.tab) {
+      setActiveTab(location.state.tab);
+    }
+  }, [location]);
 
   // Datasets
   const [salesReport, setSalesReport] = useState(null);
@@ -27,6 +35,9 @@ const Reports = () => {
   const [invoiceReport, setInvoiceReport] = useState(null);
   const [financialSummary, setFinancialSummary] = useState(null);
   const [chartData, setChartData] = useState(null);
+  const [lowStockReport, setLowStockReport] = useState(null);
+  const [forecastReport, setForecastReport] = useState(null);
+  const [abcReport, setAbcReport] = useState(null);
 
   // Filters State
   const [searchVal, setSearchVal] = useState("");
@@ -115,6 +126,39 @@ const Reports = () => {
         setInvoiceReport(report);
         setTotalPages(report.invoices.totalPages || 1);
         setTotalElements(report.invoices.totalElements || 0);
+      } else if (activeTab === "low_stock") {
+        const report = await reportApi.getLowStockReport({
+          page: currentPage,
+          size: pageSize,
+          sort: `${sortField},${sortOrder}`,
+          search: searchVal,
+          priority: statusFilter
+        });
+        setLowStockReport(report);
+        setTotalPages(report.totalPages || 1);
+        setTotalElements(report.totalElements || 0);
+      } else if (activeTab === "forecast") {
+        const report = await reportApi.getForecastReport({
+          page: currentPage,
+          size: pageSize,
+          sort: `${sortField},${sortOrder}`,
+          search: searchVal,
+          status: statusFilter
+        });
+        setForecastReport(report);
+        setTotalPages(report.totalPages || 1);
+        setTotalElements(report.totalElements || 0);
+      } else if (activeTab === "abc") {
+        const report = await reportApi.getAbcReport({
+          page: currentPage,
+          size: pageSize,
+          sort: `${sortField},${sortOrder}`,
+          search: searchVal,
+          category: statusFilter
+        });
+        setAbcReport(report);
+        setTotalPages(report.totalPages || 1);
+        setTotalElements(report.totalElements || 0);
       }
       setConnectionStatus("connected");
     } catch (err) {
@@ -261,10 +305,45 @@ const Reports = () => {
           ],
           totalPages: 1,
           totalElements: 1
-        }
-      });
+      }});
       setTotalPages(1);
       setTotalElements(1);
+    } else if (activeTab === "low_stock") {
+      setLowStockReport({
+        content: [
+          { id: 1, sku: "PROCESSOR-I5-14400F", name: "Intel Core i5-14400F", category: "Processors", quantityInStock: 1, reorderLevel: 10, priority: "CRITICAL", timestamp: "2026-07-15T12:00:00" },
+          { id: 2, sku: "MONITOR-IPS-24", name: "LG 24 IPS Monitor", category: "Monitors", quantityInStock: 3, reorderLevel: 8, priority: "HIGH", timestamp: "2026-07-15T12:00:00" },
+          { id: 3, sku: "MOUSE-WIRELESS-X", name: "Razer DeathAdder Essential", category: "Accessories", quantityInStock: 9, reorderLevel: 10, priority: "NORMAL", timestamp: "2026-07-15T12:00:00" }
+        ],
+        totalPages: 1,
+        totalElements: 3
+      });
+      setTotalPages(1);
+      setTotalElements(3);
+    } else if (activeTab === "forecast") {
+      setForecastReport({
+        content: [
+          { productId: 1, productName: "Intel Core i5-14400F", sku: "PROCESSOR-I5-14400F", currentStock: 1, averageDailySales: 0.2, daysRemaining: 5.0, status: "RED" },
+          { productId: 2, productName: "LG 24 IPS Monitor", sku: "MONITOR-IPS-24", currentStock: 3, averageDailySales: 0.15, daysRemaining: 20.0, status: "AMBER" },
+          { productId: 3, productName: "Razer DeathAdder Essential", sku: "MOUSE-WIRELESS-X", currentStock: 9, averageDailySales: 0.1, daysRemaining: 90.0, status: "GREEN" }
+        ],
+        totalPages: 1,
+        totalElements: 3
+      });
+      setTotalPages(1);
+      setTotalElements(3);
+    } else if (activeTab === "abc") {
+      setAbcReport({
+        content: [
+          { productId: 1, productName: "Intel Core i7-14700K", sku: "INTEL-I7-14700K", revenue: 4919.88, totalSold: 12, category: "A", percentageContribution: 70.0 },
+          { productId: 2, productName: "LG 24 IPS Monitor", sku: "MONITOR-IPS-24", revenue: 1500.0, totalSold: 10, category: "B", percentageContribution: 20.0 },
+          { productId: 3, productName: "Razer DeathAdder Essential", sku: "MOUSE-WIRELESS-X", revenue: 500.0, totalSold: 25, category: "C", percentageContribution: 10.0 }
+        ],
+        totalPages: 1,
+        totalElements: 3
+      });
+      setTotalPages(1);
+      setTotalElements(3);
     }
   };
 
@@ -335,6 +414,21 @@ const Reports = () => {
           startDate,
           endDate,
           sort: `${sortField},${sortOrder}`
+        });
+      } else if (activeTab === "low_stock") {
+        await exportApi.exportLowStock({
+          search: searchVal,
+          priority: statusFilter
+        });
+      } else if (activeTab === "forecast") {
+        await exportApi.exportForecast({
+          search: searchVal,
+          status: statusFilter
+        });
+      } else if (activeTab === "abc") {
+        await exportApi.exportAbc({
+          search: searchVal,
+          category: statusFilter
         });
       }
       showToast(`${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} CSV exported successfully`, "success");
@@ -422,7 +516,10 @@ const Reports = () => {
               { id: "sales", label: "Sales Report" },
               { id: "purchases", label: "Procurement" },
               { id: "inventory", label: "Inventory Stock" },
-              { id: "invoices", label: "Invoice Ledger" }
+              { id: "invoices", label: "Invoice Ledger" },
+              { id: "low_stock", label: "Low Stock Alerts" },
+              { id: "forecast", label: "Stock Forecasting" },
+              { id: "abc", label: "ABC Analysis" }
             ].map(tab => (
               <button 
                 key={tab.id}
@@ -1123,6 +1220,413 @@ const Reports = () => {
             </div>
           )}
 
+          {/* TAB 6: LOW STOCK REPORT */}
+          {activeTab === "low_stock" && lowStockReport && (
+            <div className="space-y-6 animate-fade-in">
+              {/* KPI Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="card-premium p-6 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Low Stock Count</p>
+                    <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{totalElements}</h3>
+                    <span className="text-[10px] text-slate-500 font-bold flex items-center gap-1 mt-2">
+                      <span className="material-symbols-outlined text-sm">warning</span>
+                      Total items needing reorder
+                    </span>
+                  </div>
+                  <div className="w-11 h-11 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center border border-rose-100/50 shadow-sm shrink-0 print:hidden">
+                    <AlertTriangle size={20} />
+                  </div>
+                </div>
+
+                <div className="card-premium p-6 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Critical Priority</p>
+                    <h3 className="text-2xl font-bold text-rose-600 tracking-tight">
+                      {lowStockReport.content?.filter(i => i.priority === "CRITICAL").length}
+                    </h3>
+                    <span className="text-[10px] text-rose-600 font-bold flex items-center gap-1 mt-2">
+                      <span className="material-symbols-outlined text-sm">error</span>
+                      Urgent attention required
+                    </span>
+                  </div>
+                  <div className="w-11 h-11 bg-rose-100 text-rose-700 rounded-xl flex items-center justify-center border border-rose-200/50 shadow-sm shrink-0 print:hidden">
+                    <ShieldAlert size={20} />
+                  </div>
+                </div>
+
+                <div className="card-premium p-6 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">High Priority</p>
+                    <h3 className="text-2xl font-bold text-amber-600 tracking-tight">
+                      {lowStockReport.content?.filter(i => i.priority === "HIGH").length}
+                    </h3>
+                    <span className="text-[10px] text-amber-600 font-bold flex items-center gap-1 mt-2">
+                      <span className="material-symbols-outlined text-sm">notification_important</span>
+                      Reorder soon
+                    </span>
+                  </div>
+                  <div className="w-11 h-11 bg-amber-50 text-amber-650 rounded-xl flex items-center justify-center border border-amber-100/50 shadow-sm shrink-0 print:hidden">
+                    <AlertCircle size={20} />
+                  </div>
+                </div>
+
+                <div className="card-premium p-6 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Normal Priority</p>
+                    <h3 className="text-2xl font-bold text-blue-600 tracking-tight">
+                      {lowStockReport.content?.filter(i => i.priority === "NORMAL").length}
+                    </h3>
+                    <span className="text-[10px] text-blue-600 font-bold flex items-center gap-1 mt-2">
+                      <span className="material-symbols-outlined text-sm">info</span>
+                      Under monitor threshold
+                    </span>
+                  </div>
+                  <div className="w-11 h-11 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center border border-blue-100/50 shadow-sm shrink-0 print:hidden">
+                    <Layers size={20} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Filters */}
+              {renderFiltersPanel()}
+
+              {/* Table */}
+              <div className="bg-white rounded-xl border border-slate-200/70 shadow-sm space-y-4 p-6">
+                <div className="flex items-center justify-between flex-wrap gap-4 pb-2 border-b border-slate-100">
+                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Low Stock Inventory Log</h3>
+                  <div className="flex items-center gap-2">
+                    <button onClick={handlePrint} className="btn-secondary py-1.5 px-3 flex items-center gap-2 text-xs">
+                      <Printer size={14} />
+                      <span>Print Page</span>
+                    </button>
+                    <button onClick={handleExportCSV} disabled={isExporting} className="btn-secondary py-1.5 px-3 flex items-center gap-2 text-xs">
+                      <Download size={14} className={isExporting ? "animate-spin" : ""} />
+                      <span>{isExporting ? "Exporting..." : "Export CSV"}</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="table-container-premium">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr>
+                          <th className="th-premium cursor-pointer" onClick={() => handleSort("sku")}>SKU</th>
+                          <th className="th-premium cursor-pointer" onClick={() => handleSort("name")}>Product Name</th>
+                          <th className="th-premium cursor-pointer" onClick={() => handleSort("category")}>Category</th>
+                          <th className="th-premium text-right">Current Stock</th>
+                          <th className="th-premium text-right">Reorder Level</th>
+                          <th className="th-premium text-center">Priority</th>
+                          <th className="th-premium text-right">Last Alert Time</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {lowStockReport.content?.map((item) => (
+                          <tr key={item.id} className="tr-premium">
+                            <td className="td-premium font-mono font-bold text-xs text-slate-700">{item.sku}</td>
+                            <td className="td-premium font-semibold text-slate-800 text-xs">{item.name}</td>
+                            <td className="td-premium text-slate-500 text-xs">{item.category}</td>
+                            <td className="td-premium text-right font-bold text-rose-600 text-xs">{item.quantityInStock}</td>
+                            <td className="td-premium text-right text-slate-550 text-xs">{item.reorderLevel}</td>
+                            <td className="td-premium text-center py-2">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                                item.priority === "CRITICAL"
+                                  ? "bg-rose-50 text-rose-800 border-rose-100/50"
+                                  : item.priority === "HIGH"
+                                  ? "bg-amber-50 text-amber-800 border-amber-100/50"
+                                  : "bg-blue-50 text-blue-800 border-blue-100/50"
+                              }`}>
+                                {item.priority}
+                              </span>
+                            </td>
+                            <td className="td-premium text-right text-slate-500 text-xs">
+                              {item.timestamp ? new Date(item.timestamp).toLocaleString() : "N/A"}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {renderPagination()}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 7: STOCK FORECASTING */}
+          {activeTab === "forecast" && forecastReport && (
+            <div className="space-y-6 animate-fade-in">
+              {/* KPI Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="card-premium p-6 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Monitored Items</p>
+                    <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{totalElements}</h3>
+                    <span className="text-[10px] text-slate-500 font-bold flex items-center gap-1 mt-2">
+                      <span className="material-symbols-outlined text-sm">visibility</span>
+                      Continuous velocity analysis
+                    </span>
+                  </div>
+                  <div className="w-11 h-11 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center border border-blue-100/50 shadow-sm shrink-0 print:hidden">
+                    <TrendingUp size={20} />
+                  </div>
+                </div>
+
+                <div className="card-premium p-6 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Runout Risk (0-7 Days)</p>
+                    <h3 className="text-2xl font-bold text-rose-600 tracking-tight">
+                      {forecastReport.content?.filter(i => i.status === "RED").length}
+                    </h3>
+                    <span className="text-[10px] text-rose-605 font-bold flex items-center gap-1 mt-2">
+                      <span className="material-symbols-outlined text-sm">dangerous</span>
+                      Critical replenishment needed
+                    </span>
+                  </div>
+                  <div className="w-11 h-11 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center border border-rose-100/50 shadow-sm shrink-0 print:hidden">
+                    <AlertTriangle size={20} />
+                  </div>
+                </div>
+
+                <div className="card-premium p-6 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Warning Projections</p>
+                    <h3 className="text-2xl font-bold text-amber-600 tracking-tight">
+                      {forecastReport.content?.filter(i => i.status === "AMBER").length}
+                    </h3>
+                    <span className="text-[10px] text-amber-600 font-bold flex items-center gap-1 mt-2">
+                      <span className="material-symbols-outlined text-sm">warning</span>
+                      Depleting soon (7-30 Days)
+                    </span>
+                  </div>
+                  <div className="w-11 h-11 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center border border-amber-100/50 shadow-sm shrink-0 print:hidden">
+                    <AlertCircle size={20} />
+                  </div>
+                </div>
+
+                <div className="card-premium p-6 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Stable Projections</p>
+                    <h3 className="text-2xl font-bold text-emerald-600 tracking-tight">
+                      {forecastReport.content?.filter(i => i.status === "GREEN").length}
+                    </h3>
+                    <span className="text-[10px] text-emerald-600 font-bold flex items-center gap-1 mt-2">
+                      <span className="material-symbols-outlined text-sm">check_circle</span>
+                      Adequate supply (30+ Days)
+                    </span>
+                  </div>
+                  <div className="w-11 h-11 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center border border-emerald-100/50 shadow-sm shrink-0 print:hidden">
+                    <CheckCircle2 size={20} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Filters */}
+              {renderFiltersPanel()}
+
+              {/* Table */}
+              <div className="bg-white rounded-xl border border-slate-200/70 shadow-sm space-y-4 p-6">
+                <div className="flex items-center justify-between flex-wrap gap-4 pb-2 border-b border-slate-100">
+                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Inventory Depletion Velocity Forecast</h3>
+                  <div className="flex items-center gap-2">
+                    <button onClick={handlePrint} className="btn-secondary py-1.5 px-3 flex items-center gap-2 text-xs">
+                      <Printer size={14} />
+                      <span>Print Page</span>
+                    </button>
+                    <button onClick={handleExportCSV} disabled={isExporting} className="btn-secondary py-1.5 px-3 flex items-center gap-2 text-xs">
+                      <Download size={14} className={isExporting ? "animate-spin" : ""} />
+                      <span>{isExporting ? "Exporting..." : "Export CSV"}</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="table-container-premium">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr>
+                          <th className="th-premium cursor-pointer" onClick={() => handleSort("sku")}>SKU</th>
+                          <th className="th-premium cursor-pointer" onClick={() => handleSort("productName")}>Product Name</th>
+                          <th className="th-premium text-right">Current Stock</th>
+                          <th className="th-premium text-right">Daily Sales Velocity</th>
+                          <th className="th-premium text-right">Estimated Days Left</th>
+                          <th className="th-premium text-center">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {forecastReport.content?.map((item) => (
+                          <tr key={item.productId} className="tr-premium">
+                            <td className="td-premium font-mono font-bold text-xs text-slate-700">{item.sku}</td>
+                            <td className="td-premium font-semibold text-slate-800 text-xs">{item.productName}</td>
+                            <td className="td-premium text-right text-slate-500 text-xs font-semibold">{item.currentStock}</td>
+                            <td className="td-premium text-right text-slate-550 text-xs font-mono">{item.averageDailySales?.toFixed(2)} units/day</td>
+                            <td className="td-premium text-right text-xs">
+                              {item.daysRemaining !== null ? (
+                                <span className={`font-bold ${
+                                  item.daysRemaining <= 7 ? "text-rose-600" : item.daysRemaining <= 30 ? "text-amber-600" : "text-emerald-600"
+                                }`}>
+                                  {item.daysRemaining === 9999 ? "∞ (Stable)" : `${item.daysRemaining.toFixed(1)} Days`}
+                                </span>
+                              ) : (
+                                <span className="text-slate-400 italic">No Sales History</span>
+                              )}
+                            </td>
+                            <td className="td-premium text-center py-2">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                                item.status === "RED"
+                                  ? "bg-rose-50 text-rose-800 border-rose-100/50"
+                                  : item.status === "AMBER"
+                                  ? "bg-amber-50 text-amber-800 border-amber-100/50"
+                                  : item.status === "GREEN"
+                                  ? "bg-emerald-50 text-emerald-800 border-emerald-100/50"
+                                  : "bg-slate-50 text-slate-500 border-slate-100/50"
+                              }`}>
+                                {item.status}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {renderPagination()}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 8: ABC INVENTORY ANALYSIS */}
+          {activeTab === "abc" && abcReport && (
+            <div className="space-y-6 animate-fade-in">
+              {/* KPI Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div className="card-premium p-6 border-l-4 border-l-rose-500 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Class A (High Value)</p>
+                    <h3 className="text-2xl font-bold text-slate-900 tracking-tight">
+                      {abcReport.content?.filter(i => i.category === "A").length} Products
+                    </h3>
+                    <span className="text-[10px] text-rose-605 font-bold flex items-center gap-1 mt-2">
+                      <span className="material-symbols-outlined text-sm">stars</span>
+                      Generates ~70-80% of revenue
+                    </span>
+                  </div>
+                  <div className="w-11 h-11 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center border border-rose-100/50 shadow-sm shrink-0 print:hidden">
+                    <Sparkles size={20} />
+                  </div>
+                </div>
+
+                <div className="card-premium p-6 border-l-4 border-l-amber-500 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Class B (Medium Value)</p>
+                    <h3 className="text-2xl font-bold text-slate-900 tracking-tight">
+                      {abcReport.content?.filter(i => i.category === "B").length} Products
+                    </h3>
+                    <span className="text-[10px] text-amber-600 font-bold flex items-center gap-1 mt-2">
+                      <span className="material-symbols-outlined text-sm">local_mall</span>
+                      Generates ~15-20% of revenue
+                    </span>
+                  </div>
+                  <div className="w-11 h-11 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center border border-amber-100/50 shadow-sm shrink-0 print:hidden">
+                    <Layers size={20} />
+                  </div>
+                </div>
+
+                <div className="card-premium p-6 border-l-4 border-l-blue-500 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Class C (Low Value)</p>
+                    <h3 className="text-2xl font-bold text-slate-900 tracking-tight">
+                      {abcReport.content?.filter(i => i.category === "C").length} Products
+                    </h3>
+                    <span className="text-[10px] text-blue-600 font-bold flex items-center gap-1 mt-2">
+                      <span className="material-symbols-outlined text-sm">inventory_2</span>
+                      Generates ~5-10% of revenue
+                    </span>
+                  </div>
+                  <div className="w-11 h-11 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center border border-blue-100/50 shadow-sm shrink-0 print:hidden">
+                    <BarChart3 size={20} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Filters */}
+              {renderFiltersPanel()}
+
+              {/* Table */}
+              <div className="bg-white rounded-xl border border-slate-200/70 shadow-sm space-y-4 p-6">
+                <div className="flex items-center justify-between flex-wrap gap-4 pb-2 border-b border-slate-100">
+                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">ABC Classification & Revenue Contributions</h3>
+                  <div className="flex items-center gap-2">
+                    <button onClick={handlePrint} className="btn-secondary py-1.5 px-3 flex items-center gap-2 text-xs">
+                      <Printer size={14} />
+                      <span>Print Page</span>
+                    </button>
+                    <button onClick={handleExportCSV} disabled={isExporting} className="btn-secondary py-1.5 px-3 flex items-center gap-2 text-xs">
+                      <Download size={14} className={isExporting ? "animate-spin" : ""} />
+                      <span>{isExporting ? "Exporting..." : "Export CSV"}</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="table-container-premium">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr>
+                          <th className="th-premium text-center w-24">ABC Tier</th>
+                          <th className="th-premium cursor-pointer" onClick={() => handleSort("sku")}>SKU</th>
+                          <th className="th-premium cursor-pointer" onClick={() => handleSort("productName")}>Product Name</th>
+                          <th className="th-premium text-right">Total Quantity Sold</th>
+                          <th className="th-premium text-right">Revenue Contribution</th>
+                          <th className="th-premium text-right w-64">Revenue Contribution (%)</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {abcReport.content?.map((item) => (
+                          <tr key={item.productId} className="tr-premium">
+                            <td className="td-premium text-center py-2">
+                              <span className={`px-3 py-1 rounded-lg text-xs font-extrabold border ${
+                                item.category === "A"
+                                  ? "bg-rose-50 text-rose-800 border-rose-200/50 shadow-sm"
+                                  : item.category === "B"
+                                  ? "bg-amber-50 text-amber-800 border-amber-200/50"
+                                  : "bg-blue-50 text-blue-800 border-blue-200/50"
+                              }`}>
+                                Tier {item.category}
+                              </span>
+                            </td>
+                            <td className="td-premium font-mono font-bold text-xs text-slate-700">{item.sku}</td>
+                            <td className="td-premium font-semibold text-slate-800 text-xs">{item.productName}</td>
+                            <td className="td-premium text-right text-slate-550 text-xs font-semibold">{item.totalSold}</td>
+                            <td className="td-premium text-right font-extrabold text-slate-900 text-xs">${item.revenue?.toFixed(2)}</td>
+                            <td className="td-premium py-2">
+                              <div className="flex items-center justify-end gap-3">
+                                <span className="text-xs font-bold text-slate-700">{item.percentageContribution?.toFixed(2)}%</span>
+                                <div className="w-24 bg-slate-100 h-2 rounded-full overflow-hidden shrink-0 print:hidden border border-slate-200/40">
+                                  <div
+                                    className={`h-full rounded-full ${
+                                      item.category === "A" ? "bg-rose-500" : item.category === "B" ? "bg-amber-500" : "bg-blue-500"
+                                    }`}
+                                    style={{ width: `${Math.min(100, item.percentageContribution || 0)}%` }}
+                                  ></div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {renderPagination()}
+              </div>
+            </div>
+          )}
+
         </main>
       </div>
     </div>
@@ -1171,10 +1675,12 @@ const Reports = () => {
 
   // Helper to render advanced report filters panel
   function renderFiltersPanel() {
+    const isIntelligenceTab = ["low_stock", "forecast", "abc"].includes(activeTab);
+
     return (
       <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm grid grid-cols-1 md:grid-cols-4 gap-4 items-center print:hidden">
         {/* Search */}
-        <div className="relative">
+        <div className={`relative ${isIntelligenceTab ? "md:col-span-3" : ""}`}>
           <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 pointer-events-none">
             <Search size={16} />
           </span>
@@ -1188,27 +1694,29 @@ const Reports = () => {
         </div>
 
         {/* Date Ranges */}
-        <div className="flex items-center gap-1.5 text-xs text-slate-500 md:col-span-2 border border-slate-200 px-3 py-1.5 rounded-lg bg-white">
-          <Calendar size={14} />
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => { setStartDate(e.target.value); setCurrentPage(0); }}
-            className="outline-none text-slate-700 cursor-pointer"
-            title="Start Date"
-          />
-          <span className="text-slate-300">to</span>
-          <input
-            type="date"
-            value={endDate}
-            onChange={(e) => { setEndDate(e.target.value); setCurrentPage(0); }}
-            className="outline-none text-slate-700 cursor-pointer"
-            title="End Date"
-          />
-          {(startDate || endDate) && (
-            <button onClick={() => { setStartDate(""); setEndDate(""); }} className="ml-1 text-slate-400 hover:text-slate-650">Clear</button>
-          )}
-        </div>
+        {!isIntelligenceTab && (
+          <div className="flex items-center gap-1.5 text-xs text-slate-500 md:col-span-2 border border-slate-200 px-3 py-1.5 rounded-lg bg-white">
+            <Calendar size={14} />
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => { setStartDate(e.target.value); setCurrentPage(0); }}
+              className="outline-none text-slate-700 cursor-pointer"
+              title="Start Date"
+            />
+            <span className="text-slate-300">to</span>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => { setEndDate(e.target.value); setCurrentPage(0); }}
+              className="outline-none text-slate-700 cursor-pointer"
+              title="End Date"
+            />
+            {(startDate || endDate) && (
+              <button onClick={() => { setStartDate(""); setEndDate(""); }} className="ml-1 text-slate-400 hover:text-slate-650">Clear</button>
+            )}
+          </div>
+        )}
 
         {/* Optional Status filter */}
         <div className="flex items-center gap-2 border border-slate-200 px-3 py-1.5 rounded-lg bg-white">
@@ -1246,6 +1754,27 @@ const Reports = () => {
                 <option value="CONFIRMED">Confirmed</option>
                 <option value="COMPLETED">Completed</option>
                 <option value="CANCELLED">Cancelled</option>
+              </>
+            ) : activeTab === "low_stock" ? (
+              <>
+                <option value="">All Priorities</option>
+                <option value="CRITICAL">Critical Priority</option>
+                <option value="HIGH">High Priority</option>
+                <option value="NORMAL">Normal Priority</option>
+              </>
+            ) : activeTab === "forecast" ? (
+              <>
+                <option value="">All Projections</option>
+                <option value="RED">Danger (0-7 Days)</option>
+                <option value="AMBER">Warning (7-30 Days)</option>
+                <option value="GREEN">Stable (30+ Days)</option>
+              </>
+            ) : activeTab === "abc" ? (
+              <>
+                <option value="">All Tiers</option>
+                <option value="A">Class A (Top 20% Revenue)</option>
+                <option value="B">Class B (Next 30% Revenue)</option>
+                <option value="C">Class C (Remaining 50%)</option>
               </>
             ) : (
               <>

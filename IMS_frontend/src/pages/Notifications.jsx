@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import { Bell, Trash2, CheckCircle2, AlertTriangle, Info, AlertOctagon, Check, Calendar, ArrowRight, ArrowLeft } from "lucide-react";
 
 const Notifications = () => {
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(0);
@@ -98,6 +100,24 @@ const Notifications = () => {
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleNotificationClick = (n) => {
+    if (!n.isRead) {
+      handleMarkRead(n.id);
+    }
+    if (n.referenceId) {
+      const type = n.referenceType || "";
+      if (type === "PRODUCT") {
+        navigate(`/products?id=${n.referenceId}`);
+      } else if (type === "INVOICE") {
+        navigate(`/invoices?id=${n.referenceId}`);
+      } else if (type === "SALE") {
+        navigate(`/sales?id=${n.referenceId}`);
+      } else if (type === "PURCHASE") {
+        navigate(`/purchases?id=${n.referenceId}`);
+      }
     }
   };
 
@@ -256,7 +276,10 @@ const Notifications = () => {
                       !n.isRead ? "bg-blue-50/10 border-l-4 border-l-blue-600" : "border-l-4 border-l-transparent"
                     }`}
                   >
-                    <div className="flex items-start gap-4">
+                    <div 
+                      onClick={() => handleNotificationClick(n)}
+                      className="flex items-start gap-4 cursor-pointer flex-1"
+                    >
                       <div className="mt-0.5">{getNotificationIcon(n.severity)}</div>
                       <div className="space-y-1.5 max-w-2xl">
                         <div className="flex items-center flex-wrap gap-2.5">

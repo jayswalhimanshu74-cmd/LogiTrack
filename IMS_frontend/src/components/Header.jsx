@@ -27,11 +27,11 @@ const Header = ({ workspaceName = "Overview", title = "Inventory Workspace Overv
     fetchUnreadCount();
     fetchNotifications();
 
-    // Set polling interval
+    // Set polling interval (30-second interval)
     const interval = setInterval(() => {
       fetchUnreadCount();
       if (isOpen) fetchNotifications();
-    }, 15000);
+    }, 30000);
 
     return () => clearInterval(interval);
   }, [isOpen]);
@@ -113,6 +113,40 @@ const Header = ({ workspaceName = "Overview", title = "Inventory Workspace Overv
     }
   };
 
+  const handleNotificationClick = (n) => {
+    setIsOpen(false); // Close dropdown
+    
+    // Mark as read if not already read
+    if (!n.isRead) {
+      const token = localStorage.getItem("authToken");
+      if (token) {
+        fetch(`http://localhost:8080/api/notifications/${n.id}/read`, {
+          method: "PUT",
+          headers: { "Authorization": `Bearer ${token}` }
+        }).then(() => {
+          fetchUnreadCount();
+        }).catch(err => console.error(err));
+      } else {
+        setNotifications(prev => prev.map(item => item.id === n.id ? { ...item, isRead: true } : item));
+        setUnreadCount(prev => Math.max(0, prev - 1));
+      }
+    }
+
+    // Dynamic routing based on referenceType and referenceId
+    if (n.referenceId) {
+      const type = n.referenceType || "";
+      if (type === "PRODUCT") {
+        navigate(`/products?id=${n.referenceId}`);
+      } else if (type === "INVOICE") {
+        navigate(`/invoices?id=${n.referenceId}`);
+      } else if (type === "SALE") {
+        navigate(`/sales?id=${n.referenceId}`);
+      } else if (type === "PURCHASE") {
+        navigate(`/purchases?id=${n.referenceId}`);
+      }
+    }
+  };
+
   const handleMarkAllRead = async () => {
     const token = localStorage.getItem("authToken");
     if (!token) {
@@ -163,30 +197,30 @@ const Header = ({ workspaceName = "Overview", title = "Inventory Workspace Overv
   };
 
   return (
-    <header className="bg-white border-b border-slate-200/80 h-16 flex items-center justify-between px-6 md:px-8 z-20 sticky top-0 shadow-[0_1px_2px_rgba(0,0,0,0.01)]">
+    <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/80 h-16 flex items-center justify-between px-6 md:px-8 z-20 sticky top-0 shadow-[0_1px_3px_rgba(0,0,0,0.01)] transition-all">
       <div className="flex items-center gap-4">
-        {/* Mobile Hamburger toggle placeholder */}
+        {/* Mobile Hamburger toggle */}
         <button className="md:hidden p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer">
-          <span className="material-symbols-outlined text-xl">menu</span>
+          <span className="material-symbols-outlined text-xl select-none">menu</span>
         </button>
         <div className="flex flex-col hidden md:block">
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+          <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
             <span>Workspace</span>
-            <span className="material-symbols-outlined text-xs">chevron_right</span>
-            <span>{workspaceName}</span>
+            <span className="material-symbols-outlined text-[10px] leading-none select-none">chevron_right</span>
+            <span className="text-slate-500">{workspaceName}</span>
           </div>
-          <h2 className="text-sm font-bold text-slate-800 mt-0.5">{title}</h2>
+          <h2 className="text-xs font-bold text-slate-800 tracking-tight mt-0.5">{title}</h2>
         </div>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3.5">
         {connectionStatus === "connected" ? (
-          <span className="bg-emerald-50 text-emerald-800 border border-emerald-200/60 px-3 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase flex items-center gap-1.5 shadow-sm">
+          <span className="bg-emerald-50 text-emerald-700 border border-emerald-100 px-3 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase flex items-center gap-1.5 shadow-[0_1px_2px_rgba(16,185,129,0.03)]">
             <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
             Connected
           </span>
         ) : (
-          <span className="bg-amber-50 text-amber-800 border border-amber-200/60 px-3 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase flex items-center gap-1.5 shadow-sm">
+          <span className="bg-amber-50 text-amber-700 border border-amber-100 px-3 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase flex items-center gap-1.5 shadow-[0_1px_2px_rgba(245,158,11,0.03)]">
             <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>
             Demo Mode
           </span>
@@ -195,10 +229,10 @@ const Header = ({ workspaceName = "Overview", title = "Inventory Workspace Overv
         {onRefresh && (
           <button 
             onClick={triggerRefresh} 
-            className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-50 border border-slate-200/65 rounded-lg transition-all cursor-pointer shadow-sm"
+            className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-50 border border-slate-200/80 rounded-lg transition-all cursor-pointer shadow-sm active:scale-95 flex items-center justify-center"
             title="Refresh Page Data"
           >
-            <RefreshCw size={15} className={`${isRefreshing ? 'animate-spin text-blue-600' : ''}`} />
+            <RefreshCw size={14} className={`${isRefreshing ? 'animate-spin text-blue-600' : ''}`} />
           </button>
         )}
 
@@ -209,42 +243,45 @@ const Header = ({ workspaceName = "Overview", title = "Inventory Workspace Overv
         <div className="relative" ref={dropdownRef}>
           <button 
             onClick={() => setIsOpen(!isOpen)}
-            className={`p-2 hover:bg-slate-50 border rounded-lg transition-all relative cursor-pointer shadow-sm ${isOpen ? 'bg-slate-50 text-slate-800 border-slate-300' : 'text-slate-500 border-slate-200/65'}`}
+            className={`p-2 hover:bg-slate-50 border rounded-lg transition-all relative cursor-pointer shadow-sm flex items-center justify-center active:scale-95 ${
+              isOpen ? 'bg-slate-50 text-slate-800 border-slate-300' : 'text-slate-500 border-slate-250'
+            }`}
           >
-            <Bell size={18} />
+            <Bell size={16} />
             {unreadCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full ring-2 ring-white shadow-sm min-w-[18px] text-center">
+              <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full ring-2 ring-white shadow-sm min-w-[18px] text-center select-none">
                 {unreadCount > 9 ? "9+" : unreadCount}
               </span>
             )}
           </button>
 
           {isOpen && (
-            <div className="absolute right-0 mt-2.5 w-80 bg-white border border-slate-200 rounded-xl shadow-xl z-50 animate-fade-in overflow-hidden">
+            <div className="absolute right-0 mt-2.5 w-80 bg-white border border-slate-200/80 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.08)] z-50 animate-fade-in overflow-hidden">
               <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                 <span className="text-xs font-bold text-slate-800">Notifications</span>
                 {unreadCount > 0 && (
                   <button 
                     onClick={handleMarkAllRead}
-                    className="text-[10px] text-blue-600 hover:text-blue-700 font-bold tracking-tight hover:underline flex items-center gap-1"
+                    className="text-[10px] text-blue-600 hover:text-blue-700 font-bold tracking-tight hover:underline flex items-center gap-1 cursor-pointer"
                   >
                     <Check className="w-3 h-3" /> Mark all read
                   </button>
                 )}
               </div>
 
-              <div className="max-h-[300px] overflow-y-auto divide-y divide-slate-100">
+              <div className="max-h-[300px] overflow-y-auto divide-y divide-slate-150">
                 {notifications.length === 0 ? (
                   <div className="p-8 text-center text-slate-400">
-                    <Bell className="w-8 h-8 mx-auto mb-2 text-slate-300 opacity-60" />
-                    <p className="text-xs font-semibold">No notifications</p>
-                    <p className="text-[10px] mt-0.5">We'll alert you when stock status changes.</p>
+                    <Bell className="w-7 h-7 mx-auto mb-2 text-slate-300 opacity-60" />
+                    <p className="text-xs font-semibold text-slate-600">No notifications</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">We'll alert you when stock status changes.</p>
                   </div>
                 ) : (
                   notifications.map((n) => (
                     <div 
                       key={n.id} 
-                      className={`p-4 transition-colors hover:bg-slate-50/80 flex items-start gap-3 relative group ${!n.isRead ? 'bg-blue-50/15' : ''}`}
+                      onClick={() => handleNotificationClick(n)}
+                      className={`p-3.5 transition-colors hover:bg-slate-50/80 flex items-start gap-3 relative group cursor-pointer ${!n.isRead ? 'bg-blue-50/20' : ''}`}
                     >
                       {getNotificationIcon(n.severity)}
                       <div className="flex-1 min-w-0 space-y-0.5">
@@ -254,8 +291,8 @@ const Header = ({ workspaceName = "Overview", title = "Inventory Workspace Overv
                           </p>
                           {!n.isRead && (
                             <button
-                              onClick={(e) => handleMarkAsRead(n.id, e)}
-                              className="w-4 h-4 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 transition-colors cursor-pointer"
+                              onClick={(e) => { e.stopPropagation(); handleMarkAsRead(n.id, e); }}
+                              className="w-4.5 h-4.5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 transition-colors cursor-pointer"
                               title="Mark read"
                             >
                               <Check className="w-2.5 h-2.5" />
@@ -286,14 +323,14 @@ const Header = ({ workspaceName = "Overview", title = "Inventory Workspace Overv
           )}
         </div>
 
-        <div className="w-px h-5 bg-slate-200"></div>
+        <div className="w-px h-4 bg-slate-200"></div>
 
         <button 
           onClick={handleLogout}
-          className="px-3 py-1.5 text-slate-600 hover:text-red-600 hover:bg-red-50 border border-slate-200/65 hover:border-red-100 rounded-lg transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-sm"
+          className="px-3 py-1.5 text-slate-600 hover:text-red-650 hover:bg-red-50/60 border border-slate-200 hover:border-red-100 rounded-lg transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95"
           title="Logout Session"
         >
-          <LogOut size={13} />
+          <LogOut size={12} />
           <span className="hidden sm:inline">Logout</span>
         </button>
       </div>

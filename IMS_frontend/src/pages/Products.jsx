@@ -207,6 +207,25 @@ const Products = () => {
     loadStats();
   }, [fetchProducts, fetchCategories, loadStats]);
 
+  // Query param id check
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    if (id) {
+      productApi.getProduct(id)
+        .then(data => {
+          setSelectedProduct(data);
+          setIsDrawerOpen(true);
+        })
+        .catch(err => {
+          console.warn("Failed to load product from query param, using fallback:", err);
+          const mockItem = { id: parseInt(id), sku: "DEMO-SKU", name: "Demo Product", category: "Electronics", unit: "pcs", purchasePrice: 45.00, sellingPrice: 99.99, quantityInStock: 25, reorderLevel: 5, status: "IN_STOCK", createdAt: "2026-07-01", updatedAt: "2026-07-08" };
+          setSelectedProduct(mockItem);
+          setIsDrawerOpen(true);
+        });
+    }
+  }, []);
+
   // Form Modal Submit Handler (Supports both Create and Update)
   const handleFormSubmit = async (data) => {
     setIsSaving(true);

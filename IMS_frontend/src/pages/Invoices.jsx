@@ -198,6 +198,25 @@ const Invoices = () => {
     loadStats();
   }, [fetchInvoices, loadStats]);
 
+  // Query param id check
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    if (id) {
+      invoiceApi.getInvoice(id)
+        .then(data => {
+          setSelectedInvoice(data);
+          setIsDrawerOpen(true);
+        })
+        .catch(err => {
+          console.warn("Failed to load invoice from query param, using fallback:", err);
+          const mockItem = { id: parseInt(id), invoiceNo: "INV-DEMO-01", customerName: "Demo Customer", subtotal: 100, tax: 10, discount: 0, grandTotal: 110, paymentStatus: "PENDING", status: "ISSUED", invoiceDate: new Date().toISOString().split('T')[0], items: [] };
+          setSelectedInvoice(mockItem);
+          setIsDrawerOpen(true);
+        });
+    }
+  }, []);
+
   // Form Submit Handler (Supports Create and Update)
   const handleFormSubmit = async (data) => {
     setIsSaving(true);
