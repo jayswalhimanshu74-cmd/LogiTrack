@@ -8,8 +8,8 @@ import com.example.sales.Inventory.Management.System.purchase.PurchaseService;
 import com.example.sales.Inventory.Management.System.purchase.dto.PurchaseItemResponse;
 import com.example.sales.Inventory.Management.System.purchase.dto.PurchaseResponse;
 import com.example.sales.Inventory.Management.System.report.ReportService;
-import com.example.sales.Inventory.Management.System.report.dto.ChartDataResponse;
-import com.example.sales.Inventory.Management.System.report.dto.FinancialSummaryResponse;
+import com.example.sales.Inventory.Management.System.report.IntelligenceService;
+import com.example.sales.Inventory.Management.System.report.dto.*;
 import com.example.sales.Inventory.Management.System.sales.SaleService;
 import com.example.sales.Inventory.Management.System.sales.dto.SaleItemResponse;
 import com.example.sales.Inventory.Management.System.sales.dto.SaleResponse;
@@ -19,9 +19,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.example.sales.Inventory.Management.System.user.UserRepository;
+import com.example.sales.Inventory.Management.System.user.User;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.context.ApplicationEventPublisher;
+import com.example.sales.Inventory.Management.System.notification.event.NotificationEvent;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -34,6 +42,17 @@ public class CsvExportService {
     private final PurchaseService purchaseService;
     private final InvoiceService invoiceService;
     private final ReportService reportService;
+    private final IntelligenceService intelligenceService;
+    private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
+
+    private User getAuthenticatedUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
+            return userRepository.findByEmail(auth.getName()).orElse(null);
+        }
+        return null;
+    }
 
     // Helper to escape values for CSV safety and prevent injection/formatting breaks
     private String escapeCsvValue(String value) {
@@ -76,6 +95,16 @@ public class CsvExportService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to export products to CSV", e);
         }
+
+        eventPublisher.publishEvent(NotificationEvent.builder()
+                .title("CSV Export Success")
+                .message("Your product inventory list has been successfully compiled and exported as a CSV document.")
+                .type("CSV_EXPORT")
+                .severity("INFO")
+                .priority("LOW")
+                .recipient(getAuthenticatedUser())
+                .build());
+
         return out.toByteArray();
     }
 
@@ -121,6 +150,16 @@ public class CsvExportService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to export sales to CSV", e);
         }
+
+        eventPublisher.publishEvent(NotificationEvent.builder()
+                .title("CSV Export Success")
+                .message("Your sales orders list has been successfully compiled and exported as a CSV document.")
+                .type("CSV_EXPORT")
+                .severity("INFO")
+                .priority("LOW")
+                .recipient(getAuthenticatedUser())
+                .build());
+
         return out.toByteArray();
     }
 
@@ -164,6 +203,16 @@ public class CsvExportService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to export purchases to CSV", e);
         }
+
+        eventPublisher.publishEvent(NotificationEvent.builder()
+                .title("CSV Export Success")
+                .message("Your purchase orders list has been successfully compiled and exported as a CSV document.")
+                .type("CSV_EXPORT")
+                .severity("INFO")
+                .priority("LOW")
+                .recipient(getAuthenticatedUser())
+                .build());
+
         return out.toByteArray();
     }
 
@@ -193,6 +242,16 @@ public class CsvExportService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to export invoices to CSV", e);
         }
+
+        eventPublisher.publishEvent(NotificationEvent.builder()
+                .title("CSV Export Success")
+                .message("Your invoices list has been successfully compiled and exported as a CSV document.")
+                .type("CSV_EXPORT")
+                .severity("INFO")
+                .priority("LOW")
+                .recipient(getAuthenticatedUser())
+                .build());
+
         return out.toByteArray();
     }
 
@@ -253,6 +312,125 @@ public class CsvExportService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to export reports summary to CSV", e);
         }
+
+        eventPublisher.publishEvent(NotificationEvent.builder()
+                .title("CSV Export Success")
+                .message("Your financial report summary has been successfully compiled and exported as a CSV document.")
+                .type("CSV_EXPORT")
+                .severity("INFO")
+                .priority("LOW")
+                .recipient(getAuthenticatedUser())
+                .build());
+
+        return out.toByteArray();
+    }
+
+    public byte[] exportLowStock(String search, String priority) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try (PrintWriter writer = new PrintWriter(out, false, java.nio.charset.StandardCharsets.UTF_8)) {
+            writer.write('\ufeff');
+            writer.println("SKU,Name,Category,Current Stock,Reorder Level,Priority,Last Updated");
+
+            Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
+            List<LowStockReportDto> list = intelligenceService.getLowStockReport(search, priority, pageable).getContent();
+
+            for (LowStockReportDto item : list) {
+                writer.printf("%s,%s,%s,%d,%d,%s,%s\n",
+                        escapeCsvValue(item.getSku()),
+                        escapeCsvValue(item.getName()),
+                        escapeCsvValue(item.getCategory()),
+                        item.getQuantityInStock(),
+                        item.getReorderLevel(),
+                        item.getPriority(),
+                        item.getTimestamp() != null ? item.getTimestamp().toString() : ""
+                );
+            }
+            writer.flush();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to export low stock report to CSV", e);
+        }
+
+        eventPublisher.publishEvent(NotificationEvent.builder()
+                .title("CSV Export Success")
+                .message("Your low stock report has been successfully compiled and exported as a CSV document.")
+                .type("CSV_EXPORT")
+                .severity("INFO")
+                .priority("LOW")
+                .recipient(getAuthenticatedUser())
+                .build());
+
+        return out.toByteArray();
+    }
+
+    public byte[] exportForecast(String search, String status) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try (PrintWriter writer = new PrintWriter(out, false, java.nio.charset.StandardCharsets.UTF_8)) {
+            writer.write('\ufeff');
+            writer.println("SKU,Name,Current Stock,Average Daily Sales,Days Remaining,Status");
+
+            Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
+            List<InventoryForecastDto> list = intelligenceService.getForecastingReport(search, status, pageable).getContent();
+
+            for (InventoryForecastDto item : list) {
+                writer.printf("%s,%s,%d,%.2f,%s,%s\n",
+                        escapeCsvValue(item.getSku()),
+                        escapeCsvValue(item.getProductName()),
+                        item.getCurrentStock(),
+                        item.getAverageDailySales(),
+                        item.getDaysRemaining() != null ? String.format("%.2f", item.getDaysRemaining()) : "N/A",
+                        item.getStatus()
+                );
+            }
+            writer.flush();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to export inventory forecast report to CSV", e);
+        }
+
+        eventPublisher.publishEvent(NotificationEvent.builder()
+                .title("CSV Export Success")
+                .message("Your inventory forecasting report has been successfully compiled and exported as a CSV document.")
+                .type("CSV_EXPORT")
+                .severity("INFO")
+                .priority("LOW")
+                .recipient(getAuthenticatedUser())
+                .build());
+
+        return out.toByteArray();
+    }
+
+    public byte[] exportAbc(String search, String category) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try (PrintWriter writer = new PrintWriter(out, false, java.nio.charset.StandardCharsets.UTF_8)) {
+            writer.write('\ufeff');
+            writer.println("SKU,Name,Total Sold,Revenue,Category,Percentage Contribution");
+
+            Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
+            List<AbcAnalysisDto> list = intelligenceService.getAbcReport(search, category, pageable).getContent();
+
+            for (AbcAnalysisDto item : list) {
+                writer.printf("%s,%s,%d,%s,%s,%.2f%%\n",
+                        escapeCsvValue(item.getSku()),
+                        escapeCsvValue(item.getProductName()),
+                        item.getTotalSold(),
+                        item.getRevenue().toString(),
+                        item.getCategory(),
+                        item.getPercentageContribution() != null ? item.getPercentageContribution() : 0.0
+                );
+            }
+            writer.flush();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to export ABC analysis report to CSV", e);
+        }
+
+        eventPublisher.publishEvent(NotificationEvent.builder()
+                .title("CSV Export Success")
+                .message("Your ABC analysis report has been successfully compiled and exported as a CSV document.")
+                .type("CSV_EXPORT")
+                .severity("INFO")
+                .priority("LOW")
+                .recipient(getAuthenticatedUser())
+                .build());
+
         return out.toByteArray();
     }
 }

@@ -20,4 +20,6 @@ public class ChartDataResponse {
     private List<StatusDistributionDto> paymentStatus;
     private List<CategoryDistributionDto> lowStockTrend;
     private List<ProductPerformanceDto> topProducts;
+    private List<CustomerPerformanceDto> topCustomers;
+    private List<SupplierPerformanceDto> topSuppliers;
 }

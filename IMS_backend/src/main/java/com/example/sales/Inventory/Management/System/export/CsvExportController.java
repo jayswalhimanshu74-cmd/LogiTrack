@@ -158,4 +158,73 @@ public class CsvExportController {
                 .headers(headers)
                 .body(csvData);
     }
+
+    @GetMapping("/low-stock")
+    @Audit(action = "EXPORT_CSV", entityName = "REPORT", description = "Exported low stock report to CSV")
+    public ResponseEntity<byte[]> exportLowStock(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String priority) {
+
+        if (isNotAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        byte[] csvData = csvExportService.exportLowStock(search, priority);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("text/csv; charset=UTF-8"));
+        headers.setContentDisposition(ContentDisposition.attachment()
+                .filename("low_stock_report_" + LocalDate.now() + ".csv", StandardCharsets.UTF_8)
+                .build());
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(csvData);
+    }
+
+    @GetMapping("/forecast")
+    @Audit(action = "EXPORT_CSV", entityName = "REPORT", description = "Exported inventory forecast report to CSV")
+    public ResponseEntity<byte[]> exportForecast(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String status) {
+
+        if (isNotAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        byte[] csvData = csvExportService.exportForecast(search, status);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("text/csv; charset=UTF-8"));
+        headers.setContentDisposition(ContentDisposition.attachment()
+                .filename("inventory_forecast_" + LocalDate.now() + ".csv", StandardCharsets.UTF_8)
+                .build());
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(csvData);
+    }
+
+    @GetMapping("/abc")
+    @Audit(action = "EXPORT_CSV", entityName = "REPORT", description = "Exported ABC analysis report to CSV")
+    public ResponseEntity<byte[]> exportAbc(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String category) {
+
+        if (isNotAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        byte[] csvData = csvExportService.exportAbc(search, category);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("text/csv; charset=UTF-8"));
+        headers.setContentDisposition(ContentDisposition.attachment()
+                .filename("abc_analysis_" + LocalDate.now() + ".csv", StandardCharsets.UTF_8)
+                .build());
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(csvData);
+    }
 }

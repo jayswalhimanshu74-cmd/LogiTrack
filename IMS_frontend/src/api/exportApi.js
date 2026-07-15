@@ -31,6 +31,18 @@ export const exportApi = {
   exportReports: async () => {
     const response = await apiClient.get('/api/export/reports', { responseType: 'blob' });
     downloadFile(response.data, `report_${new Date().toISOString().split('T')[0]}.csv`);
+  },
+  exportLowStock: async (params = {}) => {
+    const response = await apiClient.get('/api/export/low-stock', { params, responseType: 'blob' });
+    downloadFile(response.data, `low_stock_report_${new Date().toISOString().split('T')[0]}.csv`);
+  },
+  exportForecast: async (params = {}) => {
+    const response = await apiClient.get('/api/export/forecast', { params, responseType: 'blob' });
+    downloadFile(response.data, `inventory_forecast_${new Date().toISOString().split('T')[0]}.csv`);
+  },
+  exportAbc: async (params = {}) => {
+    const response = await apiClient.get('/api/export/abc', { params, responseType: 'blob' });
+    downloadFile(response.data, `abc_analysis_${new Date().toISOString().split('T')[0]}.csv`);
   }
 };
 

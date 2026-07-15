@@ -3,6 +3,7 @@ package com.example.sales.Inventory.Management.System.report;
 import com.example.sales.Inventory.Management.System.audit.Audit;
 import com.example.sales.Inventory.Management.System.report.dto.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import java.time.LocalDate;
 public class ReportController {
 
     private final ReportService reportService;
+    private final IntelligenceService intelligenceService;
 
     @GetMapping("/sales")
     @Audit(action = "REPORT_GENERATED", entityName = "REPORT", description = "Generated sales report")
@@ -76,6 +78,36 @@ public class ReportController {
     @GetMapping("/charts")
     public ResponseEntity<ChartDataResponse> getChartData() {
         ChartDataResponse response = reportService.getChartData();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/low-stock")
+    @Audit(action = "REPORT_GENERATED", entityName = "REPORT", description = "Generated low stock report")
+    public ResponseEntity<Page<LowStockReportDto>> getLowStockReport(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String priority,
+            Pageable pageable) {
+        Page<LowStockReportDto> response = intelligenceService.getLowStockReport(search, priority, pageable);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/forecast")
+    @Audit(action = "REPORT_GENERATED", entityName = "REPORT", description = "Generated inventory forecast report")
+    public ResponseEntity<Page<InventoryForecastDto>> getForecastingReport(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String status,
+            Pageable pageable) {
+        Page<InventoryForecastDto> response = intelligenceService.getForecastingReport(search, status, pageable);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/abc")
+    @Audit(action = "REPORT_GENERATED", entityName = "REPORT", description = "Generated ABC analysis report")
+    public ResponseEntity<Page<AbcAnalysisDto>> getAbcReport(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String category,
+            Pageable pageable) {
+        Page<AbcAnalysisDto> response = intelligenceService.getAbcReport(search, category, pageable);
         return ResponseEntity.ok(response);
     }
 }
