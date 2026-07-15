@@ -12,6 +12,8 @@ import com.example.sales.Inventory.Management.System.sales.dto.SaleResponse;
 import com.example.sales.Inventory.Management.System.user.User;
 import com.example.sales.Inventory.Management.System.user.UserRepository;
 import com.example.sales.Inventory.Management.System.audit.Audit;
+import com.example.sales.Inventory.Management.System.movement.StockMovementService;
+import com.example.sales.Inventory.Management.System.movement.MovementType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,9 +23,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import com.example.sales.Inventory.Management.System.sales.dto.SalesStatisticsResponse;
+import org.springframework.context.ApplicationEventPublisher;
+import com.example.sales.Inventory.Management.System.notification.event.NotificationEvent;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,6 +40,8 @@ public class SaleService {
     private final SaleRepository saleRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final StockMovementService stockMovementService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     @Audit(action = "SALE_CREATED", entityName = "SALE", description = "Sales order created successfully")
@@ -56,21 +65,33 @@ public class SaleService {
         sale.setCreatedBy(creator);
 
         BigDecimal totalAmount = BigDecimal.ZERO;
-
-        // Inventory deduction check (only if status is not CANCELLED on create)
         boolean deductStock = !"CANCELLED".equals(sale.getStatus());
 
         for (SaleItemRequest itemRequest : request.getItems()) {
             Product product = productRepository.findById(itemRequest.getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + itemRequest.getProductId()));
 
+            int previousQty = product.getQuantityInStock() != null ? product.getQuantityInStock() : 0;
+
             if (deductStock) {
-                if (product.getQuantityInStock() < itemRequest.getQuantity()) {
+                if (previousQty < itemRequest.getQuantity()) {
                     throw new InsufficientStockException("Insufficient stock for product '" + product.getName() 
-                            + "'. Available: " + product.getQuantityInStock() + ", Requested: " + itemRequest.getQuantity());
+                            + "'. Available: " + previousQty + ", Requested: " + itemRequest.getQuantity());
                 }
-                product.setQuantityInStock(product.getQuantityInStock() - itemRequest.getQuantity());
+                int newQty = previousQty - itemRequest.getQuantity();
+                product.setQuantityInStock(newQty);
                 productRepository.save(product);
+
+                // Record stock movement
+                stockMovementService.recordMovement(
+                    product, 
+                    previousQty, 
+                    newQty, 
+                    MovementType.SALE, 
+                    sale.getSaleNo(), 
+                    creator, 
+                    "Sales order " + sale.getSaleNo() + " creation deduction"
+                );
             }
 
             BigDecimal lineTotal = itemRequest.getUnitPrice().multiply(BigDecimal.valueOf(itemRequest.getQuantity()));
@@ -87,6 +108,17 @@ public class SaleService {
 
         sale.setTotalAmount(totalAmount);
         Sale savedSale = saleRepository.save(sale);
+
+        eventPublisher.publishEvent(NotificationEvent.builder()
+                .title("Sales Order Created")
+                .message(String.format("Sales Order %s for customer %s has been created for $%s.", savedSale.getSaleNo(), savedSale.getCustomerName(), savedSale.getTotalAmount()))
+                .type("SALE_COMPLETED")
+                .severity("SUCCESS")
+                .priority("MEDIUM")
+                .referenceId(savedSale.getId())
+                .referenceType("SALE")
+                .build());
+
         return mapEntityToResponse(savedSale);
     }
 
@@ -96,23 +128,29 @@ public class SaleService {
         Sale sale = saleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Sales order not found with id: " + id));
 
-        // Check SKU/SaleNo constraint if changing sale number
         if (!sale.getSaleNo().equals(request.getSaleNo()) && saleRepository.existsBySaleNo(request.getSaleNo())) {
             throw new DuplicateResourceException("Sale with number '" + request.getSaleNo() + "' already exists");
         }
 
         String oldStatus = sale.getStatus();
         String newStatus = request.getStatus().toUpperCase();
+        User currentUser = getAuthenticatedUser();
 
-        // Inventory diff mapping: original item quantities before update
-        java.util.Map<Long, Integer> oldQuantities = new java.util.HashMap<>();
+        // 1. Capture original stock levels for all involved products
+        Map<Long, Integer> originalProductStocks = new HashMap<>();
         for (SaleItem item : sale.getItems()) {
-            oldQuantities.put(item.getProduct().getId(), item.getQuantity());
+            originalProductStocks.put(item.getProduct().getId(), item.getProduct().getQuantityInStock());
+        }
+        for (SaleItemRequest itemReq : request.getItems()) {
+            if (!originalProductStocks.containsKey(itemReq.getProductId())) {
+                productRepository.findById(itemReq.getProductId()).ifPresent(p -> {
+                    originalProductStocks.put(p.getId(), p.getQuantityInStock());
+                });
+            }
         }
 
-        // Restoring stock logic based on status changes
+        // 2. Perform existing stock adjustment logic
         if ("CANCELLED".equals(oldStatus) && !"CANCELLED".equals(newStatus)) {
-            // Transitioning FROM CANCELLED: Validate and deduct all new quantities from stock
             for (SaleItemRequest itemReq : request.getItems()) {
                 Product product = productRepository.findById(itemReq.getProductId())
                         .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + itemReq.getProductId()));
@@ -124,27 +162,25 @@ public class SaleService {
                 productRepository.save(product);
             }
         } else if (!"CANCELLED".equals(oldStatus) && "CANCELLED".equals(newStatus)) {
-            // Transitioning TO CANCELLED: Restore all original quantities to stock
             for (SaleItem item : sale.getItems()) {
                 Product product = item.getProduct();
                 product.setQuantityInStock(product.getQuantityInStock() + item.getQuantity());
                 productRepository.save(product);
             }
         } else if (!"CANCELLED".equals(oldStatus) && !"CANCELLED".equals(newStatus)) {
-            // Remaining non-cancelled: Perform diff checks on item adjustments
-            // 1. Restore all old quantities temporarily
+            // Restore all old quantities temporarily
             for (SaleItem item : sale.getItems()) {
                 Product product = item.getProduct();
                 product.setQuantityInStock(product.getQuantityInStock() + item.getQuantity());
                 productRepository.save(product);
             }
 
-            // 2. Validate and deduct new quantities
+            // Validate and deduct new quantities
             for (SaleItemRequest itemReq : request.getItems()) {
                 Product product = productRepository.findById(itemReq.getProductId())
                         .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + itemReq.getProductId()));
                 if (product.getQuantityInStock() < itemReq.getQuantity()) {
-                    // Rollback temporary stock restoration before throwing to keep DB transaction atomic
+                    // Rollback temporary stock restoration
                     for (SaleItem item : sale.getItems()) {
                         Product p = item.getProduct();
                         p.setQuantityInStock(p.getQuantityInStock() - item.getQuantity());
@@ -169,7 +205,6 @@ public class SaleService {
         sale.setNotes(request.getNotes());
         sale.setSaleDate(request.getSaleDate());
 
-        // Rebuild items list
         sale.getItems().clear();
         BigDecimal totalAmount = BigDecimal.ZERO;
 
@@ -191,6 +226,32 @@ public class SaleService {
 
         sale.setTotalAmount(totalAmount);
         Sale savedSale = saleRepository.save(sale);
+
+        // 3. Record stock movement for any product whose quantity actually changed
+        MovementType mType = "CANCELLED".equals(newStatus) ? MovementType.RETURN : MovementType.SALE;
+        String mRemarks = "CANCELLED".equals(newStatus) ? 
+                "Sales order " + sale.getSaleNo() + " cancelled, stock returned" :
+                "Sales order " + sale.getSaleNo() + " updated";
+
+        for (Map.Entry<Long, Integer> entry : originalProductStocks.entrySet()) {
+            Product p = productRepository.findById(entry.getKey()).orElse(null);
+            if (p != null) {
+                int oldStock = entry.getValue();
+                int newStock = p.getQuantityInStock();
+                if (oldStock != newStock) {
+                    stockMovementService.recordMovement(
+                        p, 
+                        oldStock, 
+                        newStock, 
+                        mType, 
+                        sale.getSaleNo(), 
+                        currentUser, 
+                        mRemarks
+                    );
+                }
+            }
+        }
+
         return mapEntityToResponse(savedSale);
     }
 
@@ -199,6 +260,14 @@ public class SaleService {
     public void deleteSale(Long id) {
         Sale sale = saleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Sales order not found with id: " + id));
+
+        User currentUser = getAuthenticatedUser();
+
+        // 1. Capture original stocks
+        Map<Long, Integer> originalProductStocks = new HashMap<>();
+        for (SaleItem item : sale.getItems()) {
+            originalProductStocks.put(item.getProduct().getId(), item.getProduct().getQuantityInStock());
+        }
 
         // Restore stock levels if order was not cancelled
         if (!"CANCELLED".equals(sale.getStatus())) {
@@ -210,12 +279,31 @@ public class SaleService {
         }
 
         saleRepository.delete(sale);
+
+        // 2. Record movement for products whose stock levels were restored
+        for (Map.Entry<Long, Integer> entry : originalProductStocks.entrySet()) {
+            Product p = productRepository.findById(entry.getKey()).orElse(null);
+            if (p != null) {
+                int oldStock = entry.getValue();
+                int newStock = p.getQuantityInStock();
+                if (oldStock != newStock) {
+                    stockMovementService.recordMovement(
+                        p, 
+                        oldStock, 
+                        newStock, 
+                        MovementType.RETURN, 
+                        sale.getSaleNo(), 
+                        currentUser, 
+                        "Sales order " + sale.getSaleNo() + " deleted, stock returned"
+                    );
+                }
+            }
+        }
     }
 
     @Transactional(readOnly = true)
     public Page<SaleResponse> getFilteredSales(String search, String status, String paymentStatus, 
                                               LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        // Enforce default status maps uppercase
         String uStatus = (status != null && !status.isEmpty()) ? status.toUpperCase() : null;
         String uPaymentStatus = (paymentStatus != null && !paymentStatus.isEmpty()) ? paymentStatus.toUpperCase() : null;
 
@@ -239,7 +327,6 @@ public class SaleService {
 
     @Transactional(readOnly = true)
     public List<SaleResponse> getRecentSales() {
-        // Return 5 most recent sales orders sorted by creation date
         org.springframework.data.domain.PageRequest pageRequest = 
                 org.springframework.data.domain.PageRequest.of(0, 5, org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "createdAt"));
         return saleRepository.findAll(pageRequest).getContent().stream()

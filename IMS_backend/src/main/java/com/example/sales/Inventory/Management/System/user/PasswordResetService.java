@@ -15,6 +15,9 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.context.ApplicationEventPublisher;
+import com.example.sales.Inventory.Management.System.notification.event.NotificationEvent;
+
 @Service
 public class PasswordResetService {
 
@@ -24,6 +27,7 @@ public class PasswordResetService {
     private final PasswordResetTokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final ApplicationEventPublisher eventPublisher;
     private final SecureRandom secureRandom = new SecureRandom();
 
     @Value("${app.reset-token-expiration-minutes:15}")
@@ -32,11 +36,13 @@ public class PasswordResetService {
     public PasswordResetService(UserRepository userRepository,
                                 PasswordResetTokenRepository tokenRepository,
                                 PasswordEncoder passwordEncoder,
-                                EmailService emailService) {
+                                EmailService emailService,
+                                ApplicationEventPublisher eventPublisher) {
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -107,6 +113,15 @@ public class PasswordResetService {
         // Invalidate the token used
         resetToken.setUsed(true);
         tokenRepository.save(resetToken);
+
+        eventPublisher.publishEvent(NotificationEvent.builder()
+                .title("Password Changed")
+                .message("Your account password has been successfully updated.")
+                .type("PASSWORD_CHANGED")
+                .severity("INFO")
+                .priority("HIGH")
+                .recipient(user)
+                .build());
 
         log.info("Password successfully reset for user ID: {}", user.getId());
     }

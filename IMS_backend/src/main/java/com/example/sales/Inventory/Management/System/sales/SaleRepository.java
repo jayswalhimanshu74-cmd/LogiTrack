@@ -86,4 +86,14 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
     @Query("SELECT new com.example.sales.Inventory.Management.System.report.dto.StatusDistributionDto(s.paymentStatus, COUNT(s)) " +
            "FROM Sale s GROUP BY s.paymentStatus")
     List<com.example.sales.Inventory.Management.System.report.dto.StatusDistributionDto> getSalesPaymentStatusDistribution();
+
+    @Query("SELECT new com.example.sales.Inventory.Management.System.report.dto.CustomerPerformanceDto(s.customerName, s.customerEmail, COUNT(s), SUM(s.totalAmount)) " +
+           "FROM Sale s WHERE s.status <> 'CANCELLED' " +
+           "GROUP BY s.customerName, s.customerEmail ORDER BY SUM(s.totalAmount) DESC")
+    List<com.example.sales.Inventory.Management.System.report.dto.CustomerPerformanceDto> findTopCustomers(org.springframework.data.domain.Pageable pageable);
+
+    @Query("SELECT new com.example.sales.Inventory.Management.System.report.dto.ProductSalesStatsDto(si.product.id, SUM(si.quantity), MIN(s.saleDate)) " +
+           "FROM SaleItem si JOIN si.sale s WHERE s.status <> 'CANCELLED' " +
+           "GROUP BY si.product.id")
+    List<com.example.sales.Inventory.Management.System.report.dto.ProductSalesStatsDto> getProductSalesStats();
 }

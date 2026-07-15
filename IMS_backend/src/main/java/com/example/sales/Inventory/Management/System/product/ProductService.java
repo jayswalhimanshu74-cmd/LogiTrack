@@ -5,11 +5,20 @@ import com.example.sales.Inventory.Management.System.exception.ResourceNotFoundE
 import com.example.sales.Inventory.Management.System.product.dto.ProductRequest;
 import com.example.sales.Inventory.Management.System.product.dto.ProductResponse;
 import com.example.sales.Inventory.Management.System.audit.Audit;
+import com.example.sales.Inventory.Management.System.movement.StockMovementService;
+import com.example.sales.Inventory.Management.System.movement.MovementType;
+import com.example.sales.Inventory.Management.System.user.User;
+import com.example.sales.Inventory.Management.System.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import org.springframework.context.ApplicationEventPublisher;
+import com.example.sales.Inventory.Management.System.notification.event.NotificationEvent;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,6 +28,9 @@ import java.util.stream.Collectors;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final UserRepository userRepository;
+    private final StockMovementService stockMovementService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     @Audit(action = "PRODUCT_CREATED", entityName = "PRODUCT", description = "Product created successfully")
@@ -31,6 +43,30 @@ public class ProductService {
         mapRequestToEntity(request, product);
 
         Product savedProduct = productRepository.save(product);
+
+        eventPublisher.publishEvent(NotificationEvent.builder()
+                .title("Product Added")
+                .message(String.format("Product %s (%s) has been added to the catalog.", savedProduct.getName(), savedProduct.getSku()))
+                .type("SYSTEM_ALERT")
+                .severity("INFO")
+                .priority("LOW")
+                .referenceId(savedProduct.getId())
+                .referenceType("PRODUCT")
+                .build());
+
+        if (savedProduct.getQuantityInStock() != null && savedProduct.getQuantityInStock() >= 0) {
+            User user = getAuthenticatedUser();
+            stockMovementService.recordMovement(
+                savedProduct, 
+                0, 
+                savedProduct.getQuantityInStock(), 
+                MovementType.MANUAL_CORRECTION, 
+                "INIT-" + savedProduct.getSku(), 
+                user, 
+                "Initial stock on creation"
+            );
+        }
+
         return mapEntityToResponse(savedProduct);
     }
 
@@ -58,18 +94,57 @@ public class ProductService {
             throw new DuplicateResourceException("Product with SKU '" + request.getSku() + "' already exists");
         }
 
+        int oldQty = product.getQuantityInStock() != null ? product.getQuantityInStock() : 0;
+        int newQty = request.getQuantityInStock() != null ? request.getQuantityInStock() : 0;
+
         mapRequestToEntity(request, product);
         Product updatedProduct = productRepository.save(product);
+
+        eventPublisher.publishEvent(NotificationEvent.builder()
+                .title("Product Updated")
+                .message(String.format("Product %s (%s) has been updated.", updatedProduct.getName(), updatedProduct.getSku()))
+                .type("SYSTEM_ALERT")
+                .severity("INFO")
+                .priority("LOW")
+                .referenceId(updatedProduct.getId())
+                .referenceType("PRODUCT")
+                .build());
+
+        if (oldQty != newQty) {
+            User user = getAuthenticatedUser();
+            stockMovementService.recordMovement(
+                updatedProduct,
+                oldQty,
+                newQty,
+                MovementType.ADJUSTMENT,
+                "UPD-" + updatedProduct.getSku(),
+                user,
+                "Manual adjustment via product edit"
+            );
+        }
+
         return mapEntityToResponse(updatedProduct);
     }
 
     @Transactional
     @Audit(action = "PRODUCT_DELETED", entityName = "PRODUCT", description = "Product deleted successfully")
     public void deleteProduct(Long id) {
-        if (!productRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Product not found with id: " + id);
-        }
-        productRepository.deleteById(id);
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
+        String sku = product.getSku();
+        String name = product.getName();
+        
+        productRepository.delete(product);
+
+        eventPublisher.publishEvent(NotificationEvent.builder()
+                .title("Product Deleted")
+                .message(String.format("Product %s (%s) has been deleted from the catalog.", name, sku))
+                .type("SYSTEM_ALERT")
+                .severity("WARNING")
+                .priority("LOW")
+                .referenceId(id)
+                .referenceType("PRODUCT")
+                .build());
     }
 
     @Transactional(readOnly = true)
@@ -87,6 +162,14 @@ public class ProductService {
     @Transactional(readOnly = true)
     public List<String> getDistinctCategories() {
         return productRepository.findDistinctCategories();
+    }
+
+    private User getAuthenticatedUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
+            return userRepository.findByEmail(auth.getName()).orElse(null);
+        }
+        return null;
     }
 
     private void mapRequestToEntity(ProductRequest request, Product product) {
@@ -111,7 +194,7 @@ public class ProductService {
         response.setSellingPrice(product.getSellingPrice());
         response.setQuantityInStock(product.getQuantityInStock());
         response.setReorderLevel(product.getReorderLevel());
-        
+
         int qty = product.getQuantityInStock() != null ? product.getQuantityInStock() : 0;
         int reorder = product.getReorderLevel() != null ? product.getReorderLevel() : 0;
         if (qty <= 0) {

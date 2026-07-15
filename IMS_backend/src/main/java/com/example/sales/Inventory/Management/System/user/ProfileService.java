@@ -13,6 +13,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.sales.Inventory.Management.System.audit.Audit;
+import org.springframework.context.ApplicationEventPublisher;
+import com.example.sales.Inventory.Management.System.notification.event.NotificationEvent;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,6 +33,7 @@ public class ProfileService {
     private final UserRepository userRepository;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ApplicationEventPublisher eventPublisher;
 
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
     private static final List<String> ALLOWED_MIME_TYPES = Arrays.asList("image/jpeg", "image/png", "image/webp");
@@ -46,6 +50,16 @@ public class ProfileService {
         user.setFullName(request.getFullName());
         user.setPhone(request.getPhone());
         User updated = userRepository.save(user);
+
+        eventPublisher.publishEvent(NotificationEvent.builder()
+                .title("Profile Updated")
+                .message("Your profile contact details have been updated successfully.")
+                .type("SYSTEM_ALERT")
+                .severity("INFO")
+                .priority("LOW")
+                .recipient(updated)
+                .build());
+
         return mapToProfileResponse(updated);
     }
 
@@ -99,6 +113,16 @@ public class ProfileService {
 
             user.setProfileImageUrl("/uploads/avatars/" + newFilename);
             User updated = userRepository.save(user);
+
+            eventPublisher.publishEvent(NotificationEvent.builder()
+                    .title("Avatar Uploaded")
+                    .message("Your profile image has been updated successfully.")
+                    .type("SYSTEM_ALERT")
+                    .severity("INFO")
+                    .priority("LOW")
+                    .recipient(updated)
+                    .build());
+
             return mapToProfileResponse(updated);
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to store image file on server");
@@ -130,6 +154,15 @@ public class ProfileService {
             token.setUsed(true);
         }
         passwordResetTokenRepository.saveAll(activeTokens);
+
+        eventPublisher.publishEvent(NotificationEvent.builder()
+                .title("Password Changed")
+                .message("Your account password has been changed successfully.")
+                .type("PASSWORD_CHANGED")
+                .severity("INFO")
+                .priority("HIGH")
+                .recipient(user)
+                .build());
     }
 
     @Transactional(readOnly = true)

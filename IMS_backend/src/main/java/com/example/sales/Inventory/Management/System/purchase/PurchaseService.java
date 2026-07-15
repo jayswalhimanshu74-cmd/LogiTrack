@@ -9,6 +9,8 @@ import com.example.sales.Inventory.Management.System.purchase.dto.*;
 import com.example.sales.Inventory.Management.System.user.User;
 import com.example.sales.Inventory.Management.System.user.UserRepository;
 import com.example.sales.Inventory.Management.System.audit.Audit;
+import com.example.sales.Inventory.Management.System.movement.StockMovementService;
+import com.example.sales.Inventory.Management.System.movement.MovementType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,9 +19,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.context.ApplicationEventPublisher;
+import com.example.sales.Inventory.Management.System.notification.event.NotificationEvent;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,6 +35,8 @@ public class PurchaseService {
     private final PurchaseRepository purchaseRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final StockMovementService stockMovementService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     @Audit(action = "PURCHASE_CREATED", entityName = "PURCHASE", description = "Purchase order created successfully")
@@ -59,10 +67,23 @@ public class PurchaseService {
             Product product = productRepository.findById(itemRequest.getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + itemRequest.getProductId()));
 
-            // Update product stock
+            int previousQty = product.getQuantityInStock() != null ? product.getQuantityInStock() : 0;
+
             if (addStock) {
-                product.setQuantityInStock(product.getQuantityInStock() + itemRequest.getQuantity());
+                int newQty = previousQty + itemRequest.getQuantity();
+                product.setQuantityInStock(newQty);
                 productRepository.save(product);
+
+                // Record stock movement
+                stockMovementService.recordMovement(
+                    product, 
+                    previousQty, 
+                    newQty, 
+                    MovementType.PURCHASE, 
+                    purchase.getPurchaseNo(), 
+                    creator, 
+                    "Purchase order " + purchase.getPurchaseNo() + " receipt"
+                );
             }
 
             BigDecimal lineTotal = itemRequest.getUnitPrice().multiply(BigDecimal.valueOf(itemRequest.getQuantity()));
@@ -79,6 +100,17 @@ public class PurchaseService {
 
         purchase.setTotalAmount(totalAmount);
         Purchase savedPurchase = purchaseRepository.save(purchase);
+
+        eventPublisher.publishEvent(NotificationEvent.builder()
+                .title("Purchase Order Created")
+                .message(String.format("Purchase Order %s from supplier %s has been created for $%s.", savedPurchase.getPurchaseNo(), savedPurchase.getSupplierName(), savedPurchase.getTotalAmount()))
+                .type("PURCHASE_COMPLETED")
+                .severity("SUCCESS")
+                .priority("MEDIUM")
+                .referenceId(savedPurchase.getId())
+                .referenceType("PURCHASE")
+                .build());
+
         return mapEntityToResponse(savedPurchase);
     }
 
@@ -94,17 +126,23 @@ public class PurchaseService {
 
         String oldStatus = purchase.getStatus();
         String newStatus = request.getStatus().toUpperCase();
+        User currentUser = getAuthenticatedUser();
 
-        // 1. Temporarily group original items by product
-        java.util.Map<Long, Integer> oldQuantities = new java.util.HashMap<>();
+        // 1. Capture original stock levels
+        Map<Long, Integer> originalProductStocks = new HashMap<>();
         for (PurchaseItem item : purchase.getItems()) {
-            oldQuantities.put(item.getProduct().getId(), item.getQuantity());
+            originalProductStocks.put(item.getProduct().getId(), item.getProduct().getQuantityInStock());
+        }
+        for (PurchaseItemRequest itemReq : request.getItems()) {
+            if (!originalProductStocks.containsKey(itemReq.getProductId())) {
+                productRepository.findById(itemReq.getProductId()).ifPresent(p -> {
+                    originalProductStocks.put(p.getId(), p.getQuantityInStock());
+                });
+            }
         }
 
-        // 2. Enforce stock reversals and adjustments
+        // 2. Enforce stock adjustments
         if (!"CANCELLED".equals(oldStatus) && "CANCELLED".equals(newStatus)) {
-            // RECEIVED/PENDING -> CANCELLED: Reverse the stock increase (subtract quantities)
-            // Validate first to protect against negative stock
             for (PurchaseItem item : purchase.getItems()) {
                 Product product = item.getProduct();
                 if (product.getQuantityInStock() < item.getQuantity()) {
@@ -115,7 +153,6 @@ public class PurchaseService {
                 productRepository.save(product);
             }
         } else if ("CANCELLED".equals(oldStatus) && !"CANCELLED".equals(newStatus)) {
-            // CANCELLED -> RECEIVED/PENDING: Re-apply purchase (add new quantities to stock)
             for (PurchaseItemRequest itemReq : request.getItems()) {
                 Product product = productRepository.findById(itemReq.getProductId())
                         .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + itemReq.getProductId()));
@@ -123,7 +160,6 @@ public class PurchaseService {
                 productRepository.save(product);
             }
         } else if (!"CANCELLED".equals(oldStatus) && !"CANCELLED".equals(newStatus)) {
-            // Non-cancelled -> Non-cancelled: Deduct old stock first (checking for negative values), then apply new stock
             for (PurchaseItem item : purchase.getItems()) {
                 Product product = item.getProduct();
                 if (product.getQuantityInStock() < item.getQuantity()) {
@@ -154,7 +190,6 @@ public class PurchaseService {
         purchase.setNotes(request.getNotes());
         purchase.setPurchaseDate(request.getPurchaseDate());
 
-        // Rebuild items list
         purchase.getItems().clear();
         BigDecimal totalAmount = BigDecimal.ZERO;
 
@@ -176,6 +211,32 @@ public class PurchaseService {
 
         purchase.setTotalAmount(totalAmount);
         Purchase savedPurchase = purchaseRepository.save(purchase);
+
+        // 3. Record stock movement
+        MovementType mType = "CANCELLED".equals(newStatus) ? MovementType.ADJUSTMENT : MovementType.PURCHASE;
+        String mRemarks = "CANCELLED".equals(newStatus) ? 
+                "Purchase order " + purchase.getPurchaseNo() + " cancelled, stock adjusted" :
+                "Purchase order " + purchase.getPurchaseNo() + " updated";
+
+        for (Map.Entry<Long, Integer> entry : originalProductStocks.entrySet()) {
+            Product p = productRepository.findById(entry.getKey()).orElse(null);
+            if (p != null) {
+                int oldStock = entry.getValue();
+                int newStock = p.getQuantityInStock();
+                if (oldStock != newStock) {
+                    stockMovementService.recordMovement(
+                        p, 
+                        oldStock, 
+                        newStock, 
+                        mType, 
+                        purchase.getPurchaseNo(), 
+                        currentUser, 
+                        mRemarks
+                    );
+                }
+            }
+        }
+
         return mapEntityToResponse(savedPurchase);
     }
 
@@ -184,6 +245,14 @@ public class PurchaseService {
     public void deletePurchase(Long id) {
         Purchase purchase = purchaseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Purchase order not found with id: " + id));
+
+        User currentUser = getAuthenticatedUser();
+
+        // 1. Capture original stock levels
+        Map<Long, Integer> originalProductStocks = new HashMap<>();
+        for (PurchaseItem item : purchase.getItems()) {
+            originalProductStocks.put(item.getProduct().getId(), item.getProduct().getQuantityInStock());
+        }
 
         // Reverse stock increase if purchase was active (received/pending)
         if (!"CANCELLED".equals(purchase.getStatus())) {
@@ -199,6 +268,26 @@ public class PurchaseService {
         }
 
         purchaseRepository.delete(purchase);
+
+        // 2. Record stock movement
+        for (Map.Entry<Long, Integer> entry : originalProductStocks.entrySet()) {
+            Product p = productRepository.findById(entry.getKey()).orElse(null);
+            if (p != null) {
+                int oldStock = entry.getValue();
+                int newStock = p.getQuantityInStock();
+                if (oldStock != newStock) {
+                    stockMovementService.recordMovement(
+                        p, 
+                        oldStock, 
+                        newStock, 
+                        MovementType.ADJUSTMENT, 
+                        purchase.getPurchaseNo(), 
+                        currentUser, 
+                        "Purchase order " + purchase.getPurchaseNo() + " deleted, stock reversed"
+                    );
+                }
+            }
+        }
     }
 
     @Transactional(readOnly = true)

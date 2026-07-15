@@ -82,4 +82,9 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
     @Query("SELECT new com.example.sales.Inventory.Management.System.report.dto.StatusDistributionDto(p.paymentStatus, COUNT(p)) " +
            "FROM Purchase p GROUP BY p.paymentStatus")
     List<com.example.sales.Inventory.Management.System.report.dto.StatusDistributionDto> getPurchasePaymentStatusDistribution();
+
+    @Query("SELECT new com.example.sales.Inventory.Management.System.report.dto.SupplierPerformanceDto(p.supplierName, p.supplierEmail, COUNT(p), SUM(p.totalAmount)) " +
+           "FROM Purchase p WHERE p.status <> 'CANCELLED' " +
+           "GROUP BY p.supplierName, p.supplierEmail ORDER BY SUM(p.totalAmount) DESC")
+    List<com.example.sales.Inventory.Management.System.report.dto.SupplierPerformanceDto> findTopSuppliers(org.springframework.data.domain.Pageable pageable);
 }

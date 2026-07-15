@@ -17,6 +17,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.context.ApplicationEventPublisher;
+import com.example.sales.Inventory.Management.System.notification.event.NotificationEvent;
+
 @Service
 public class AuthService {
 
@@ -25,17 +28,20 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final EmailVerificationService emailVerificationService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        JwtService jwtService,
                        AuthenticationManager authenticationManager,
-                       EmailVerificationService emailVerificationService) {
+                       EmailVerificationService emailVerificationService,
+                       ApplicationEventPublisher eventPublisher) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
         this.emailVerificationService = emailVerificationService;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -74,15 +80,36 @@ public class AuthService {
         // Generate and send email verification token
         emailVerificationService.createAndSendVerificationToken(user);
 
+        eventPublisher.publishEvent(NotificationEvent.builder()
+                .title("New User Registered")
+                .message(String.format("A new user account has been registered: %s (%s).", user.getFullName(), user.getEmail()))
+                .type("NEW_USER_REGISTERED")
+                .severity("INFO")
+                .priority("MEDIUM")
+                .recipient(user)
+                .build());
+
         return new AuthResponse(null, user.getFullName(), user.getEmail(), user.getRole().name());
     }
 
     @Audit(action = "LOGIN", entityName = "USER", description = "User logged in")
     public AuthResponse login(LoginRequest request) {
-        // this throws AuthenticationException automatically if credentials are wrong
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+            );
+        } catch (Exception e) {
+            User user = userRepository.findByEmail(request.getEmail()).orElse(null);
+            eventPublisher.publishEvent(NotificationEvent.builder()
+                    .title("Failed Login Attempt")
+                    .message(String.format("A failed login attempt was detected for email: %s.", request.getEmail()))
+                    .type("SYSTEM_ALERT")
+                    .severity("WARNING")
+                    .priority("HIGH")
+                    .recipient(user)
+                    .build());
+            throw e;
+        }
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new IllegalStateException("User disappeared after authentication"));
@@ -98,6 +125,15 @@ public class AuthService {
                 .build();
 
         String token = jwtService.generateToken(userDetails);
+
+        eventPublisher.publishEvent(NotificationEvent.builder()
+                .title("Successful Login")
+                .message(String.format("User %s (%s) has successfully logged in.", user.getFullName(), user.getEmail()))
+                .type("SYSTEM_ALERT")
+                .severity("INFO")
+                .priority("LOW")
+                .recipient(user)
+                .build());
 
         return new AuthResponse(token, user.getFullName(), user.getEmail(), user.getRole().name());
     }

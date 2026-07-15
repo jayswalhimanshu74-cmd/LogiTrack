@@ -58,6 +58,22 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p FROM Product p WHERE p.quantityInStock > 0 ORDER BY (p.quantityInStock * p.purchasePrice) DESC")
     Page<Product> findHighestValueProducts(Pageable pageable);
 
+    @Query("SELECT p FROM Product p WHERE " +
+           "p.quantityInStock <= (p.reorderLevel * 1.2) " +
+           "AND (:search IS NULL OR :search = '' " +
+           "OR LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "OR LOWER(p.sku) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "OR LOWER(p.category) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+           "AND (:priority IS NULL OR :priority = '' OR " +
+           "(:priority = 'CRITICAL' AND p.quantityInStock <= (p.reorderLevel * 0.2)) OR " +
+           "(:priority = 'HIGH' AND p.quantityInStock <= p.reorderLevel AND p.quantityInStock > (p.reorderLevel * 0.2)) OR " +
+           "(:priority = 'NORMAL' AND p.quantityInStock <= (p.reorderLevel * 1.2) AND p.quantityInStock > p.reorderLevel))")
+    Page<Product> findLowStockFiltered(
+            @Param("search") String search,
+            @Param("priority") String priority,
+            Pageable pageable
+    );
+
     @Query("SELECT new com.example.sales.Inventory.Management.System.report.dto.CategoryDistributionDto(p.category, COUNT(p)) FROM Product p WHERE p.quantityInStock <= p.reorderLevel GROUP BY p.category")
     List<com.example.sales.Inventory.Management.System.report.dto.CategoryDistributionDto> getLowStockTrend();
 }

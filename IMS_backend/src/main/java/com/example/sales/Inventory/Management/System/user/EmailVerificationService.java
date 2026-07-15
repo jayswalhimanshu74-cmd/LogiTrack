@@ -15,6 +15,9 @@ import java.util.Optional;
 
 import com.example.sales.Inventory.Management.System.audit.Audit;
 
+import org.springframework.context.ApplicationEventPublisher;
+import com.example.sales.Inventory.Management.System.notification.event.NotificationEvent;
+
 @Service
 public class EmailVerificationService {
 
@@ -23,6 +26,7 @@ public class EmailVerificationService {
     private final UserRepository userRepository;
     private final EmailVerificationTokenRepository tokenRepository;
     private final EmailService emailService;
+    private final ApplicationEventPublisher eventPublisher;
     private final SecureRandom secureRandom = new SecureRandom();
 
     @Value("${app.verification-token-expiration-hours:24}")
@@ -30,10 +34,12 @@ public class EmailVerificationService {
 
     public EmailVerificationService(UserRepository userRepository,
                                     EmailVerificationTokenRepository tokenRepository,
-                                    EmailService emailService) {
+                                    EmailService emailService,
+                                    ApplicationEventPublisher eventPublisher) {
         this.userRepository = userRepository;
-        this.tokenRepository = tokenRepository;
+        this.tokenRepository = tokenRepository; 
         this.emailService = emailService;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -99,6 +105,15 @@ public class EmailVerificationService {
 
         verificationToken.setUsed(true);
         tokenRepository.save(verificationToken);
+
+        eventPublisher.publishEvent(NotificationEvent.builder()
+                .title("Email Verified")
+                .message(String.format("Your email (%s) has been successfully verified.", user.getEmail()))
+                .type("EMAIL_VERIFIED")
+                .severity("SUCCESS")
+                .priority("MEDIUM")
+                .recipient(user)
+                .build());
 
         log.info("User {} email successfully verified", user.getEmail());
     }

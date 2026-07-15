@@ -71,7 +71,7 @@ public class AuditLogController {
 
     @GetMapping("/export")
     @Audit(action = "EXPORT", entityName = "AUDIT", description = "Exported system logs report")
-    public ResponseEntity<InputStreamResource> exportLogs(
+    public ResponseEntity<byte[]> exportLogs(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
             @RequestParam(required = false) Long userId,
@@ -102,12 +102,14 @@ public class AuditLogController {
             mediaType = MediaType.parseMediaType("text/csv");
         }
 
+        byte[] data = bis.readAllBytes();
+
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=" + filename);
 
         return ResponseEntity.ok()
                 .headers(headers)
                 .contentType(mediaType)
-                .body(new InputStreamResource(bis));
+                .body(data);
     }
 }

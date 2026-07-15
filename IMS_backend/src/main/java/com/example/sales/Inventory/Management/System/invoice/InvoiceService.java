@@ -11,6 +11,7 @@ import com.example.sales.Inventory.Management.System.user.User;
 import com.example.sales.Inventory.Management.System.user.UserRepository;
 import com.example.sales.Inventory.Management.System.email.EmailService;
 import com.example.sales.Inventory.Management.System.audit.Audit;
+import com.example.sales.Inventory.Management.System.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +24,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.context.ApplicationEventPublisher;
+import com.example.sales.Inventory.Management.System.notification.event.NotificationEvent;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,6 +41,8 @@ public class InvoiceService {
     private final SaleRepository saleRepository;
     private final InvoicePdfService invoicePdfService;
     private final EmailService emailService;
+    private final NotificationService notificationService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public synchronized String generateNextInvoiceNumber() {
@@ -65,7 +71,6 @@ public class InvoiceService {
         int nextSeq = maxSeq + 1;
         String nextInvoiceNo = String.format("INV-%d-%06d", currentYear, nextSeq);
         
-        // Safety check to absolutely guarantee uniqueness
         while (invoiceRepository.existsByInvoiceNo(nextInvoiceNo)) {
             nextSeq++;
             nextInvoiceNo = String.format("INV-%d-%06d", currentYear, nextSeq);
@@ -134,6 +139,17 @@ public class InvoiceService {
 
         Invoice saved = invoiceRepository.save(invoice);
 
+        // Fire Notification
+        eventPublisher.publishEvent(NotificationEvent.builder()
+                .title("Invoice Generated")
+                .message("Invoice " + saved.getInvoiceNo() + " for customer " + saved.getCustomerName() + " has been generated. Total: $" + saved.getGrandTotal())
+                .type("NEW_INVOICE")
+                .severity("INFO")
+                .priority("LOW")
+                .referenceId(saved.getId())
+                .referenceType("INVOICE")
+                .build());
+
         if (saved.getCustomerEmail() != null && !saved.getCustomerEmail().isBlank()) {
             try {
                 byte[] pdfBytes = InvoiceTemplateBuilder.buildPdf(saved);
@@ -197,6 +213,17 @@ public class InvoiceService {
 
         Invoice saved = invoiceRepository.save(invoice);
 
+        // Fire Notification
+        eventPublisher.publishEvent(NotificationEvent.builder()
+                .title("Invoice Generated")
+                .message("Invoice " + saved.getInvoiceNo() + " generated from sale order " + sale.getSaleNo() + ". Total: $" + saved.getGrandTotal())
+                .type("NEW_INVOICE")
+                .severity("INFO")
+                .priority("LOW")
+                .referenceId(saved.getId())
+                .referenceType("INVOICE")
+                .build());
+
         if (saved.getCustomerEmail() != null && !saved.getCustomerEmail().isBlank()) {
             try {
                 byte[] pdfBytes = InvoiceTemplateBuilder.buildPdf(saved);
@@ -227,9 +254,9 @@ public class InvoiceService {
             throw new IllegalStateException("Paid invoices are read-only and cannot be updated");
         }
 
+        String oldPaymentStatus = invoice.getPaymentStatus();
         String newStatus = request.getStatus() != null ? request.getStatus().toUpperCase() : invoice.getStatus();
 
-        // If it is in DRAFT state, allow updating everything
         if ("DRAFT".equals(invoice.getStatus())) {
             invoice.setCustomerName(request.getCustomerName());
             invoice.setCustomerPhone(request.getCustomerPhone());
@@ -275,7 +302,6 @@ public class InvoiceService {
             invoice.setGrandTotal(grandTotal);
 
         } else {
-            // For ISSUED/CANCELLED state, only allow status, paymentStatus, notes updates
             invoice.setStatus(newStatus);
             invoice.setPaymentStatus(request.getPaymentStatus() != null ? request.getPaymentStatus().toUpperCase() : invoice.getPaymentStatus());
             invoice.setPaymentMethod(request.getPaymentMethod() != null ? request.getPaymentMethod().toUpperCase() : invoice.getPaymentMethod());
@@ -283,6 +309,20 @@ public class InvoiceService {
         }
 
         Invoice saved = invoiceRepository.save(invoice);
+
+        // Fire paid alert if updated to paid
+        if (!"PAID".equals(oldPaymentStatus) && "PAID".equals(saved.getPaymentStatus())) {
+            eventPublisher.publishEvent(NotificationEvent.builder()
+                    .title("Invoice Paid")
+                    .message("Invoice " + saved.getInvoiceNo() + " has been paid in full. Amount: $" + saved.getGrandTotal())
+                    .type("PAYMENT_RECEIVED")
+                    .severity("SUCCESS")
+                    .priority("MEDIUM")
+                    .referenceId(saved.getId())
+                    .referenceType("INVOICE")
+                    .build());
+        }
+
         return mapEntityToResponse(saved);
     }
 
@@ -291,12 +331,26 @@ public class InvoiceService {
         Invoice invoice = invoiceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice not found with id: " + id));
         
+        String oldPaymentStatus = invoice.getPaymentStatus();
         invoice.setStatus(status.toUpperCase());
         if ("PAID".equals(status.toUpperCase())) {
             invoice.setPaymentStatus("PAID");
         }
         
         Invoice saved = invoiceRepository.save(invoice);
+
+        if (!"PAID".equals(oldPaymentStatus) && "PAID".equals(saved.getPaymentStatus())) {
+            eventPublisher.publishEvent(NotificationEvent.builder()
+                    .title("Invoice Paid")
+                    .message("Invoice " + saved.getInvoiceNo() + " has been paid in full. Amount: $" + saved.getGrandTotal())
+                    .type("PAYMENT_RECEIVED")
+                    .severity("SUCCESS")
+                    .priority("MEDIUM")
+                    .referenceId(saved.getId())
+                    .referenceType("INVOICE")
+                    .build());
+        }
+
         return mapEntityToResponse(saved);
     }
 
