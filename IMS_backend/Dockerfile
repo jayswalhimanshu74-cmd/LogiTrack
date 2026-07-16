@@ -1,15 +1,14 @@
 # ---------- Build Stage ----------
-FROM maven:3.9.9-eclipse-temurin-21 AS builder
+FROM eclipse-temurin:21-jdk AS builder
 
 WORKDIR /app
 
-COPY pom.xml .
-COPY src ./src
+COPY . .
 
-RUN mvn clean package -DskipTests
+RUN chmod +x mvnw
+RUN ./mvnw clean package -DskipTests
 
 # ---------- Runtime Stage ----------
-    
 FROM eclipse-temurin:21-jre
 
 WORKDIR /app
