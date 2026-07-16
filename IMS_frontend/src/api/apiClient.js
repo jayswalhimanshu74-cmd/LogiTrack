@@ -2,10 +2,12 @@ import axios from 'axios';
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
+  
   headers: {
     'Content-Type': 'application/json',
   },
 });
+console.log("API URL:", import.meta.env.VITE_API_URL);
 
 // Request Interceptor: Inject JWT token automatically
 apiClient.interceptors.request.use(
