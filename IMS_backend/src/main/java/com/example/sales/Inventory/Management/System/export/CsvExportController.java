@@ -14,9 +14,7 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -62,10 +60,6 @@ public class CsvExportController {
             @Parameter(description = "Status filter: ACTIVE or INACTIVE") @RequestParam(required = false) String status,
             Sort sort) {
         
-        if (isNotAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
         byte[] csvData = csvExportService.exportProducts(search, category, status, sort);
 
         HttpHeaders headers = new HttpHeaders();
@@ -103,10 +97,6 @@ public class CsvExportController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             Sort sort) {
-
-        if (isNotAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
 
         byte[] csvData = csvExportService.exportSales(search, status, paymentStatus, startDate, endDate, sort);
 
@@ -146,10 +136,6 @@ public class CsvExportController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             Sort sort) {
 
-        if (isNotAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
         byte[] csvData = csvExportService.exportPurchases(search, status, paymentStatus, startDate, endDate, sort);
 
         HttpHeaders headers = new HttpHeaders();
@@ -188,10 +174,6 @@ public class CsvExportController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             Sort sort) {
 
-        if (isNotAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
         byte[] csvData = csvExportService.exportInvoices(search, status, paymentStatus, startDate, endDate, sort);
 
         HttpHeaders headers = new HttpHeaders();
@@ -222,10 +204,6 @@ public class CsvExportController {
     @GetMapping("/reports")
     @Audit(action = "EXPORT_CSV", entityName = "REPORT", description = "Exported report statistics to CSV")
     public ResponseEntity<byte[]> exportReports() {
-
-        if (isNotAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
 
         byte[] csvData = csvExportService.exportReports();
 
@@ -261,10 +239,6 @@ public class CsvExportController {
             @Parameter(description = "Search by product name or SKU") @RequestParam(required = false) String search,
             @Parameter(description = "Priority filter: CRITICAL, HIGH, MEDIUM") @RequestParam(required = false) String priority) {
 
-        if (isNotAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
         byte[] csvData = csvExportService.exportLowStock(search, priority);
 
         HttpHeaders headers = new HttpHeaders();
@@ -299,10 +273,6 @@ public class CsvExportController {
             @Parameter(description = "Search by product name or SKU") @RequestParam(required = false) String search,
             @Parameter(description = "Status filter: ADEQUATE, LOW, CRITICAL, OVERSTOCKED") @RequestParam(required = false) String status) {
 
-        if (isNotAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
         byte[] csvData = csvExportService.exportForecast(search, status);
 
         HttpHeaders headers = new HttpHeaders();
@@ -336,10 +306,6 @@ public class CsvExportController {
     public ResponseEntity<byte[]> exportAbc(
             @Parameter(description = "Search by product name or SKU") @RequestParam(required = false) String search,
             @Parameter(description = "Category filter") @RequestParam(required = false) String category) {
-
-        if (isNotAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
 
         byte[] csvData = csvExportService.exportAbc(search, category);
 

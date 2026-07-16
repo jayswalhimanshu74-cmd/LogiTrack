@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.example.sales.Inventory.Management.System.user.Role;
 
 import org.springframework.context.ApplicationEventPublisher;
 import com.example.sales.Inventory.Management.System.notification.event.NotificationEvent;
@@ -35,6 +36,11 @@ public class ProductService {
     @Transactional
     @Audit(action = "PRODUCT_CREATED", entityName = "PRODUCT", description = "Product created successfully")
     public ProductResponse createProduct(ProductRequest request) {
+        User caller = getAuthenticatedUser();
+        if (caller == null || (caller.getRole() != Role.ADMIN && caller.getRole() != Role.MANAGER)) {
+            throw new org.springframework.security.access.AccessDeniedException("Insufficient permissions to create products");
+        }
+
         if (productRepository.existsBySku(request.getSku())) {
             throw new DuplicateResourceException("Product with SKU '" + request.getSku() + "' already exists");
         }
@@ -55,14 +61,13 @@ public class ProductService {
                 .build());
 
         if (savedProduct.getQuantityInStock() != null && savedProduct.getQuantityInStock() >= 0) {
-            User user = getAuthenticatedUser();
             stockMovementService.recordMovement(
                 savedProduct, 
                 0, 
                 savedProduct.getQuantityInStock(), 
                 MovementType.MANUAL_CORRECTION, 
                 "INIT-" + savedProduct.getSku(), 
-                user, 
+                caller, 
                 "Initial stock on creation"
             );
         }
@@ -87,6 +92,11 @@ public class ProductService {
     @Transactional
     @Audit(action = "PRODUCT_UPDATED", entityName = "PRODUCT", description = "Product updated successfully")
     public ProductResponse updateProduct(Long id, ProductRequest request) {
+        User caller = getAuthenticatedUser();
+        if (caller == null || (caller.getRole() != Role.ADMIN && caller.getRole() != Role.MANAGER)) {
+            throw new org.springframework.security.access.AccessDeniedException("Insufficient permissions to update products");
+        }
+
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
 
@@ -111,14 +121,13 @@ public class ProductService {
                 .build());
 
         if (oldQty != newQty) {
-            User user = getAuthenticatedUser();
             stockMovementService.recordMovement(
                 updatedProduct,
                 oldQty,
                 newQty,
                 MovementType.ADJUSTMENT,
                 "UPD-" + updatedProduct.getSku(),
-                user,
+                caller,
                 "Manual adjustment via product edit"
             );
         }
@@ -129,6 +138,11 @@ public class ProductService {
     @Transactional
     @Audit(action = "PRODUCT_DELETED", entityName = "PRODUCT", description = "Product deleted successfully")
     public void deleteProduct(Long id) {
+        User caller = getAuthenticatedUser();
+        if (caller == null || caller.getRole() != Role.ADMIN) {
+            throw new org.springframework.security.access.AccessDeniedException("Only administrators can delete products");
+        }
+
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
         String sku = product.getSku();

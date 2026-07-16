@@ -16,7 +16,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import com.example.sales.Inventory.Management.System.user.Role;
+
 import org.springframework.transaction.annotation.Transactional;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -135,10 +138,14 @@ public class StockMovementService {
 
     @Transactional
     public StockMovementResponse adjustStock(StockAdjustmentRequest request) {
+        User user = getAuthenticatedUser();
+        if (user == null || (user.getRole() != Role.ADMIN && user.getRole() != Role.MANAGER)) {
+            throw new org.springframework.security.access.AccessDeniedException("Insufficient permissions to adjust stock");
+        }
+
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + request.getProductId()));
 
-        User user = getAuthenticatedUser();
         int previousQty = product.getQuantityInStock();
         int newQty = previousQty + request.getDifference();
 

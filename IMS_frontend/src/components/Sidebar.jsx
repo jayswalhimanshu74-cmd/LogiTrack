@@ -115,7 +115,10 @@ const Sidebar = ({ activeTab }) => {
 
           {/* ── ADMIN ONLY ────────────────────────────── */}
           {isAdmin && (
-            <NavLink to="/audit-logs" tab="audit-logs" icon="history" label="Audit Logs" />
+            <>
+              <NavLink to="/users" tab="users" icon="group" label="User Management" />
+              <NavLink to="/audit-logs" tab="audit-logs" icon="history" label="Audit Logs" />
+            </>
           )}
         </nav>
       </div>

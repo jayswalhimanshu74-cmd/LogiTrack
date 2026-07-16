@@ -22,6 +22,7 @@ import Profile from './pages/Profile'
 import AuditLogs from './pages/AuditLogs'
 import StockMovements from './pages/StockMovements'
 import Notifications from './pages/Notifications'
+import Users from './pages/Users'
 
 function App() {
   return (
@@ -75,6 +76,11 @@ function App() {
       } />
 
       {/* ── ADMIN ONLY ─────────────────────────────────────────────── */}
+      <Route path="/users" element={
+        <ProtectedRoute allowedRoles={["ADMIN"]}>
+          <Users />
+        </ProtectedRoute>
+      } />
       <Route path="/audit-logs" element={
         <ProtectedRoute allowedRoles={["ADMIN"]}>
           <AuditLogs />

@@ -26,6 +26,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import com.example.sales.Inventory.Management.System.user.Role;
+
 import java.util.stream.Collectors;
 
 @Service
@@ -41,6 +43,11 @@ public class PurchaseService {
     @Transactional
     @Audit(action = "PURCHASE_CREATED", entityName = "PURCHASE", description = "Purchase order created successfully")
     public PurchaseResponse createPurchase(PurchaseRequest request) {
+        User creator = getAuthenticatedUser();
+        if (creator == null || (creator.getRole() != Role.ADMIN && creator.getRole() != Role.MANAGER)) {
+            throw new org.springframework.security.access.AccessDeniedException("Insufficient permissions to create purchase orders");
+        }
+
         if (purchaseRepository.existsByPurchaseNo(request.getPurchaseNo())) {
             throw new DuplicateResourceException("Purchase with number '" + request.getPurchaseNo() + "' already exists");
         }
@@ -57,7 +64,6 @@ public class PurchaseService {
         purchase.setNotes(request.getNotes());
         purchase.setPurchaseDate(request.getPurchaseDate());
 
-        User creator = getAuthenticatedUser();
         purchase.setCreatedBy(creator);
 
         BigDecimal totalAmount = BigDecimal.ZERO;
@@ -117,6 +123,11 @@ public class PurchaseService {
     @Transactional
     @Audit(action = "PURCHASE_UPDATED", entityName = "PURCHASE", description = "Purchase order updated successfully")
     public PurchaseResponse updatePurchase(Long id, PurchaseRequest request) {
+        User currentUser = getAuthenticatedUser();
+        if (currentUser == null || (currentUser.getRole() != Role.ADMIN && currentUser.getRole() != Role.MANAGER)) {
+            throw new org.springframework.security.access.AccessDeniedException("Insufficient permissions to update purchase orders");
+        }
+
         Purchase purchase = purchaseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Purchase order not found with id: " + id));
 
@@ -126,7 +137,6 @@ public class PurchaseService {
 
         String oldStatus = purchase.getStatus();
         String newStatus = request.getStatus().toUpperCase();
-        User currentUser = getAuthenticatedUser();
 
         // 1. Capture original stock levels
         Map<Long, Integer> originalProductStocks = new HashMap<>();
@@ -243,10 +253,13 @@ public class PurchaseService {
     @Transactional
     @Audit(action = "PURCHASE_DELETED", entityName = "PURCHASE", description = "Purchase order deleted successfully")
     public void deletePurchase(Long id) {
+        User currentUser = getAuthenticatedUser();
+        if (currentUser == null || currentUser.getRole() != Role.ADMIN) {
+            throw new org.springframework.security.access.AccessDeniedException("Only administrators can delete purchase orders");
+        }
+
         Purchase purchase = purchaseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Purchase order not found with id: " + id));
-
-        User currentUser = getAuthenticatedUser();
 
         // 1. Capture original stock levels
         Map<Long, Integer> originalProductStocks = new HashMap<>();

@@ -29,6 +29,8 @@ import com.example.sales.Inventory.Management.System.notification.event.Notifica
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import com.example.sales.Inventory.Management.System.user.Role;
+
 import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
@@ -46,6 +48,11 @@ public class SaleService {
     @Transactional
     @Audit(action = "SALE_CREATED", entityName = "SALE", description = "Sales order created successfully")
     public SaleResponse createSale(SaleRequest request) {
+        User creator = getAuthenticatedUser();
+        if (creator == null || (creator.getRole() != Role.ADMIN && creator.getRole() != Role.MANAGER)) {
+            throw new org.springframework.security.access.AccessDeniedException("Insufficient permissions to create sales orders");
+        }
+
         if (saleRepository.existsBySaleNo(request.getSaleNo())) {
             throw new DuplicateResourceException("Sale with number '" + request.getSaleNo() + "' already exists");
         }
@@ -61,7 +68,6 @@ public class SaleService {
         sale.setNotes(request.getNotes());
         sale.setSaleDate(request.getSaleDate());
 
-        User creator = getAuthenticatedUser();
         sale.setCreatedBy(creator);
 
         BigDecimal totalAmount = BigDecimal.ZERO;
@@ -125,6 +131,11 @@ public class SaleService {
     @Transactional
     @Audit(action = "SALE_UPDATED", entityName = "SALE", description = "Sales order updated successfully")
     public SaleResponse updateSale(Long id, SaleRequest request) {
+        User currentUser = getAuthenticatedUser();
+        if (currentUser == null || (currentUser.getRole() != Role.ADMIN && currentUser.getRole() != Role.MANAGER)) {
+            throw new org.springframework.security.access.AccessDeniedException("Insufficient permissions to update sales orders");
+        }
+
         Sale sale = saleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Sales order not found with id: " + id));
 
@@ -134,7 +145,6 @@ public class SaleService {
 
         String oldStatus = sale.getStatus();
         String newStatus = request.getStatus().toUpperCase();
-        User currentUser = getAuthenticatedUser();
 
         // 1. Capture original stock levels for all involved products
         Map<Long, Integer> originalProductStocks = new HashMap<>();
@@ -258,10 +268,13 @@ public class SaleService {
     @Transactional
     @Audit(action = "SALE_CANCELLED", entityName = "SALE", description = "Sales order deleted / cancelled")
     public void deleteSale(Long id) {
+        User currentUser = getAuthenticatedUser();
+        if (currentUser == null || currentUser.getRole() != Role.ADMIN) {
+            throw new org.springframework.security.access.AccessDeniedException("Only administrators can delete sales orders");
+        }
+
         Sale sale = saleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Sales order not found with id: " + id));
-
-        User currentUser = getAuthenticatedUser();
 
         // 1. Capture original stocks
         Map<Long, Integer> originalProductStocks = new HashMap<>();

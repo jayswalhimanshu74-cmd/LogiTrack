@@ -18,6 +18,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import com.example.sales.Inventory.Management.System.user.Role;
+
+
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -82,6 +85,10 @@ public class InvoiceService {
     @Transactional
     @Audit(action = "INVOICE_GENERATED", entityName = "INVOICE", description = "Invoice generated successfully")
     public InvoiceResponse createInvoice(InvoiceRequest request) {
+        User creator = getAuthenticatedUser();
+        if (creator == null || (creator.getRole() != Role.ADMIN && creator.getRole() != Role.MANAGER)) {
+            throw new org.springframework.security.access.AccessDeniedException("Insufficient permissions to create invoices");
+        }
         String invoiceNo = request.getInvoiceNo();
         if (invoiceNo == null || invoiceNo.trim().isEmpty()) {
             invoiceNo = generateNextInvoiceNumber();
@@ -134,7 +141,6 @@ public class InvoiceService {
         invoice.setDiscount(discount);
         invoice.setGrandTotal(grandTotal);
 
-        User creator = getAuthenticatedUser();
         invoice.setCreatedBy(creator);
 
         Invoice saved = invoiceRepository.save(invoice);
@@ -174,6 +180,11 @@ public class InvoiceService {
     @Transactional
     @Audit(action = "INVOICE_GENERATED", entityName = "INVOICE", description = "Invoice generated from Sales Order")
     public InvoiceResponse generateInvoiceFromSale(Long saleId) {
+        User creator = getAuthenticatedUser();
+        if (creator == null || (creator.getRole() != Role.ADMIN && creator.getRole() != Role.MANAGER)) {
+            throw new org.springframework.security.access.AccessDeniedException("Insufficient permissions to generate invoices");
+        }
+
         Sale sale = saleRepository.findById(saleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Sale order not found with id: " + saleId));
 
@@ -208,7 +219,6 @@ public class InvoiceService {
         invoice.setDiscount(BigDecimal.ZERO);
         invoice.setGrandTotal(subtotal);
 
-        User creator = getAuthenticatedUser();
         invoice.setCreatedBy(creator);
 
         Invoice saved = invoiceRepository.save(invoice);
@@ -247,6 +257,11 @@ public class InvoiceService {
 
     @Transactional
     public InvoiceResponse updateInvoice(Long id, InvoiceRequest request) {
+        User caller = getAuthenticatedUser();
+        if (caller == null || (caller.getRole() != Role.ADMIN && caller.getRole() != Role.MANAGER)) {
+            throw new org.springframework.security.access.AccessDeniedException("Insufficient permissions to update invoices");
+        }
+
         Invoice invoice = invoiceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice not found with id: " + id));
 
@@ -328,6 +343,11 @@ public class InvoiceService {
 
     @Transactional
     public InvoiceResponse updateInvoiceStatus(Long id, String status) {
+        User caller = getAuthenticatedUser();
+        if (caller == null || (caller.getRole() != Role.ADMIN && caller.getRole() != Role.MANAGER)) {
+            throw new org.springframework.security.access.AccessDeniedException("Insufficient permissions to update invoice status");
+        }
+
         Invoice invoice = invoiceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice not found with id: " + id));
         
@@ -356,6 +376,11 @@ public class InvoiceService {
 
     @Transactional
     public void deleteInvoice(Long id) {
+        User caller = getAuthenticatedUser();
+        if (caller == null || caller.getRole() != Role.ADMIN) {
+            throw new org.springframework.security.access.AccessDeniedException("Only administrators can delete invoices");
+        }
+
         Invoice invoice = invoiceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice not found with id: " + id));
 
@@ -486,6 +511,11 @@ public class InvoiceService {
     @Transactional(readOnly = true)
     @Audit(action = "INVOICE_EMAILED", entityName = "INVOICE", description = "Invoice sent to customer via email")
     public void sendInvoiceEmail(Long id) {
+        User caller = getAuthenticatedUser();
+        if (caller == null || (caller.getRole() != Role.ADMIN && caller.getRole() != Role.MANAGER)) {
+            throw new org.springframework.security.access.AccessDeniedException("Insufficient permissions to send invoice email");
+        }
+
         Invoice invoice = invoiceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice not found with id: " + id));
 

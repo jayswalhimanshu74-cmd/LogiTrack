@@ -1,10 +1,7 @@
 package com.example.sales.Inventory.Management.System.invoice;
 
-import com.example.sales.Inventory.Management.System.invoice.Invoice;
-import com.example.sales.Inventory.Management.System.invoice.InvoiceItem;
 import com.lowagie.text.*;
 import com.lowagie.text.Font;
-import com.lowagie.text.Image;
 import com.lowagie.text.Rectangle;
 import com.lowagie.text.pdf.*;
 import org.slf4j.Logger;
