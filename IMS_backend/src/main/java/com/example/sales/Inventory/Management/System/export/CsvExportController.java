@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -29,18 +30,14 @@ import java.time.LocalDate;
         description = "Bulk data export endpoints. All endpoints return UTF-8 encoded `.csv` files "
                 + "with appropriate Content-Disposition: attachment headers. "
                 + "Supports the same filter parameters as the corresponding list endpoints. "
-                + "All exports are audit-logged. Requires JWT authentication.")
+                + "All exports are audit-logged. Requires JWT + ADMIN or MANAGER role.")
 @RestController
 @RequestMapping("/api/export")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
 public class CsvExportController {
 
     private final CsvExportService csvExportService;
-
-    private boolean isNotAuthenticated() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal());
-    }
 
     @Operation(
             summary = "Export products to CSV",

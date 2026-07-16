@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -143,6 +144,7 @@ public class StockMovementController {
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token"),
             @ApiResponse(responseCode = "404", description = "Product not found")
     })
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PostMapping("/adjust")
     public ResponseEntity<StockMovementResponse> adjustStock(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(

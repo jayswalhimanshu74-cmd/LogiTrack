@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -22,10 +23,11 @@ import java.time.LocalDate;
         description = "Business intelligence and analytics reports: sales performance, purchase analysis, "
                 + "inventory valuation, invoice aging, financial summary, chart data, "
                 + "low-stock intelligence, demand forecasting, and ABC (Pareto) analysis. "
-                + "All report endpoints are audit-logged. Requires JWT authentication.")
+                + "All report endpoints are audit-logged. Requires JWT + ADMIN or MANAGER role.")
 @RestController
 @RequestMapping("/api/reports")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
 public class ReportController {
 
     private final ReportService reportService;

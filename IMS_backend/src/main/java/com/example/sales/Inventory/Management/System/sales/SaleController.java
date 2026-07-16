@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -74,6 +75,7 @@ public class SaleController {
             @ApiResponse(responseCode = "404", description = "One or more product IDs not found"),
             @ApiResponse(responseCode = "409", description = "Sale number already exists")
     })
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PostMapping
     public ResponseEntity<SaleResponse> createSale(@Valid @RequestBody SaleRequest request) {
         SaleResponse response = saleService.createSale(request);
@@ -196,6 +198,7 @@ public class SaleController {
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token"),
             @ApiResponse(responseCode = "404", description = "Sales order not found")
     })
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PutMapping("/{id}")
     public ResponseEntity<SaleResponse> updateSale(
             @Parameter(description = "Sales order ID", required = true, example = "501")
@@ -216,6 +219,7 @@ public class SaleController {
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token"),
             @ApiResponse(responseCode = "404", description = "Sales order not found")
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteSale(
             @Parameter(description = "Sales order ID to delete", required = true, example = "501")

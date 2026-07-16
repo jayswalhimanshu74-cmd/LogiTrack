@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -73,6 +74,7 @@ public class PurchaseController {
             @ApiResponse(responseCode = "404", description = "One or more referenced product IDs not found"),
             @ApiResponse(responseCode = "409", description = "Purchase number already exists")
     })
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PostMapping
     public ResponseEntity<PurchaseResponse> createPurchase(@Valid @RequestBody PurchaseRequest request) {
         PurchaseResponse response = purchaseService.createPurchase(request);
@@ -198,6 +200,7 @@ public class PurchaseController {
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token"),
             @ApiResponse(responseCode = "404", description = "Purchase order not found")
     })
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PutMapping("/{id}")
     public ResponseEntity<PurchaseResponse> updatePurchase(
             @Parameter(description = "Purchase order ID", required = true, example = "101")
@@ -222,6 +225,7 @@ public class PurchaseController {
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token"),
             @ApiResponse(responseCode = "404", description = "Purchase order not found")
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deletePurchase(
             @Parameter(description = "Purchase order ID to delete", required = true, example = "101")

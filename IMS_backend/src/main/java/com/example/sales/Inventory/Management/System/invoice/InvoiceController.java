@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -67,6 +68,7 @@ public class InvoiceController {
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token"),
             @ApiResponse(responseCode = "409", description = "Invoice number already exists")
     })
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PostMapping
     public ResponseEntity<InvoiceResponse> createInvoice(@Valid @RequestBody InvoiceRequest request) {
         InvoiceResponse response = invoiceService.createInvoice(request);
@@ -90,6 +92,7 @@ public class InvoiceController {
             @ApiResponse(responseCode = "404", description = "Sales order not found with provided ID"),
             @ApiResponse(responseCode = "409", description = "Invoice already exists for this sale")
     })
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PostMapping("/generate/{saleId}")
     public ResponseEntity<InvoiceResponse> generateInvoiceFromSale(
             @Parameter(description = "ID of the sales order to generate the invoice from", required = true, example = "501")
@@ -206,6 +209,7 @@ public class InvoiceController {
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token"),
             @ApiResponse(responseCode = "404", description = "Invoice not found")
     })
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PutMapping("/{id}")
     public ResponseEntity<InvoiceResponse> updateInvoice(
             @Parameter(description = "Invoice ID to update", required = true, example = "201")
@@ -232,6 +236,7 @@ public class InvoiceController {
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token"),
             @ApiResponse(responseCode = "404", description = "Invoice not found")
     })
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PutMapping("/{id}/status")
     public ResponseEntity<InvoiceResponse> updateInvoiceStatus(
             @Parameter(description = "Invoice ID", required = true, example = "201")
@@ -253,6 +258,7 @@ public class InvoiceController {
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token"),
             @ApiResponse(responseCode = "404", description = "Invoice not found")
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteInvoice(
             @Parameter(description = "Invoice ID to delete", required = true, example = "201")
@@ -279,6 +285,7 @@ public class InvoiceController {
             @ApiResponse(responseCode = "404", description = "Invoice not found"),
             @ApiResponse(responseCode = "500", description = "Mail server error — email delivery failed")
     })
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PostMapping("/{id}/send")
     public ResponseEntity<Map<String, String>> sendInvoiceEmail(
             @Parameter(description = "Invoice ID to email", required = true, example = "201")
