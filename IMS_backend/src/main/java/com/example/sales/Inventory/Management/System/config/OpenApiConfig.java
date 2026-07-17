@@ -101,11 +101,15 @@ public class OpenApiConfig {
                 .url("http://localhost:8080")
                 .description("Local Development Server");
 
+        Server renderServer = new Server()
+                .url("https://inventory-managment-system-31tb.onrender.com")
+                .description("Render Production Server");
+
         Server stagingServer = new Server()
                 .url("https://api-staging.logitrack.io")
                 .description("Staging Environment");
 
-        return List.of(localServer, stagingServer);
+        return List.of(localServer, renderServer, stagingServer);
     }
 
     // ─── Security ─────────────────────────────────────────────────────────────

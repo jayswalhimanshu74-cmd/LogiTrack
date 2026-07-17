@@ -11,7 +11,7 @@ const VerifyEmail = () => {
     const [resendEmail, setResendEmail] = useState("");
     const [resendSuccess, setResendSuccess] = useState("");
     const [resendLoading, setResendLoading] = useState(false);
-    
+
     // Prevent double verification on double-renders in React StrictMode
     const verificationTriggered = useRef(false);
 
@@ -30,7 +30,7 @@ const VerifyEmail = () => {
                 console.error("Verification error:", error);
                 setStatus("error");
                 setErrorMsg(
-                    error.response?.data?.message || 
+                    error.response?.data?.message ||
                     "The verification link is invalid or has expired."
                 );
             }
@@ -59,7 +59,7 @@ const VerifyEmail = () => {
         } catch (error) {
             console.error("Resend Verification error:", error);
             setErrorMsg(
-                error.response?.data?.message || 
+                error.response?.data?.message ||
                 "Could not request a new verification link. Please try again."
             );
         } finally {
@@ -169,7 +169,7 @@ const VerifyEmail = () => {
 
                                 <div className="border-t border-outline-variant/30 pt-6">
                                     <h4 className="text-base text-on-surface mb-4 font-semibold">Resend Verification Email</h4>
-                                    
+
                                     <form onSubmit={handleResend} className="space-y-4">
                                         <div className="relative floating-label-input input-glow transition-all duration-200 border border-outline-variant rounded-xl text-left">
                                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-outline">

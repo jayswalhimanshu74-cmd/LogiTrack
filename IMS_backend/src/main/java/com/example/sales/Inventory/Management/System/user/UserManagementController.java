@@ -3,7 +3,6 @@ package com.example.sales.Inventory.Management.System.user;
 import com.example.sales.Inventory.Management.System.user.dto.ChangeRoleRequest;
 import com.example.sales.Inventory.Management.System.user.dto.UserSummaryResponse;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;

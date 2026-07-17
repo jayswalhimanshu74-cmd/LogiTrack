@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import profileApi from "../api/profileApi";
+import { getBaseUrl } from "../api/config";
 
 const Profile = () => {
   const [profileData, setProfileData] = useState(null);
@@ -164,7 +165,7 @@ const Profile = () => {
   const getAvatarUrl = (url) => {
     if (!url) return null;
     if (url.startsWith("http")) return url;
-    return `http://localhost:8080${url}`;
+    return `${getBaseUrl()}${url}`;
   };
 
   const strengthInfo = getPasswordStrength(newPassword);

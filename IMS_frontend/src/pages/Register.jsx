@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { getApiUrl } from "../api/config";
 
 const Register = () => {
     const navigate = useNavigate();
@@ -60,7 +61,7 @@ const Register = () => {
         setIsLoading(true);
 
         try {
-            const response = await fetch("http://localhost:8080/api/auth/register", {
+            const response = await fetch(getApiUrl() + "/auth/register", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

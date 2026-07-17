@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Bell, LogOut, CheckCircle, AlertTriangle, Info, Check, Trash2, Calendar, RefreshCw } from "lucide-react";
+import { getApiUrl } from "../api/config";
 
 const Header = ({ workspaceName = "Overview", title = "Inventory Workspace Overview", onRefresh = null, children }) => {
   const navigate = useNavigate();
@@ -51,7 +52,7 @@ const Header = ({ workspaceName = "Overview", title = "Inventory Workspace Overv
     const token = localStorage.getItem("authToken");
     if (!token) return;
     try {
-      const res = await fetch("http://localhost:8080/api/notifications/unread-count", {
+      const res = await fetch(`${getApiUrl()}/notifications/unread-count`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (res.ok) {
@@ -69,7 +70,7 @@ const Header = ({ workspaceName = "Overview", title = "Inventory Workspace Overv
     const token = localStorage.getItem("authToken");
     if (!token) return;
     try {
-      const res = await fetch("http://localhost:8080/api/notifications?page=0&size=5", {
+      const res = await fetch(`${getApiUrl()}/notifications?page=0&size=5`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (res.ok) {
@@ -100,7 +101,7 @@ const Header = ({ workspaceName = "Overview", title = "Inventory Workspace Overv
       return;
     }
     try {
-      const res = await fetch(`http://localhost:8080/api/notifications/${id}/read`, {
+      const res = await fetch(`${getApiUrl()}/notifications/${id}/read`, {
         method: "PUT",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -120,7 +121,7 @@ const Header = ({ workspaceName = "Overview", title = "Inventory Workspace Overv
     if (!n.isRead) {
       const token = localStorage.getItem("authToken");
       if (token) {
-        fetch(`http://localhost:8080/api/notifications/${n.id}/read`, {
+        fetch(`${getApiUrl()}/notifications/${n.id}/read`, {
           method: "PUT",
           headers: { "Authorization": `Bearer ${token}` }
         }).then(() => {
@@ -155,7 +156,7 @@ const Header = ({ workspaceName = "Overview", title = "Inventory Workspace Overv
       return;
     }
     try {
-      const res = await fetch("http://localhost:8080/api/notifications/read-all", {
+      const res = await fetch(`${getApiUrl()}/notifications/read-all`, {
         method: "PUT",
         headers: { "Authorization": `Bearer ${token}` }
       });

@@ -21,7 +21,6 @@ public class InvoiceTemplateBuilder {
     private static final Font fontBold = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, new Color(31, 41, 55));
     private static final Font fontNormal = FontFactory.getFont(FontFactory.HELVETICA, 10, new Color(75, 85, 99));
     private static final Font fontSmall = FontFactory.getFont(FontFactory.HELVETICA, 8, new Color(156, 163, 175));
-    private static final Font fontStatus = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, Color.WHITE);
 
     public static byte[] buildPdf(Invoice invoice) throws Exception {
         log.info("Building PDF for invoice number: {}", invoice.getInvoiceNo());

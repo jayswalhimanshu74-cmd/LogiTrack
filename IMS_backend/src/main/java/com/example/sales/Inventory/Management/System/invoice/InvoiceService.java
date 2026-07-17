@@ -11,7 +11,6 @@ import com.example.sales.Inventory.Management.System.user.User;
 import com.example.sales.Inventory.Management.System.user.UserRepository;
 import com.example.sales.Inventory.Management.System.email.EmailService;
 import com.example.sales.Inventory.Management.System.audit.Audit;
-import com.example.sales.Inventory.Management.System.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,7 +43,6 @@ public class InvoiceService {
     private final SaleRepository saleRepository;
     private final InvoicePdfService invoicePdfService;
     private final EmailService emailService;
-    private final NotificationService notificationService;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional

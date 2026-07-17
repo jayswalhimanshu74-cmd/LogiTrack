@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
+import { getApiUrl } from "../api/config";
 import { 
   ArrowUpRight, ArrowDownRight, RefreshCw, PlusCircle, Calendar, 
   Search, SlidersHorizontal, ArrowLeft, ArrowRight, X, Sparkles, TrendingUp, Info
@@ -38,7 +39,7 @@ const StockMovements = () => {
     const token = localStorage.getItem("authToken");
     if (!token) return;
     try {
-      const res = await fetch("http://localhost:8080/api/products?page=0&size=100", {
+      const res = await fetch(`${getApiUrl()}/products?page=0&size=100`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (res.ok) {
@@ -58,7 +59,7 @@ const StockMovements = () => {
       return;
     }
     try {
-      const res = await fetch("http://localhost:8080/api/movements/summary", {
+      const res = await fetch(`${getApiUrl()}/movements/summary`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (res.ok) {
@@ -97,7 +98,7 @@ const StockMovements = () => {
     }
 
     try {
-      let url = `http://localhost:8080/api/movements?page=${currentPage}&size=${pageSize}&sort=timestamp,desc`;
+      let url = `${getApiUrl()}/movements?page=${currentPage}&size=${pageSize}&sort=timestamp,desc`;
       if (selectedProductFilter) url += `&productId=${selectedProductFilter}`;
       if (selectedTypeFilter) url += `&movementType=${selectedTypeFilter}`;
       if (startDateFilter) url += `&startDate=${startDateFilter}T00:00:00`;
@@ -192,7 +193,7 @@ const StockMovements = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:8080/api/movements/adjust", {
+      const res = await fetch(`${getApiUrl()}/movements/adjust`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,

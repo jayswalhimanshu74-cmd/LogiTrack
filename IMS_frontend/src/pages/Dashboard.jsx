@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
+import { getApiUrl } from "../api/config";
 
 const DashboardSkeleton = () => (
   <div className="space-y-6">
@@ -80,7 +81,7 @@ const Dashboard = () => {
       return;
     }
     try {
-      const response = await fetch("http://localhost:8080/api/dashboard/stats", {
+      const response = await fetch(getApiUrl() + "/dashboard/stats", {
         headers: {
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -111,7 +112,7 @@ const Dashboard = () => {
       return;
     }
     try {
-      const response = await fetch("http://localhost:8080/api/audit?page=0&size=5&sortBy=timestamp&direction=desc", {
+      const response = await fetch(`${getApiUrl()}/audit?page=0&size=5&sortBy=timestamp&direction=desc`, {
         headers: {
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json",

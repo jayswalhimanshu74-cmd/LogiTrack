@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import { Bell, Trash2, CheckCircle2, AlertTriangle, Info, AlertOctagon, Check, Calendar, ArrowRight, ArrowLeft } from "lucide-react";
+import { getApiUrl } from "../api/config";
 
 const Notifications = () => {
   const navigate = useNavigate();
@@ -28,7 +29,7 @@ const Notifications = () => {
     }
 
     try {
-      let url = `http://localhost:8080/api/notifications?page=${currentPage}&size=10&sort=createdAt,desc`;
+      let url = `${getApiUrl()}/notifications?page=${currentPage}&size=10&sort=createdAt,desc`;
       if (statusFilter !== "ALL") {
         url += `&isRead=${statusFilter === "READ"}`;
       }
@@ -91,7 +92,7 @@ const Notifications = () => {
       return;
     }
     try {
-      const res = await fetch(`http://localhost:8080/api/notifications/${id}/read`, {
+      const res = await fetch(`${getApiUrl()}/notifications/${id}/read`, {
         method: "PUT",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -128,7 +129,7 @@ const Notifications = () => {
       return;
     }
     try {
-      const res = await fetch(`http://localhost:8080/api/notifications/${id}`, {
+      const res = await fetch(`${getApiUrl()}/notifications/${id}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -147,7 +148,7 @@ const Notifications = () => {
       return;
     }
     try {
-      const res = await fetch("http://localhost:8080/api/notifications/read-all", {
+      const res = await fetch(`${getApiUrl()}/notifications/read-all`, {
         method: "PUT",
         headers: { "Authorization": `Bearer ${token}` }
       });
