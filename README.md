@@ -1,15 +1,26 @@
 # 📦 LogiTrack — Enterprise Inventory Management System (IMS)
 
-A production-grade, highly responsive full-stack inventory management, sales, purchase, and invoice orchestration system.
+<div align="center">
 
-Spring Boot React PostgreSQL Swagger Mail-Service CORS-Wildcards Vercel Render
+[![Java Version](https://img.shields.io/badge/Java-21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://openjdk.org/)
+[![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![React](https://img.shields.io/badge/React-19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Vercel Deployment](https://img.shields.io/badge/Vercel-Frontend-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
+[![Render Deployment](https://img.shields.io/badge/Render-Backend-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://render.com/)
+
+<h4>A clean, production-grade platform to orchestrate inventory tracking, supplier restocking, customer sales, and automated PDF invoicing.</h4>
+
+</div>
 
 ---
 
 ## 🚀 Overview
-LogiTrack is a production-ready, enterprise-grade **Inventory Management System (IMS)** designed to streamline business workflows, automate stock tracking, and manage B2B transactions. Business administrators, managers, and staff can oversee real-time product stock, orchestrate client sales, trigger purchase restocking from suppliers, generate automated HTML/PDF invoices, track actions via platform audit logs, and receive auto-triggered notifications when stock levels run low.
+**LogiTrack** is an easy-to-use yet powerful **Inventory Management System (IMS)** built to help businesses manage stock, automate transactions, and eliminate manual bookkeeping.
 
-Built with a performance-first architecture, the platform includes stateless JWT authentication, secure API endpoints, dynamic CORS origin handling, transactional database consistency, and fully automated deployment configurations for cloud deployment.
+* 📊 **For Administrators & Owners**: View a live, interactive dashboard displaying your overall inventory stats, financial sales, stock movement tracking, and low-stock alerts.
+* 📦 **For Warehouse & Store Staff**: Easily manage products, update quantities, record customer sales orders, log supplier purchases, and print invoices.
+* 🔒 **For Engineers**: Developed with a highly robust security layer, relational PostgreSQL database constraints, secure token logins, and dynamic deployment parameters.
 
 ---
 
