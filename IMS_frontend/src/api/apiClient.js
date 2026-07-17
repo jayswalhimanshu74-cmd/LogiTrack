@@ -1,14 +1,15 @@
 import axios from 'axios';
-import { getApiUrl } from './config';
+import { getApiUrl, getBaseUrl } from './config';
 
 const apiClient = axios.create({
-  baseURL: getApiUrl(),
+  baseURL: getBaseUrl(),
   
   headers: {
     'Content-Type': 'application/json',
   },
 });
 console.log("API URL:", getApiUrl());
+console.log("Base URL:", getBaseUrl());
 
 // Request Interceptor: Inject JWT token automatically
 apiClient.interceptors.request.use(
