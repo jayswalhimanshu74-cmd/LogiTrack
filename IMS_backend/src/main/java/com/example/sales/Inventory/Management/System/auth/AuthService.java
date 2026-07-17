@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.context.ApplicationEventPublisher;
 import com.example.sales.Inventory.Management.System.notification.event.NotificationEvent;
+import org.springframework.beans.factory.annotation.Value;
 
 @Service
 public class AuthService {
@@ -29,6 +30,9 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final EmailVerificationService emailVerificationService;
     private final ApplicationEventPublisher eventPublisher;
+
+    @Value("${app.auto-verify-users:false}")
+    private boolean autoVerifyUsers;
 
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
@@ -72,13 +76,15 @@ public class AuthService {
             user.setRole(Role.STAFF);
         }
         
-        user.setVerified(false);
+        user.setVerified(autoVerifyUsers);
         user.setActive(true);
 
         userRepository.save(user);
 
         // Generate and send email verification token
-        emailVerificationService.createAndSendVerificationToken(user);
+        if (!autoVerifyUsers) {
+            emailVerificationService.createAndSendVerificationToken(user);
+        }
 
         eventPublisher.publishEvent(NotificationEvent.builder()
                 .title("New User Registered")

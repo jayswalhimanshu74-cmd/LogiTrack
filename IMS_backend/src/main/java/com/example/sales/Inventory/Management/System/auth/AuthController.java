@@ -39,7 +39,7 @@ public class AuthController {
 
     public AuthController(AuthService authService,
                           PasswordResetService passwordResetService,
-                          EmailVerificationService emailVerificationService) {
+            EmailVerificationService emailVerificationService) {
         this.authService = authService;
         this.passwordResetService = passwordResetService;
         this.emailVerificationService = emailVerificationService;
@@ -48,7 +48,7 @@ public class AuthController {
     @Operation(
             summary = "Register a new user account",
             description = """
-                    Creates a new user account in the system. Upon successful registration,
+                    Creates a new user account in        the system. Upon successful registration,
                     a **verification email** is dispatched to the provided address.
                     The account remains inactive until the email is verified.
                     
