@@ -1,22 +1,32 @@
 // Dynamic configuration for backend API and base URLs
 export const getApiUrl = () => {
+  let url = '';
   // If an environment variable is explicitly set, use it
   if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
-  }
-  // Detect if running locally
-  if (typeof window !== 'undefined' && 
+    url = import.meta.env.VITE_API_URL;
+  } else if (typeof window !== 'undefined' && 
       (window.location.hostname === 'localhost' || 
        window.location.hostname === '127.0.0.1' || 
        window.location.hostname === '::1')) {
-    return 'http://localhost:8080/api';
+    url = 'http://localhost:8080';
+  } else {
+    // Fallback to deployed production API URL
+    url = 'https://inventory-managment-system-31tb.onrender.com';
   }
-  // Fallback to deployed production API URL
-  return 'https://inventory-managment-system-31tb.onrender.com/api';
+
+  // Strip trailing slashes
+  url = url.replace(/\/+$/, '');
+
+  // Force /api suffix if not already present
+  if (!url.endsWith('/api')) {
+    url += '/api';
+  }
+
+  return url;
 };
 
 export const getBaseUrl = () => {
   const apiUrl = getApiUrl();
-  // Strip trailing '/api' or '/api/' if present to get the base domain
+  // Strip trailing '/api' to get the base domain
   return apiUrl.replace(/\/api\/?$/, '');
 };
