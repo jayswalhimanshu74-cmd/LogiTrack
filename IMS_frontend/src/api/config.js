@@ -11,7 +11,7 @@ export const getApiUrl = () => {
     url = 'http://localhost:8080';
   } else {
     // Fallback to deployed production API URL
-    url = 'https://inventory-managment-system-31tb.onrender.com';
+    url = 'http://localhost:8080';
   }
 
   // Strip trailing slashes

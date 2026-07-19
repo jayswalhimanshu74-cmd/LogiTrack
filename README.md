@@ -14,13 +14,7 @@ LogiTrack is a production-grade, full-stack Inventory Management System (IMS) de
 
 ---
 
-## 🔗 Live Deployments
 
-- **Frontend Client**: [https://inventory-managment-system-eta.vercel.app](https://inventory-managment-system-eta.vercel.app)
-- **Backend API Base**: [https://inventory-managment-system-31tb.onrender.com](https://inventory-managment-system-31tb.onrender.com)
-- **Interactive Swagger Documentation**: [https://inventory-managment-system-31tb.onrender.com/swagger-ui.html](https://inventory-managment-system-31tb.onrender.com/swagger-ui.html)
-
----
 
 ## 🚀 Core Platform Features
 

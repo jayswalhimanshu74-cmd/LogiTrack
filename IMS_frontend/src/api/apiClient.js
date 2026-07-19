@@ -8,8 +8,6 @@ const apiClient = axios.create({
     'Content-Type': 'application/json',
   },
 });
-console.log("API URL:", getApiUrl());
-console.log("Base URL:", getBaseUrl());
 
 // Request Interceptor: Inject JWT token automatically
 apiClient.interceptors.request.use(
