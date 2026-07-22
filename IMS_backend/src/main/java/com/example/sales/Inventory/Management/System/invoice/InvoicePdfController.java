@@ -38,7 +38,7 @@ public class InvoicePdfController {
                     Generates and streams the invoice as a PDF for **inline browser rendering**
                     (the browser opens the PDF in a viewer tab rather than downloading it).
                     
-                    The PDF is generated on-the-fly using OpenPDF with the LogiTrack invoice template.
+                    The PDF is generated on-the-fly using OpenPDF with the StockMAster invoice template.
                     No file is persisted on the server.
                     
                     **Content-Disposition:** `inline; filename="invoice-INV-2025-201.pdf"`

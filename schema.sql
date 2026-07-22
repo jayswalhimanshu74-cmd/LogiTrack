@@ -1,4 +1,4 @@
--- PostgreSQL Database Schema Script for Inventory Management System (LogiTrack)
+-- PostgreSQL Database Schema Script for Inventory Management System (StockMAster)
 
 -- 1. Create Users table
 CREATE TABLE IF NOT EXISTS users (

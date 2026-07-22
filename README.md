@@ -1,4 +1,4 @@
-# LogiTrack — Enterprise Inventory Management System (IMS)
+# StockMAster — Enterprise Inventory Management System (IMS)
 
 [![Java Version](https://img.shields.io/badge/Java-21-ED8B00?style=flat-square&logo=openjdk&logoColor=white)](https://openjdk.org/)
 [![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.1.0-6DB33F?style=flat-square&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
@@ -10,7 +10,7 @@
 [![Render Deployment](https://img.shields.io/badge/Render-Active-46E3B7?style=flat-square&logo=render&logoColor=white)](https://inventory-managment-system-31tb.onrender.com)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 
-LogiTrack is a production-grade, full-stack Inventory Management System (IMS) designed to streamline B2B workflows, automate transaction recording, and provide real-time reporting. It connects a secure, stateless Spring Boot REST API backend with a high-performance React Single Page Application (SPA) frontend.
+StockMAster is a production-grade, full-stack Inventory Management System (IMS) designed to streamline B2B workflows, automate transaction recording, and provide real-time reporting. It connects a secure, stateless Spring Boot REST API backend with a high-performance React Single Page Application (SPA) frontend.
 
 ---
 
@@ -61,7 +61,7 @@ LogiTrack is a production-grade, full-stack Inventory Management System (IMS) de
 ```mermaid
 graph TD
     %% Main Entry
-    Start["LogiTrack Application Workspace"] --> Auth["1. Security & Onboarding Gateway"]
+    Start["StockMAster Application Workspace"] --> Auth["1. Security & Onboarding Gateway"]
     
     %% Gateway Section
     subgraph Auth ["1. Security & Onboarding Gateway"]
@@ -312,7 +312,7 @@ The client runs locally at `http://localhost:5173`.
 
 ## 🛡️ Security Architecture
 
-LogiTrack enforces security controls across every application layer:
+StockMAster enforces security controls across every application layer:
 
 - **Stateless Authorization**: Uses secure JSON Web Tokens (JWT) signed using a HMACS SHA-256 algorithm. The tokens are verified inside custom filters (`JwtAuthFilter.java`) before reaching endpoint controllers.
 - **Credential Protection**: Uses BCrypt password encoder to hash credentials inside the authentication registry.

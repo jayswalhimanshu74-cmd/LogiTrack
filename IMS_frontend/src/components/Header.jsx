@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Bell, LogOut, CheckCircle, AlertTriangle, Info, Check, Trash2, Calendar, RefreshCw } from "lucide-react";
@@ -14,7 +15,7 @@ const Header = ({ workspaceName = "Overview", title = "Inventory Workspace Overv
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
-    const email = localStorage.getItem("userEmail") || "admin@logitrack.com";
+    const email = localStorage.getItem("userEmail") || "admin@stockmaster.com";
     setUserEmail(email);
 
     const token = localStorage.getItem("authToken");

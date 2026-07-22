@@ -13,7 +13,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 
-@Repository
 public interface SaleRepository extends JpaRepository<Sale, Long> {
 
     boolean existsBySaleNo(String saleNo);

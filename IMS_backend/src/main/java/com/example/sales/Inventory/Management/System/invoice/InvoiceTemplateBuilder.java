@@ -48,7 +48,7 @@ public class InvoiceTemplateBuilder {
         logoCell.setPadding(20);
         logoCell.setBorder(Rectangle.NO_BORDER);
 
-        Paragraph logoPara = new Paragraph("LogiTrack", fontTitle);
+        Paragraph logoPara = new Paragraph("StockMAster", fontTitle);
         logoPCellFormatting(logoCell, logoPara);
         headerTable.addCell(logoCell);
 
@@ -78,11 +78,11 @@ public class InvoiceTemplateBuilder {
         companyCell.setBorder(Rectangle.NO_BORDER);
         companyCell.setPadding(10);
         
-        Paragraph compTitle = new Paragraph("LogiTrack Logistics Inc.", fontBold);
+        Paragraph compTitle = new Paragraph("StockMAster Logistics Inc.", fontBold);
         Paragraph compDetails = new Paragraph(
                 "100 Enterprise Way, Suite 400\n" +
                 "Tech City, TC 94016\n" +
-                "Email: support@logitrack.com\n" +
+                "Email: support@stockmaster.com\n" +
                 "Phone: +1 (555) 019-2834",
                 fontNormal
         );
@@ -226,7 +226,7 @@ public class InvoiceTemplateBuilder {
         footerLine.setAlignment(Element.ALIGN_CENTER);
         document.add(footerLine);
 
-        Paragraph footerText = new Paragraph("LogiTrack Logistics System • Generated Automatically", fontSmall);
+        Paragraph footerText = new Paragraph("StockMAster Logistics System • Generated Automatically", fontSmall);
         footerText.setAlignment(Element.ALIGN_CENTER);
         document.add(footerText);
 

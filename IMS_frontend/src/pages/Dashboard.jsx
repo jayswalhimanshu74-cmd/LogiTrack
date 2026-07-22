@@ -136,7 +136,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
-    const email = localStorage.getItem("userEmail") || "admin@logitrack.com";
+    const email = localStorage.getItem("userEmail") || "admin@StockMaster.com";
     const role = localStorage.getItem("userRole") || "STAFF";
     setUserEmail(email);
     setUserRole(role);
@@ -190,7 +190,7 @@ const Dashboard = () => {
 
   const loadMockActivities = () => {
     setRecentActivities([
-      { id: 1, description: "Admin logged into the portal", action: "LOGIN", userName: "Admin User", userEmail: "admin@logitrack.com", timestamp: new Date().toISOString(), status: "SUCCESS" }
+      { id: 1, description: "Admin logged into the portal", action: "LOGIN", userName: "Admin User", userEmail: "admin@StockMaster.com", timestamp: new Date().toISOString(), status: "SUCCESS" }
     ]);
   };
 

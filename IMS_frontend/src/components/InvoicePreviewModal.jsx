@@ -110,19 +110,21 @@ const InvoicePreviewModal = ({ isOpen, onClose, invoice }) => {
         </div>
 
         {/* Invoice Document Body */}
-        <div className="flex-1 overflow-y-auto p-8 md:p-10 space-y-6 print:p-0 bg-white" id="invoice-print-area">
+        <div className="flex-1 overflow-y-auto p-8 md:p-10 space-y-6 print:p-0 bg-white"
+        
+        id="invoice-print-area">
           
           {/* Company Branding */}
           <div className="flex flex-col md:flex-row justify-between items-start gap-4">
             <div>
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-lg bg-premium-gradient flex items-center justify-center text-white font-extrabold text-xs shadow-sm">LT</div>
-                <span className="text-base font-extrabold text-slate-900 tracking-tight">LogiTrack IMS</span>
+                <span className="text-base font-extrabold text-slate-900 tracking-tight">StockMaster IMS</span>
               </div>
               <p className="text-[11px] text-slate-400 mt-2 font-medium leading-relaxed">
                 100 Enterprise Way, Suite 400<br />
                 Silicon Valley, CA 94025<br />
-                support@logitrack.com
+                support@StockMaster.com
               </p>
             </div>
             

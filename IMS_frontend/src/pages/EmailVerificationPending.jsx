@@ -50,7 +50,7 @@ const EmailVerificationPending = () => {
                                     inventory_2
                                 </span>
                             </div>
-                            <h1 className="text-2xl text-gradient font-bold tracking-tight">LogiTrack</h1>
+                            <h1 className="text-2xl text-gradient font-bold tracking-tight">StockMaster</h1>
                         </div>
                     </div>
 
@@ -89,7 +89,7 @@ const EmailVerificationPending = () => {
                                     inventory_2
                                 </span>
                             </div>
-                            <span className="text-xl text-gradient font-bold">LogiTrack</span>
+                            <span className="text-xl text-gradient font-bold">StockMaster</span>
                         </div>
 
                         <div className="mb-8">

@@ -78,7 +78,7 @@ const AuditTable = ({ logs, loading, onViewDetails }) => {
                   <td className="td-premium py-3 whitespace-nowrap">
                     <div className="flex flex-col">
                       <span className="font-bold text-slate-800">{log.userName || "System"}</span>
-                      <span className="text-[10px] text-slate-400 font-mono mt-0.5">{log.userEmail || "system@logitrack.com"}</span>
+                      <span className="text-[10px] text-slate-400 font-mono mt-0.5">{log.userEmail || "system@stockmaster.com"}</span>
                     </div>
                   </td>
 
