@@ -1,0 +1,162 @@
+{
+  "products": [
+    {
+      "name": "Dell Inspiron 15",
+      "sku": "LAP-001",
+      "category": "Electronics",
+      "brand": "Dell",
+      "unit": "Piece",
+      "price": 55000,
+      "stock": 25,
+      "description": "15-inch Business Laptop"
+    },
+    {
+      "name": "Wireless Mouse",
+      "sku": "MOU-001",
+      "category": "Accessories",
+      "brand": "Logitech",
+      "unit": "Piece",
+      "price": 750,
+      "stock": 80,
+      "description": "2.4GHz Wireless Mouse"
+    },
+    {
+      "name": "Mechanical Keyboard",
+      "sku": "KEY-001",
+      "category": "Accessories",
+      "brand": "Redragon",
+      "unit": "Piece",
+      "price": 2800,
+      "stock": 40,
+      "description": "RGB Mechanical Keyboard"
+    },
+    {
+      "name": "27 Inch Monitor",
+      "sku": "MON-001",
+      "category": "Electronics",
+      "brand": "LG",
+      "unit": "Piece",
+      "price": 14500,
+      "stock": 20,
+      "description": "Full HD IPS Monitor"
+    },
+    {
+      "name": "USB-C Cable",
+      "sku": "CAB-001",
+      "category": "Accessories",
+      "brand": "Anker",
+      "unit": "Piece",
+      "price": 350,
+      "stock": 150,
+      "description": "1 Meter Fast Charging Cable"
+    }
+  ],
+  "purchases": [
+    {
+      "supplierName": "Tech Distributors",
+      "invoiceNumber": "PUR-1001",
+      "purchaseDate": "2026-07-01",
+      "items": [
+        {
+          "sku": "LAP-001",
+          "quantity": 30,
+          "unitPrice": 50000
+        }
+      ],
+      "totalAmount": 1500000,
+      "status": "RECEIVED"
+    },
+    {
+      "supplierName": "Accessory Hub",
+      "invoiceNumber": "PUR-1002",
+      "purchaseDate": "2026-07-03",
+      "items": [
+        {
+          "sku": "MOU-001",
+          "quantity": 100,
+          "unitPrice": 500
+        },
+        {
+          "sku": "KEY-001",
+          "quantity": 50,
+          "unitPrice": 2200
+        }
+      ],
+      "totalAmount": 160000,
+      "status": "RECEIVED"
+    },
+    {
+      "supplierName": "Electro World",
+      "invoiceNumber": "PUR-1003",
+      "purchaseDate": "2026-07-05",
+      "items": [
+        {
+          "sku": "MON-001",
+          "quantity": 25,
+          "unitPrice": 13000
+        },
+        {
+          "sku": "CAB-001",
+          "quantity": 200,
+          "unitPrice": 250
+        }
+      ],
+      "totalAmount": 375000,
+      "status": "RECEIVED"
+    }
+  ],
+  "sales": [
+    {
+      "customerName": "ABC Technologies",
+      "invoiceNumber": "INV-2026-000001",
+      "saleDate": "2026-07-10",
+      "items": [
+        {
+          "sku": "LAP-001",
+          "quantity": 5,
+          "unitPrice": 55000
+        }
+      ],
+      "totalAmount": 275000,
+      "status": "PAID"
+    },
+    {
+      "customerName": "John Patel",
+      "invoiceNumber": "INV-2026-000002",
+      "saleDate": "2026-07-11",
+      "items": [
+        {
+          "sku": "MOU-001",
+          "quantity": 20,
+          "unitPrice": 750
+        },
+        {
+          "sku": "KEY-001",
+          "quantity": 10,
+          "unitPrice": 2800
+        }
+      ],
+      "totalAmount": 43000,
+      "status": "PAID"
+    },
+    {
+      "customerName": "Future Systems",
+      "invoiceNumber": "INV-2026-000003",
+      "saleDate": "2026-07-12",
+      "items": [
+        {
+          "sku": "MON-001",
+          "quantity": 5,
+          "unitPrice": 14500
+        },
+        {
+          "sku": "CAB-001",
+          "quantity": 50,
+          "unitPrice": 350
+        }
+      ],
+      "totalAmount": 90000,
+      "status": "PAID"
+    }
+  ]
+}
