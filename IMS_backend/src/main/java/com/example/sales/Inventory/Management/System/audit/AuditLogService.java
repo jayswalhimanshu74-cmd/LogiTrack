@@ -173,7 +173,7 @@ public class AuditLogService {
             document.open();
 
             Font titleFont = new Font(Font.HELVETICA, 16, Font.BOLD);
-            Paragraph title = new Paragraph("StockMAster IMS - Enterprise Audit Logs Report", titleFont);
+            Paragraph title = new Paragraph("LogiTrack IMS - Enterprise Audit Logs Report", titleFont);
             title.setAlignment(Element.ALIGN_CENTER);
             title.setSpacingAfter(20);
             document.add(title);

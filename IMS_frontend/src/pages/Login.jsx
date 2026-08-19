@@ -67,7 +67,7 @@ const Login = () => {
             console.error("Login connection error:", error);
             setTimeout(() => {
                 setIsLoading(false);
-                if (email === "admin@stockmaster.com" && password === "admin123") {
+                if (email === "admin@logitrack.com" && password === "admin123") {
                     localStorage.setItem("authToken", "mock-jwt-token");
                     localStorage.setItem("userEmail", email);
                     localStorage.setItem("userFullName", "Administrator");
@@ -97,7 +97,7 @@ const Login = () => {
                                     inventory_2
                                 </span>
                             </div>
-                            <h1 className="text-2xl text-gradient font-bold tracking-tight">StockMaster</h1>
+                            <h1 className="text-2xl text-gradient font-bold tracking-tight">LogiTrack</h1>
                         </div>
                     </div>
 
@@ -136,7 +136,7 @@ const Login = () => {
                                     inventory_2
                                 </span>
                             </div>
-                            <span className="text-xl text-gradient font-bold">StockMaster</span>
+                            <span className="text-xl text-gradient font-bold">LogiTrack</span>
                         </div>
 
                         <div className="mb-12">

@@ -111,7 +111,7 @@ const Register = () => {
                                    inventory_2
                                 </span>
                             </div>
-                            <h1 className="text-2xl font-bold text-gradient tracking-tight">StockMaster</h1>
+                            <h1 className="text-2xl font-bold text-gradient tracking-tight">LogiTrack</h1>
                         </div>
                     </div>
 
@@ -153,7 +153,7 @@ const Register = () => {
                                     hub
                                 </span>
                             </div>
-                            <h1 className="text-2xl font-bold text-primary">StockMaster</h1>
+                            <h1 className="text-2xl font-bold text-primary">LogiTrack</h1>
                         </div>
 
                         <div className="mb-8">

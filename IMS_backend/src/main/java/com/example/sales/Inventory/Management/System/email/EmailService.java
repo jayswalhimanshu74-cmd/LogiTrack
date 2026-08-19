@@ -38,7 +38,7 @@ public class EmailService {
                 "This link will expire after %d minutes.\n\n" +
                 "If you did not request this, please ignore this email.\n\n" +
                 "Best regards,\n" +
-                "StockMAster Team",
+                "LogiTrack Team",
                 resetLink, expiryMinutes
         );
 
@@ -78,23 +78,23 @@ public class EmailService {
                 "<body>\n" +
                 "    <div class=\"container\">\n" +
                 "        <div class=\"header\">\n" +
-                "            <h1>Welcome to StockMAster</h1>\n" +
+                "            <h1>Welcome to LogiTrack</h1>\n" +
                 "        </div>\n" +
                 "        <div class=\"content\">\n" +
                 "            <p>Hello,</p>\n" +
-                "            <p>Thank you for registering with StockMAster. To complete your registration and activate your account, please click the button below to verify your email address:</p>\n" +
+                "            <p>Thank you for registering with LogiTrack. To complete your registration and activate your account, please click the button below to verify your email address:</p>\n" +
                 "            <div class=\"button-container\">\n" +
                 "                <a href=\"%s\" class=\"btn\" style=\"color: #ffffff;\">Verify Email Address</a>\n" +
                 "            </div>\n" +
                 "            <p>This verification link will expire in <strong>%d hours</strong>.</p>\n" +
                 "            <p>If the button above does not work, copy and paste the following URL into your browser:</p>\n" +
                 "            <p style=\"word-break: break-all; color: #4f46e5;\">%s</p>\n" +
-                "            <p>If you did not create a StockMAster account, please ignore this email.</p>\n" +
+                "            <p>If you did not create a LogiTrack account, please ignore this email.</p>\n" +
                 "            <br>\n" +
-                "            <p>Best regards,<br>The StockMAster Team</p>\n" +
+                "            <p>Best regards,<br>The LogiTrack Team</p>\n" +
                 "        </div>\n" +
                 "        <div class=\"footer\">\n" +
-                "            &copy; 2026 StockMAster Inc. All rights reserved.\n" +
+                "            &copy; 2026 LogiTrack Inc. All rights reserved.\n" +
                 "        </div>\n" +
                 "    </div>\n" +
                 "</body>\n" +
@@ -116,13 +116,13 @@ public class EmailService {
     }
 
     public void sendInvoiceEmail(String toEmail, String customerName, String invoiceNo, String invoiceDate, String amountStr, String paymentStatus, byte[] pdfBytes) {
-        String subject = "Your StockMAster Invoice #" + invoiceNo;
+        String subject = "Your LogiTrack Invoice #" + invoiceNo;
         String body = String.format(
                 "<!DOCTYPE html>\n" +
                 "<html>\n" +
                 "<head>\n" +
                 "    <meta charset=\"UTF-8\">\n" +
-                "    <title>Invoice from StockMAster</title>\n" +
+                "    <title>Invoice from LogiTrack</title>\n" +
                 "    <style>\n" +
                 "        body { font-family: 'Inter', sans-serif; background-color: #f4f5f7; color: #333333; margin: 0; padding: 0; }\n" +
                 "        .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); border: 1px solid #e1e4e8; }\n" +
@@ -140,7 +140,7 @@ public class EmailService {
                 "<body>\n" +
                 "    <div class=\"container\">\n" +
                 "        <div class=\"header\">\n" +
-                "            <h1>StockMAster Invoice</h1>\n" +
+                "            <h1>LogiTrack Invoice</h1>\n" +
                 "        </div>\n" +
                 "        <div class=\"content\">\n" +
                 "            <p>Hello %s,</p>\n" +
@@ -164,10 +164,10 @@ public class EmailService {
                 "            <p>A PDF copy of the invoice is attached to this email for your records.</p>\n" +
                 "            <p>If you have any questions, feel free to reply directly to this email.</p>\n" +
                 "            <br>\n" +
-                "            <p>Best regards,<br>The StockMAster Team</p>\n" +
+                "            <p>Best regards,<br>The LogiTrack Team</p>\n" +
                 "        </div>\n" +
                 "        <div class=\"footer\">\n" +
-                "            &copy; 2026 StockMAster Inc. All rights reserved.\n" +
+                "            &copy; 2026 LogiTrack Inc. All rights reserved.\n" +
                 "        </div>\n" +
                 "    </div>\n" +
                 "</body>\n" +

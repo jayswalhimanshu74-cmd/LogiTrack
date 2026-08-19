@@ -543,7 +543,7 @@ const Reports = () => {
           <div className="hidden print:block mb-8">
             <div className="flex justify-between items-center border-b border-slate-350 pb-4">
               <div>
-                <h1 className="text-3xl font-black text-slate-900 tracking-tight">StockMAster IMS</h1>
+                <h1 className="text-3xl font-black text-slate-900 tracking-tight">LogiTrack IMS</h1>
                 <p className="text-sm text-slate-500 mt-1">Enterprise Analytics & Business Intelligence Ledger</p>
               </div>
               <div className="text-right text-xs text-slate-400 font-medium leading-relaxed">

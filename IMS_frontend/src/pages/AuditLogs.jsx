@@ -422,7 +422,7 @@ const AuditLogs = () => {
                       <span className="col-span-2 text-slate-800 font-bold">{selectedLog.userName || "System"}</span>
 
                       <span className="text-slate-450 text-slate-500 font-medium">Email address:</span>
-                      <span className="col-span-2 text-slate-700 font-mono truncate font-semibold">{selectedLog.userEmail || "system@stockmaster.com"}</span>
+                      <span className="col-span-2 text-slate-700 font-mono truncate font-semibold">{selectedLog.userEmail || "system@logitrack.com"}</span>
 
                       <span className="text-slate-450 text-slate-500 font-medium">Access role:</span>
                       <span className="col-span-2 text-slate-700 font-mono font-semibold">{selectedLog.role || "-"}</span>

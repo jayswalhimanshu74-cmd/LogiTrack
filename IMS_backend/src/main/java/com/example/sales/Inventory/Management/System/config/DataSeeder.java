@@ -15,9 +15,9 @@ import org.springframework.stereotype.Component;
  * Never overwrites existing accounts — safe to run on every boot.
  *
  * Credentials (change before production):
- *   admin@stockmaster.com   / Admin@1234   → ADMIN
- *   manager@stockmaster.com / Manager@1234 → MANAGER
- *   staff@stockmaster.com   / Staff@1234   → STAFF
+ *   admin@logitrack.com   / Admin@1234   → ADMIN
+ *   manager@logitrack.com / Manager@1234 → MANAGER
+ *   staff@logitrack.com   / Staff@1234   → STAFF
  */
 @Slf4j
 @Component
@@ -29,9 +29,9 @@ public class DataSeeder implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        seedUser("Admin User",   "admin@stockmaster.com",   "Admin@1234",   Role.ADMIN);
-        seedUser("Manager User", "manager@stockmaster.com", "Manager@1234", Role.MANAGER);
-        seedUser("Staff User",   "staff@stockmaster.com",   "Staff@1234",   Role.STAFF);
+        seedUser("Admin User",   "admin@logitrack.com",   "Admin@1234",   Role.ADMIN);
+        seedUser("Manager User", "manager@logitrack.com", "Manager@1234", Role.MANAGER);
+        seedUser("Staff User",   "staff@logitrack.com",   "Staff@1234",   Role.STAFF);
     }
 
     private void seedUser(String fullName, String email, String rawPassword, Role role) {

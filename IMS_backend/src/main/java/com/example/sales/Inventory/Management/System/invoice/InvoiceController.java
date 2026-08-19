@@ -273,7 +273,7 @@ public class InvoiceController {
             summary = "Email invoice to customer",
             description = """
                     Sends the invoice as a **PDF email attachment** to the customer's registered email address.
-                    The email includes a professional invoice template with the StockMAster branding.
+                    The email includes a professional invoice template with the LogiTrack branding.
                     Invoice status is updated to `SENT` after successful dispatch.
                     """
     )

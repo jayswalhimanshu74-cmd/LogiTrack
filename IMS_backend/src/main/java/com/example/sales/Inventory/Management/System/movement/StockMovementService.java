@@ -117,7 +117,7 @@ public class StockMovementService {
         AuditEvent event = AuditEvent.builder()
                 .userId(user != null ? user.getId() : null)
                 .userName(user != null ? user.getFullName() : "System")
-                .userEmail(user != null ? user.getEmail() : "system@stockmaster.com")
+                .userEmail(user != null ? user.getEmail() : "system@logitrack.com")
                 .role(user != null ? user.getRole().name() : "SYSTEM")
                 .action("STOCK_MOVEMENT_LOGGED")
                 .entityName("STOCK_MOVEMENT")

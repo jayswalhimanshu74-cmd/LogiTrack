@@ -261,7 +261,7 @@ public class CsvExportService {
             writer.write('\ufeff');
 
             // 1. Title Block
-            writer.println("STOCKMASTER ENTERPRISE REPORT SUMMARY");
+            writer.println("LOGITRACK ENTERPRISE REPORT SUMMARY");
             writer.println("Date Generated: " + LocalDate.now());
             writer.println();
 

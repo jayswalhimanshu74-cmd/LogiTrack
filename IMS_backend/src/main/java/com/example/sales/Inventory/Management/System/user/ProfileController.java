@@ -58,7 +58,7 @@ public class ProfileController {
                                     {
                                       "id": 1,
                                       "fullName": "Jane Smith",
-                                      "email": "jane@stockmaster.io",
+                                      "email": "jane@logitrack.io",
                                       "phone": "+91-9876543210",
                                       "role": "ADMIN",
                                       "avatarUrl": "http://localhost:8080/uploads/avatars/avatar_1.jpg",

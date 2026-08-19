@@ -43,7 +43,7 @@ public class AuditAspect {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Long userId = null;
         String userName = "System";
-        String userEmail = "system@stockmaster.com";
+        String userEmail = "system@logitrack.com";
         String role = "SYSTEM";
 
         if (auth != null && auth.isAuthenticated() && !(auth instanceof org.springframework.security.authentication.AnonymousAuthenticationToken)) {

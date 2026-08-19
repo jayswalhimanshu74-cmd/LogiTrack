@@ -21,7 +21,7 @@ public class RegisterRequest {
     private String fullName;
 
     @Schema(description = "User's email address — used as login credential and for notifications",
-            example = "jane@stockmaster.io", requiredMode = Schema.RequiredMode.REQUIRED)
+            example = "jane@logitrack.io", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "Email is required")
     @Email(message = "Email must be valid")
     private String email;

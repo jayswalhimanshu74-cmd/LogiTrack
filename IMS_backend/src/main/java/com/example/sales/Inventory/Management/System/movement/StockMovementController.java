@@ -62,7 +62,7 @@ public class StockMovementController {
                                           "balanceBefore": 152,
                                           "balanceAfter": 150,
                                           "reference": "SO-2025-501",
-                                          "performedBy": "jane@stockmaster.io",
+                                          "performedBy": "jane@logitrack.io",
                                           "createdAt": "2025-07-15T10:30:00"
                                         }
                                       ],
@@ -137,7 +137,7 @@ public class StockMovementController {
                                       "balanceAfter": 145,
                                       "reference": "DAMAGED-BATCH-001",
                                       "notes": "5 units damaged in transit",
-                                      "performedBy": "jane@stockmaster.io",
+                                      "performedBy": "jane@logitrack.io",
                                       "createdAt": "2025-07-15T11:00:00"
                                     }"""))),
             @ApiResponse(responseCode = "400", description = "Insufficient stock for negative adjustment"),

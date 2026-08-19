@@ -63,7 +63,7 @@ public class AuditLogController {
                                 {
                                   "id": 1001,
                                   "userId": 1,
-                                  "userEmail": "admin@stockmaster.io",
+                                  "userEmail": "admin@logitrack.io",
                                   "userRole": "ADMIN",
                                   "action": "CREATE",
                                   "entityName": "PRODUCT",

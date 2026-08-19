@@ -15,7 +15,7 @@ import lombok.Setter;
 public class ResendVerificationRequest {
 
     @Schema(description = "Email address of the unverified account",
-            example = "jane@stockmaster.io",
+            example = "jane@logitrack.io",
             requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")

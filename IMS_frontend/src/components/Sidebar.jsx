@@ -86,7 +86,7 @@ const Sidebar = ({ activeTab }) => {
           </div>
           {!isCollapsed && (
             <div className="flex flex-col min-w-0">
-              <span className="text-base text-slate-900 font-bold tracking-tight leading-none">StockMaster</span>
+              <span className="text-base text-slate-900 font-bold tracking-tight leading-none">LogiTrack</span>
               <span className="text-[10px] text-slate-400 font-semibold tracking-wider uppercase mt-0.5">Enterprise</span>
             </div>
           )}

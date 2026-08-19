@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.List;
 
 /**
- * Enterprise OpenAPI 3.0 Configuration for StockMAster IMS.
+ * Enterprise OpenAPI 3.0 Configuration for LogiTrack IMS.
  *
  * <p>Configures a production-grade Swagger UI with:
  * <ul>
@@ -32,11 +32,11 @@ public class OpenApiConfig {
     private static final String BEARER_SCHEME_NAME = "BearerAuth";
 
     @Bean
-    public OpenAPI stockMasterOpenAPI() {
+    public OpenAPI logiTrackOpenAPI() {
         return new OpenAPI()
                 .info(buildApiInfo())
                 .externalDocs(new ExternalDocumentation()
-                        .description("StockMAster GitHub Repository")
+                        .description("LogiTrack GitHub Repository")
                         .url("https://github.com/jayswalhimanshu74-cmd/Inventory-Managment-System"))
                 .servers(buildServers())
                 .components(buildSecurityComponents())
@@ -48,12 +48,12 @@ public class OpenApiConfig {
 
     private Info buildApiInfo() {
         return new Info()
-                .title("StockMAster — Inventory Management System API")
+                .title("LogiTrack — Inventory Management System API")
                 .version("1.0.0")
                 .description("""
-                        ## StockMAster Enterprise Inventory Management REST API
+                        ## LogiTrack Enterprise Inventory Management REST API
                         
-                        StockMAster is a full-featured, enterprise-grade Inventory Management System built with
+                        LogiTrack is a full-featured, enterprise-grade Inventory Management System built with
                         **Spring Boot 4**, **Spring Security + JWT**, **Spring Data JPA**, and **PostgreSQL**.
                         
                         ### Core Modules
@@ -106,7 +106,7 @@ public class OpenApiConfig {
                 .description("Render Production Server");
 
         Server stagingServer = new Server()
-                .url("https://api-staging.stockmaster.io")
+                .url("https://api-staging.logitrack.io")
                 .description("Staging Environment");
 
         return List.of(localServer, renderServer, stagingServer);

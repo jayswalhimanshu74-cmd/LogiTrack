@@ -65,7 +65,7 @@ public class AuthController {
                                     {
                                       "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
                                       "fullName": "Jane Smith",
-                                      "email": "jane@stockmaster.io",
+                                      "email": "jane@logitrack.io",
                                       "role": "STAFF"
                                     }"""))),
             @ApiResponse(responseCode = "400", description = "Validation failed — missing or invalid fields",
@@ -103,7 +103,7 @@ public class AuthController {
                                     {
                                       "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqYW5lQGxvZ2l0cmFjay5pbyIsImlhdCI6MTcyMTAyMDAwMCwiZXhwIjoxNzIxMTA2NDAwfQ.abc123",
                                       "fullName": "Jane Smith",
-                                      "email": "jane@stockmaster.io",
+                                      "email": "jane@logitrack.io",
                                       "role": "ADMIN"
                                     }"""))),
             @ApiResponse(responseCode = "400", description = "Missing email or password"),

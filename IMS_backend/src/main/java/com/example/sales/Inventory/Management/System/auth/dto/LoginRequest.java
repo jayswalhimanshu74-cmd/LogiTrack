@@ -15,7 +15,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class LoginRequest {
 
-    @Schema(description = "Registered email address", example = "jane@stockmaster.io",
+    @Schema(description = "Registered email address", example = "jane@logitrack.io",
             requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "Email is required")
     private String email;

@@ -22,7 +22,7 @@ public class AuthResponse {
     @Schema(description = "User's full name", example = "Jane Smith")
     private String fullName;
 
-    @Schema(description = "User's email address", example = "jane@stockmaster.io")
+    @Schema(description = "User's email address", example = "jane@logitrack.io")
     private String email;
 
     @Schema(description = "User's role in the system", example = "ADMIN",

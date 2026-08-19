@@ -15,7 +15,7 @@ import lombok.Setter;
 public class ForgotPasswordRequest {
 
     @Schema(description = "Registered email address to send the reset link to",
-            example = "jane@stockmaster.io",
+            example = "jane@logitrack.io",
             requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")

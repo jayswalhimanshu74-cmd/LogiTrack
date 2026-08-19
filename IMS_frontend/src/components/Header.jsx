@@ -15,7 +15,7 @@ const Header = ({ workspaceName = "Overview", title = "Inventory Workspace Overv
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
-    const email = localStorage.getItem("userEmail") || "admin@stockmaster.com";
+    const email = localStorage.getItem("userEmail") || "admin@logitrack.com";
     setUserEmail(email);
 
     const token = localStorage.getItem("authToken");

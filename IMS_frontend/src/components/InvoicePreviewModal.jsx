@@ -119,12 +119,12 @@ const InvoicePreviewModal = ({ isOpen, onClose, invoice }) => {
             <div>
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-lg bg-premium-gradient flex items-center justify-center text-white font-extrabold text-xs shadow-sm">LT</div>
-                <span className="text-base font-extrabold text-slate-900 tracking-tight">StockMaster IMS</span>
+                <span className="text-base font-extrabold text-slate-900 tracking-tight">LogiTrack IMS</span>
               </div>
               <p className="text-[11px] text-slate-400 mt-2 font-medium leading-relaxed">
                 100 Enterprise Way, Suite 400<br />
                 Silicon Valley, CA 94025<br />
-                support@StockMaster.com
+                support@LogiTrack.com
               </p>
             </div>
             
