@@ -1,0 +1,13 @@
+node_modules
+IMS_frontend
+.git
+.github
+.vscode
+screenshots
+*.png
+*.html
+demo.json
+schema.sql
+target
+IMS_backend/target
+

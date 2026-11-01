@@ -91,14 +91,14 @@ const Login = () => {
 
                     {/* Top Header */}
                     <div className="relative z-10">
-                        <div className="flex items-center gap-2">
-                            <div className="w-10 h-10 bg-premium-gradient rounded-lg flex items-center justify-center shadow-md shadow-primary/20">
+                        <Link to="/" className="inline-flex items-center gap-2 group cursor-pointer hover:opacity-90 transition-opacity">
+                            <div className="w-10 h-10 bg-premium-gradient rounded-lg flex items-center justify-center shadow-md shadow-primary/20 group-hover:scale-105 transition-transform">
                                 <span className="material-symbols-outlined text-on-primary text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
                                     inventory_2
                                 </span>
                             </div>
                             <h1 className="text-2xl text-gradient font-bold tracking-tight">LogiTrack</h1>
-                        </div>
+                        </Link>
                     </div>
 
                     {/* Illustration Container */}
@@ -130,14 +130,14 @@ const Login = () => {
                 <section className="w-full md:w-1/2 flex items-center justify-center p-4 md:p-10 bg-white">
                     <div className="w-full max-w-[420px] animate-fade-in">
                         {/* Mobile Logo (Hidden on Desktop) */}
-                        <div className="md:hidden flex items-center gap-2 mb-8">
-                            <div className="w-8 h-8 bg-premium-gradient rounded flex items-center justify-center shadow-sm">
+                        <Link to="/" className="md:hidden inline-flex items-center gap-2 mb-8 group cursor-pointer hover:opacity-90 transition-opacity">
+                            <div className="w-8 h-8 bg-premium-gradient rounded flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
                                 <span className="material-symbols-outlined text-on-primary text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>
                                     inventory_2
                                 </span>
                             </div>
                             <span className="text-xl text-gradient font-bold">LogiTrack</span>
-                        </div>
+                        </Link>
 
                         <div className="mb-12">
                             <h3 className="text-3xl text-on-surface mb-2 font-bold">Welcome Back</h3>
@@ -244,7 +244,7 @@ const Login = () => {
                         <div className="mt-12 pt-8 border-t border-outline-variant/30 flex flex-col items-center gap-6">
                             <p className="text-base text-on-surface-variant">
                                 Don't have an account?{" "}
-                                <Link className="text-primary font-bold hover:underline decoration-2 underline-offset-4 transition-all" to="/">
+                                <Link className="text-primary font-bold hover:underline decoration-2 underline-offset-4 transition-all" to="/register">
                                     Register Now
                                 </Link>
                             </p>

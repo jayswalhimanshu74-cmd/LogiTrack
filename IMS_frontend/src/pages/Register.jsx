@@ -105,14 +105,14 @@ const Register = () => {
                 {/* Left Side: Illustration & Branding (Desktop) */}
                 <section className="hidden md:flex w-1/2 flex-col justify-between p-10 mesh-gradient-bg relative overflow-hidden">
                     <div className="relative z-10">
-                        <div className="flex items-center gap-2">
-                            <div className="w-10 h-10 premium-gradient rounded-lg flex items-center justify-center shadow-lg shadow-primary/20">
+                        <Link to="/" className="inline-flex items-center gap-2 group cursor-pointer hover:opacity-90 transition-opacity">
+                            <div className="w-10 h-10 premium-gradient rounded-lg flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform">
                                 <span className="material-symbols-outlined text-white text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
                                    inventory_2
                                 </span>
                             </div>
                             <h1 className="text-2xl font-bold text-gradient tracking-tight">LogiTrack</h1>
-                        </div>
+                        </Link>
                     </div>
 
                     <div className="flex-grow flex flex-col justify-center items-center relative z-10 py-12">
@@ -147,14 +147,14 @@ const Register = () => {
                 <section className="w-full md:w-1/2 flex items-center justify-center p-4 md:p-10 bg-white">
                     <div className="w-full max-w-[420px] animate-fade-in">
                         {/* Mobile Branding (Hidden on Desktop) */}
-                        <div className="md:hidden flex items-center gap-2 mb-12">
-                            <div className="w-8 h-8 premium-gradient rounded-lg flex items-center justify-center">
+                        <Link to="/" className="md:hidden inline-flex items-center gap-2 mb-12 group cursor-pointer hover:opacity-90 transition-opacity">
+                            <div className="w-8 h-8 premium-gradient rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
                                 <span className="material-symbols-outlined text-white text-base" style={{ fontVariationSettings: "'FILL' 1" }}>
                                     hub
                                 </span>
                             </div>
                             <h1 className="text-2xl font-bold text-primary">LogiTrack</h1>
-                        </div>
+                        </Link>
 
                         <div className="mb-8">
                             <h2 className="text-3xl text-on-surface mb-2 font-bold">Create Enterprise Account</h2>
